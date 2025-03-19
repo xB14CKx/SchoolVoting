@@ -31,7 +31,7 @@
                     <ul class="header_menu">  
                         <li><a href="#"><p class="ui text size-textxs">About</p></a></li>
                         <li><a href="#"><p class="ui text size-textxs">Contact</p></a></li>
-                        <li><a href="#"><p class="ui text size-textxs">Login</p></a></li>
+                        <li><a href="{{ route('login') }}"><p class="ui text size-textxs">Login</p></a></li>
                     </ul>
                 </header>
 

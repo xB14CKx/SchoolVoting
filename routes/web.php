@@ -7,6 +7,10 @@ Route::get('/', function () {
     return view('landing');
 });
 
+Route::get('/login', function () {
+    return view('login');  // Your custom Blade file
+})->name('login');
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
