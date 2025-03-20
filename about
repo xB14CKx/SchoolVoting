@@ -1,0 +1,372 @@
+<style>
+  /* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    "Inria Sans",
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+}
+
+/* About page container */
+.about-page {
+  background-color: rgba(247, 189, 3, 1);
+  overflow: hidden;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 825px;
+  width: 100%;
+  padding-bottom: 45px;
+  align-items: center;
+}
+
+@media (max-width: 991px) {
+  .page-container {
+    max-width: 100%;
+  }
+}
+
+/* Background image */
+.background-image {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Header and navigation */
+.main-header {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.79);
+  align-self: stretch;
+  display: flex;
+  width: 100%;
+  padding: 16px 80px;
+  align-items: stretch;
+  font-family:
+    "Istok Web",
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 20px;
+  color: rgba(255, 255, 255, 1);
+  font-weight: 400;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.main-nav {
+  display: flex;
+  gap: 92px;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 1);
+  text-decoration: none;
+  padding: 0 20px;
+}
+
+.login {
+  align-self: start;
+}
+
+@media (max-width: 991px) {
+  .main-header {
+    max-width: 100%;
+    margin-right: -6px;
+    padding: 16px 20px;
+    white-space: initial;
+  }
+
+  .main-nav {
+    gap: 40px;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .nav-link {
+    padding: 0 10px;
+  }
+}
+
+/* Page title */
+.page-title {
+  position: relative;
+  color: #000;
+  text-align: center;
+  text-shadow:
+    0px 8px 12px rgba(0, 0, 0, 0.15),
+    0px 4px 4px rgba(0, 0, 0, 0.3);
+  font-family:
+    "Inter",
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 48px;
+  font-weight: 900;
+  margin-top: 18px;
+}
+
+@media (max-width: 991px) {
+  .page-title {
+    font-size: 40px;
+  }
+}
+
+/* Content section */
+.content-section {
+  position: relative;
+  width: 100%;
+  max-width: 1222px;
+}
+
+@media (max-width: 991px) {
+  .content-section {
+    max-width: 100%;
+  }
+}
+
+.content-columns {
+  gap: 20px;
+  display: flex;
+}
+
+@media (max-width: 991px) {
+  .content-columns {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0px;
+  }
+}
+
+.content-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  line-height: normal;
+  width: 50%;
+}
+
+.content-column:nth-child(2) {
+  margin-left: 20px;
+}
+
+@media (max-width: 991px) {
+  .content-column {
+    width: 100%;
+  }
+
+  .content-column:nth-child(2) {
+    margin-left: 0;
+  }
+}
+
+/* System description */
+.system-description {
+  box-shadow:
+    0px 8px 12px 6px rgba(0, 0, 0, 0.15),
+    0px 4px 4px 0px rgba(0, 0, 0, 0.3);
+  background-color: rgba(175, 146, 29, 0.5);
+  position: relative;
+  flex-grow: 1;
+  padding: 58px 46px;
+  font-family:
+    "Inria Sans",
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 31px;
+  color: rgba(0, 0, 0, 1);
+  font-weight: 300;
+  text-align: center;
+  width: 100%;
+}
+
+.college-name {
+  font-weight: 400;
+}
+
+.system-name {
+  font-weight: 700;
+}
+
+@media (max-width: 991px) {
+  .system-description {
+    max-width: 100%;
+    margin-top: 22px;
+    padding: 58px 20px;
+  }
+}
+
+/* Rules and regulations */
+.rules-regulations {
+  box-shadow:
+    0px 8px 12px 6px rgba(0, 0, 0, 0.15),
+    0px 4px 4px 0px rgba(0, 0, 0, 0.3);
+  background-color: rgba(175, 146, 29, 0.5);
+  position: relative;
+  flex-grow: 1;
+  padding: 36px 14px;
+  font-family:
+    "Inria Sans",
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 17px;
+  color: rgba(0, 0, 0, 1);
+  font-weight: 300;
+  width: 100%;
+}
+
+.rules-title {
+  font-weight: 700;
+  font-size: 26px;
+  line-height: 31px;
+}
+
+.rule-heading {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+  display: inline;
+}
+
+.rule-text {
+  font-size: 20px;
+  line-height: 23px;
+  display: inline;
+}
+
+@media (max-width: 991px) {
+  .rules-regulations {
+    max-width: 100%;
+    margin-top: 22px;
+    padding: 36px 20px 36px 14px;
+  }
+}
+
+  </style>
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About - CSG Election System</title>
+    <link rel="stylesheet" href="about.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Istok+Web&family=Inria+Sans:wght@300;400;700&family=Inter:wght@900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="about-page">
+      <div class="page-container">
+        <img
+          src="https://cdn.builder.io/api/v1/image/assets/TEMP/5143e288166244e6b744336078167795d59d19ba?placeholderIfAbsent=true&apiKey=e0f71086e53c475a8c972a54eb6dce84"
+          class="background-image"
+          alt="Background image"
+        />
+
+        <header class="main-header">
+          <nav class="main-nav">
+            <a href="#" class="nav-link">About</a>
+            <a href="#" class="nav-link">Contact</a>
+            <a href="#" class="nav-link login">Login</a>
+          </nav>
+        </header>
+
+        <br>
+        <h1 class="page-title">ABOUT</h1>
+        <hr>
+        <br>
+
+        <section class="content-section">
+          <div class="content-columns">
+            <section class="content-column">
+              <article class="system-description">
+                The
+                <span class="college-name">College of Computing Education</span>
+                <span class="system-name">CSG Election System</span>
+                is a digital platform ensuring fair, transparent, and efficient
+                student elections. It eliminates manual vote counting, reduces
+                errors, and prevents fraud. Secure voter authentication,
+                anonymity, and real-time tallying uphold electoral integrity.
+                With a user-friendly interface, students can easily vote,
+                fostering active participation in college leadership.
+                <br />
+              </article>
+            </section>
+
+            <section class="content-column">
+              <article class="rules-regulations">
+                <h2 class="rules-title">Rules and Regulations for Voting</h2>
+                <br />
+                <br />
+                <h3 class="rule-heading">Eligibility:</h3>
+                <p class="rule-text">
+                  Only officially enrolled College of Computing Education
+                  students can vote. Voter identity must be verified before
+                  access to the ballot.
+                </p>
+                <br />
+                <br />
+                <h3 class="rule-heading">One-Person, One-Vote:</h3>
+                <p class="rule-text">
+                  Each student may vote only once per election. Duplicate votes
+                  are automatically prevented.
+                </p>
+                <br />
+                <br />
+                <h3 class="rule-heading">Voting Period:</h3>
+                <p class="rule-text">
+                  Votes are only accepted within the designated timeframe; late
+                  submissions are not allowed.
+                </p>
+                <br />
+                <br />
+                <h3 class="rule-heading">Confidentiality:</h3>
+                <p class="rule-text">
+                  Votes remain anonymous to ensure fairness and prevent bias.
+                </p>
+                <br />
+                <br />
+                <h3 class="rule-heading">Fair Play:</h3>
+                <p class="rule-text">
+                  Vote manipulation (coercion, bribery, or tampering) is
+                  strictly prohibited and may lead to disqualification or legal
+                  action.
+                </p>
+                <br />
+                <br />
+                <h3 class="rule-heading">Final Results:</h3>
+                <p class="rule-text">
+                  Election results are system-generated, final, and cannot be
+                  changed.
+                </p>
+              </article>
+            </section>
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
