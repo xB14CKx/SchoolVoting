@@ -64,7 +64,7 @@ body {
 .landing {
     font-family: 'Poppins', sans-serif;
     font-weight: 400;
-    min-height: 100vh;
+    min-height: 91.9vh;
     background-color: var(--amber_500);
     width: 100%;
     position: relative;
@@ -88,17 +88,16 @@ body {
 }
 
 .row_one {
-    height: 729px;
+    height: auto;
     background-image: url("C:/xampp/htdocs/electionSystem/csglogo_nobg.png");
     background-size: cover;
     background-repeat: no-repeat;
     flex: 1;
     position: absolute;
     left: 0;
-    bottom: 0;
     right: 0;
     top: 0;
-    margin: auto;
+    margin-top: 150px;
 }
 
 @media only screen and (max-width: 1050px) {
