@@ -1,0 +1,421 @@
+<style>
+    /* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    "Inter",
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+}
+
+/* Main container */
+.election-container {
+  background-color: rgba(247, 189, 3, 1);
+  padding-right: 29px;
+  overflow: hidden;
+}
+
+/* Layout */
+.election-layout {
+  gap: 20px;
+  display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  line-height: normal;
+  width: 22%;
+  margin-left: 0px;
+}
+
+.sidebar-content {
+  background-color: rgba(175, 146, 29, 1);
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  width: 266px;
+  flex-shrink: 0;
+  max-width: 100%;
+  height: 832px;
+}
+
+/* Main content area */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  line-height: normal;
+  width: 78%;
+  margin-left: 20px;
+}
+
+.content-wrapper {
+  display: flex;
+  margin-top: auto;
+  margin-bottom: auto;
+  width: 100%;
+  flex-direction: column;
+  align-self: stretch;
+  align-items: stretch;
+  text-align: center;
+}
+
+/* Header section */
+.election-header {
+  display: flex;
+  margin-left: 20px;
+  margin-right: 18px;
+  width: 100%;
+  max-width: 903px;
+  align-items: stretch;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.election-title {
+  color: #ffdf61;
+  text-shadow:
+    0px 8px 12px rgba(0, 0, 0, 0.15),
+    0px 4px 4px rgba(0, 0, 0, 0.3);
+  font-family:
+    Inter,
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 36px;
+  font-style: italic;
+  font-weight: 900;
+}
+
+.school-year {
+  align-self: start;
+  display: flex;
+  margin-top: 12px;
+  align-items: stretch;
+  gap: 4px;
+  font-family:
+    "Istok Web",
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 20px;
+  color: rgba(0, 0, 0, 1);
+  font-weight: 700;
+}
+
+.calendar-icon {
+  aspect-ratio: 1;
+  object-fit: contain;
+  object-position: center;
+  width: 29px;
+  align-self: start;
+  margin-top: 5px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.year-text {
+  flex-basis: auto;
+  font-size: 20px;
+}
+
+/* Dividers */
+.divider {
+  border-color: rgba(0, 0, 0, 1);
+  border-style: solid;
+  border-width: 1px;
+  margin-top: 13px;
+  flex-shrink: 0;
+  height: 2px;
+  border-top: 1px solid black;
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
+}
+
+/* Role section */
+.role-title {
+  color: #000;
+  text-shadow:
+    0px 8px 12px rgba(0, 0, 0, 0.15),
+    0px 4px 4px rgba(0, 0, 0, 0.3);
+  font-family:
+    Inter,
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 28px;
+  font-style: italic;
+  font-weight: 900;
+  align-self: start;
+  margin-top: 15px;
+  margin-left: 24px;
+  text-align: left;
+}
+
+/* Candidate card */
+.candidate-card {
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 1);
+  border: 2px solid rgba(0, 0, 0, 1);
+  display: flex;
+  margin-top: 14px;
+  width: 221px;
+  max-width: 100%;
+  padding: 9px 37px 64px;
+  flex-direction: column;
+  align-items: stretch;
+  font-family:
+    Inter,
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 1);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.candidate-image {
+  aspect-ratio: 1;
+  object-fit: contain;
+  object-position: center;
+  width: 100%;
+  overflow: hidden;
+}
+
+.candidate-details {
+  align-self: center;
+  margin-top: 9px;
+}
+
+.vote-button {
+  margin-top: 16px;
+  padding: 8px 24px;
+  background-color: #2196f3;
+  border: 2px solid black;
+  border-radius: 6px;
+  font-family:
+    Inter,
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.vote-button:hover {
+  background-color: #45a049;
+  transform: translateY(-1px);
+}
+
+.vote-button:active {
+  transform: translateY(1px);
+}
+
+/* Submit section */
+.submit-section {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 200px;
+}
+
+.submit-button {
+  width: 210px;
+  padding: 12px 0;
+  background-color: #4caf50;
+  border: 2px solid black;
+  border-radius: 6px;
+  font-family:
+    Inter,
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.submit-button:hover {
+  background-color: #45a049;
+  transform: translateY(-1px);
+}
+
+.submit-button:active {
+  transform: translateY(1px);
+}
+
+/* Footer */
+.election-footer {
+  margin-top: 17px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.system-name {
+  color: rgba(0, 0, 0, 1);
+  font-size: 20px;
+  font-family:
+    "Istok Web",
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-weight: 700;
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 991px) {
+  .election-container {
+    padding-right: 20px;
+  }
+
+  .election-layout {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0px;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .sidebar-content {
+    margin-top: 40px;
+  }
+
+  .main-content {
+    width: 100%;
+  }
+
+  .content-wrapper {
+    max-width: 100%;
+    margin-top: 40px;
+  }
+
+  .election-header {
+    max-width: 100%;
+    margin-right: 10px;
+  }
+
+  .role-title {
+    margin-left: 10px;
+  }
+
+  .candidate-card {
+    padding-left: 20px;
+    padding-right: 20px;
+    white-space: initial;
+  }
+
+  .divider {
+    max-width: 100%;
+  }
+
+  .divider:last-of-type {
+    margin-top: 40px;
+  }
+
+  .submit-section {
+    margin-right: 10px;
+  }
+
+  .system-name {
+    margin-right: 10px;
+  }
+}
+
+</style>
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CSG Election System</title>
+    <link rel="stylesheet" href="elect-user-final.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Istok+Web:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="election-container" data-el="elect-user-final">
+      <div class="election-layout">
+        <aside class="sidebar">
+          <div class="sidebar-content"></div>
+        </aside>
+
+        <section class="main-content">
+          <div class="content-wrapper">
+            <header class="election-header">
+              <h1 class="election-title">Elect</h1>
+              <div class="school-year">
+                <img
+                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/b90b545bf16a8203398d10f13a587153479a4fc2?placeholderIfAbsent=true&apiKey=e0f71086e53c475a8c972a54eb6dce84"
+                  class="calendar-icon"
+                  alt="Calendar icon"
+                />
+                <h2 class="year-text">School Year 2025</h2>
+              </div>
+            </header>
+
+            <hr class="divider" />
+
+            <section class="role-section">
+              <h3 class="role-title">Role</h3>
+
+              <article class="candidate-card">
+                <img
+                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/cf9f37d0137c50716bcae49e6750601e18a4a7b9?placeholderIfAbsent=true&apiKey=e0f71086e53c475a8c972a54eb6dce84"
+                  class="candidate-image"
+                  alt="Candidate photo"
+                />
+                <p class="candidate-details">
+                  <span>Name</span>
+                  <br />
+                  <span>Program</span>
+                  <br />
+                  <span>Partylist</span>
+                </p>
+                <button class="vote-button">Vote</button>
+              </article>
+
+              <div class="submit-section">
+                <button class="submit-button">Submit Vote</button>
+              </div>
+            </section>
+
+            <hr class="divider" />
+
+            <footer class="election-footer">
+              <p class="system-name">CSG Election System</p>
+            </footer>
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
