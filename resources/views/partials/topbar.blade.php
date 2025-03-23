@@ -3,7 +3,7 @@
     /* Navigation Bar Styles */
     .navbar {
       width: 100%;
-      height: 60px;
+      height: 55px;
       display: flex;
       justify-content: flex-end;
       align-items: center;
@@ -21,7 +21,7 @@
     .nav-item a {
       color: #fff;
       font-family: "Istok Web", sans-serif;
-      font-size: 20px;
+      font-size: 15px;
       font-weight: 400;
       cursor: pointer;
       text-decoration: none;
@@ -51,7 +51,10 @@
           <a href="#contact"><i class="fa-solid fa-address-book"></i> &nbsp; Contact</a>
         </li>
         <li class="nav-item">
-            <a href="{{ route('login') }}"><i class="fa-solid fa-right-to-bracket"></i> &nbsp; Login</a>
+          <a href="{{ route('login') }}">
+            <i class="fa-solid fa-right-to-bracket"></i> &nbsp; 
+            <span style="color: #FFdF61;">Login</span>
+          </a>
         </li>
       </ul>
     </nav>

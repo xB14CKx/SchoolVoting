@@ -27,7 +27,8 @@
   @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans text-gray-900 antialiased">
-  <!-- Include your custom topbar for Guest Pages -->
+
+  <!-- custom topbar for Guest Pages -->
   @include('partials.topbar')
 
   <!-- Child content (your page HTML) goes here -->
