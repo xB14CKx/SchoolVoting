@@ -10,12 +10,6 @@ use Illuminate\Http\Request;
 
 class VoteController extends Controller
 {
-    // No need for constructor since middleware is applied in web.php
-    // public function __construct()
-    // {
-    //     $this->middleware('auth');
-    // }
-
     public function create(Election $election)
     {
         // Check if the election is open for voting

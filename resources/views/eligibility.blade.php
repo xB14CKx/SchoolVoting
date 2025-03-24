@@ -19,13 +19,23 @@
         <section class="eligibility-container">
           <div class="eligibility-wrapper">
             <h2 class="eligibility-title">Check Eligibility</h2>
-            <form class="eligibility-form">
+            <form class="eligibility-form" method="POST" action="{{ route('eligibility.check') }}">
+              @csrf
               <label for="student-id" class="form-label">ID Number</label>
               <div class="input-wrapper">
-                <input type="text" id="student-id" placeholder="Student Number" class="student-input">
+                <input type="text" id="student-id" name="student_id" placeholder="Student Number" class="student-input" value="{{ old('student_id') }}">
+                @error('student_id')
+                    <div class="message error">{{ $message }}</div>
+                @enderror
               </div>
               <button type="submit" class="check-button">CHECK ELIGIBILITY</button>
             </form>
+            @if (session('success'))
+                <div class="message success">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="message error">{{ session('error') }}</div>
+            @endif
           </div>
         </section>
     </div>
