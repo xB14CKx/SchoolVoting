@@ -4,14 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function index()
     {
         $users = User::all();
@@ -29,13 +25,18 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|string|max:255',
+            'role' => 'required|in:admin,voter', // Restrict to specific roles
         ]);
 
-        $validated['password'] = bcrypt($validated['password']);
-        User::create($validated);
+        try {
+            $validated['password'] = Hash::make($validated['password']);
+            User::create($validated);
 
-        return redirect()->route('users.index')->with('success', 'User created successfully.');
+            return redirect()->route('users.index')->with('success', 'User created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('users.create')
+                ->with('error', 'Failed to create user: ' . $e->getMessage());
+        }
     }
 
     public function show(User $user)
@@ -51,26 +52,52 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        // Prevent updating the currently authenticated user (optional)
+        if ($user->id === auth()->id()) {
+            return redirect()->route('users.index')
+                ->with('error', 'You cannot update your own account through this interface.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'password' => 'nullable|string|min:8|confirmed',
+            'role' => 'required|in:admin,voter', // Allow updating the role
         ]);
 
-        if ($request->filled('password')) {
-            $validated['password'] = bcrypt($validated['password']);
-        } else {
-            unset($validated['password']);
+        try {
+            if ($request->filled('password')) {
+                $validated['password'] = Hash::make($validated['password']);
+            } else {
+                unset($validated['password']);
+            }
+
+            $user->update($validated);
+
+            return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('users.edit', $user)
+                ->with('error', 'Failed to update user: ' . $e->getMessage());
         }
-
-        $user->update($validated);
-
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)
     {
-        $user->delete();
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        // Prevent deleting the currently authenticated user (optional)
+        if ($user->id === auth()->id()) {
+            return redirect()->route('users.index')
+                ->with('error', 'You cannot delete your own account through this interface.');
+        }
+
+        try {
+            // Delete the user's votes before deleting the user
+            $user->votes()->delete();
+
+            $user->delete();
+            return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('users.index')
+                ->with('error', 'Failed to delete user: ' . $e->getMessage());
+        }
     }
 }

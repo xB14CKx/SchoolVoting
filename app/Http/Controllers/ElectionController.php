@@ -7,10 +7,11 @@ use Illuminate\Http\Request;
 
 class ElectionController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+    // No need for constructor since middleware is applied in web.php
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    // }
 
     public function index()
     {
@@ -26,12 +27,17 @@ class ElectionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1) . '|unique:elections,year',
         ]);
 
-        Election::create($validated);
+        try {
+            Election::create($validated);
 
-        return redirect()->route('elections.index')->with('success', 'Election created successfully.');
+            return redirect()->route('elections.index')->with('success', 'Election created successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('elections.create')
+                ->with('error', 'Failed to create election: ' . $e->getMessage());
+        }
     }
 
     public function show(Election $election)
@@ -48,17 +54,30 @@ class ElectionController extends Controller
     public function update(Request $request, Election $election)
     {
         $validated = $request->validate([
-            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
+            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1) . '|unique:elections,year,' . $election->id,
         ]);
 
-        $election->update($validated);
+        try {
+            $election->update($validated);
 
-        return redirect()->route('elections.index')->with('success', 'Election updated successfully.');
+            return redirect()->route('elections.index')->with('success', 'Election updated successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('elections.edit', $election)
+                ->with('error', 'Failed to update election: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Election $election)
     {
-        $election->delete();
-        return redirect()->route('elections.index')->with('success', 'Election deleted successfully.');
+        try {
+            // Detach all candidates from the election before deleting
+            $election->candidates()->detach();
+
+            $election->delete();
+            return redirect()->route('elections.index')->with('success', 'Election deleted successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('elections.index')
+                ->with('error', 'Failed to delete election: ' . $e->getMessage());
+        }
     }
 }

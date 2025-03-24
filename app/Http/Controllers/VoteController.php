@@ -9,13 +9,20 @@ use Illuminate\Http\Request;
 
 class VoteController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
+    // No need for constructor since middleware is applied in web.php
+    // public function __construct()
+    // {
+    //     $this->middleware('auth');
+    // }
 
     public function create(Election $election)
     {
+        // Check if the election is open for voting
+        if (!$this->isElectionOpen($election)) {
+            return redirect()->route('elections.show', $election)
+                ->with('error', 'This election is not currently open for voting.');
+        }
+
         $candidates = $election->candidates;
         return view('votes.create', compact('election', 'candidates'));
     }
@@ -24,9 +31,22 @@ class VoteController extends Controller
     {
         $user = auth()->user();
 
+        // Check if the user is eligible to vote (e.g., role-based)
+        if ($user->role !== 'voter') { // Adjust based on your role system
+            return redirect()->route('elections.show', $election)
+                ->with('error', 'You are not eligible to vote in this election.');
+        }
+
+        // Check if the election is open for voting
+        if (!$this->isElectionOpen($election)) {
+            return redirect()->route('elections.show', $election)
+                ->with('error', 'This election is not currently open for voting.');
+        }
+
         // Check if the user has already voted in this election
         if ($user->votes()->where('election_id', $election->id)->exists()) {
-            return redirect()->route('elections.show', $election)->with('error', 'You have already voted in this election.');
+            return redirect()->route('elections.show', $election)
+                ->with('error', 'You have already voted in this election.');
         }
 
         $validated = $request->validate([
@@ -35,16 +55,38 @@ class VoteController extends Controller
 
         // Ensure the candidate is part of this election
         if (!$election->candidates()->where('candidates.id', $validated['candidate_id'])->exists()) {
-            return redirect()->route('elections.show', $election)->with('error', 'Invalid candidate for this election.');
+            return redirect()->route('elections.show', $election)
+                ->with('error', 'Invalid candidate for this election.');
         }
 
-        // Record the vote
-        Vote::create([
-            'election_id' => $election->id,
-            'candidate_id' => $validated['candidate_id'],
-            'user_id' => $user->id,
-        ]);
+        try {
+            // Record the vote
+            Vote::create([
+                'election_id' => $election->id,
+                'candidate_id' => $validated['candidate_id'],
+                'user_id' => $user->id,
+            ]);
 
-        return redirect()->route('elections.show', $election)->with('success', 'Your vote has been recorded.');
+            return redirect()->route('elections.show', $election)
+                ->with('success', 'Your vote has been recorded.');
+        } catch (\Exception $e) {
+            return redirect()->route('votes.create', $election)
+                ->with('error', 'Failed to record your vote: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Check if the election is open for voting.
+     *
+     * @param Election $election
+     * @return bool
+     */
+    protected function isElectionOpen(Election $election)
+    {
+        // Adjust this logic based on your Election model (e.g., start_date and end_date fields)
+        $now = now();
+        return $election->status === 'open'; // Example: Check if status is 'open'
+        // Alternatively, if you have start_date and end_date:
+        // return $now->between($election->start_date, $election->end_date);
     }
 }

@@ -10,7 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PagesController;
 use Illuminate\Support\Facades\Route;
 
-// Guest Routes
+// Guest Routes (unauthenticated users)
 Route::middleware('guest')->group(function () {
     Route::get('/', [PagesController::class, 'home'])->name('home');
     Route::get('/about', [PagesController::class, 'about'])->name('about');
@@ -20,8 +20,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/registration', [PagesController::class, 'registration'])->name('registration');
 });
 
-// Authenticated Routes
+// Authenticated Routes (authenticated and verified users)
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Dashboard and User Info
     Route::get('/dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
     Route::get('/userinfo', [PagesController::class, 'userinfo'])->name('userinfo');
 
@@ -32,35 +33,42 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Election System Routes
     Route::resource('candidates', CandidateController::class)->names('candidates');
-    Route::resource('elections', ElectionController::class)->names('elections');
     Route::resource('users', UserController::class)->names('users')->middleware('admin');
 
-    // Election Candidates Routes
-    Route::get('elections/{election}/candidates/create', [ElectionCandidateController::class, 'create'])
-        ->name('election_candidates.create')
-        ->where(['election' => '[0-9]+']);
-    Route::post('elections/{election}/candidates', [ElectionCandidateController::class, 'store'])
-        ->name('election_candidates.store')
-        ->where(['election' => '[0-9]+']);
-    Route::delete('elections/{election}/candidates/{candidate}', [ElectionCandidateController::class, 'destroy'])
-        ->name('election_candidates.destroy')
-        ->where(['election' => '[0-9]+', 'candidate' => '[0-9]+']);
+    // Election-related Routes (grouped under elections/{election})
+    Route::prefix('elections')->name('elections.')->group(function () {
+        // Election Resource Routes
+        Route::resource('/', ElectionController::class)
+            ->parameters(['' => 'election']) // Map the resource parameter to 'election'
+            ->names('elections');
 
-    // Election Results Routes
-    Route::get('elections/{election}/results', [ElectionResultController::class, 'show'])
-        ->name('election_results.show')
-        ->where(['election' => '[0-9]+']);
-    Route::post('elections/{election}/results', [ElectionResultController::class, 'update'])
-        ->name('election_results.update')
-        ->where(['election' => '[0-9]+']);
+        // Nested Election Routes
+        Route::prefix('{election}')->whereNumber('election')->group(function () {
+            // Election Candidates Routes
+            Route::get('candidates/create', [ElectionCandidateController::class, 'create'])
+                ->name('candidates.create');
+            Route::post('candidates', [ElectionCandidateController::class, 'store'])
+                ->name('candidates.store');
+            Route::delete('candidates/{candidate}', [ElectionCandidateController::class, 'destroy'])
+                ->name('candidates.destroy')
+                ->whereNumber('candidate');
 
-    // Voting Routes
-    Route::get('elections/{election}/vote', [VoteController::class, 'create'])
-        ->name('votes.create')
-        ->where(['election' => '[0-9]+']);
-    Route::post('elections/{election}/vote', [VoteController::class, 'store'])
-        ->name('votes.store')
-        ->where(['election' => '[0-9]+']);
+            // Election Results Routes
+            Route::get('results', [ElectionResultController::class, 'show'])
+                ->name('results.show');
+            Route::post('results', [ElectionResultController::class, 'update'])
+                ->name('results.update')
+                ->middleware('admin'); // Restrict to admins
+
+            // Voting Routes
+            Route::get('vote', [VoteController::class, 'create'])
+                ->name('vote.create')
+                ->middleware('voter'); // Restrict to voters
+            Route::post('vote', [VoteController::class, 'store'])
+                ->name('vote.store')
+                ->middleware('voter'); // Restrict to voters
+        });
+    });
 });
 
 // Laravel Authentication Routes
