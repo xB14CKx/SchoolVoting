@@ -27,10 +27,9 @@
       aspect-ratio: 1;
       object-fit: contain;
       object-position: center;
-      width: 33px;
-      margin-top: 20px;
+      width: 29px;
+      margin-top: 22px;
       margin-right: 20px;
-      margin-bottom: 10px;
       overflow: hidden;
     }
     
@@ -40,7 +39,7 @@
       object-position: center;
       width: 25px;
       margin-right: 20px;
-      margin-top: 60px;
+      margin-top: 62px;
       overflow: hidden;
     }
     
@@ -60,8 +59,8 @@
       aspect-ratio: 1;
       object-fit: contain;
       object-position: center;
-      width: 22px;
-      margin-top: 64px;
+      width: 25px;
+      margin-top: 66px;
       margin-right: 20px;
       margin-bottom: -99px;
       overflow: hidden;
@@ -70,24 +69,31 @@
     .heart-icon {
       color: white;
       font-size: 25px;
-      margin-top: 64px;
+      margin-top: 75px;
       margin-right: 20px;
       margin-bottom: -10px;
     }
 
-    .about-icon {
+   /* .about-icon {
     color: white;
-    font-size: 25px;
+    font-size: 18px;
     margin-right: 25px;
     margin-top: 170px;
     }
 
     .contact-icon {
     color: white;
-    font-size: 25px;
+    font-size: 18px;
     margin-right: 25px;
     margin-top: 64px;
-    }
+    } */
+
+    .logout-icon {
+    color: white;
+    font-size: 25px;
+    margin-right: 25px;
+    margin-top: 260px;
+    } 
     
     
     </style>
@@ -136,7 +142,7 @@
               alt="Settings icon"
             />
 
-            <i
+           <!-- <i
             class="fa-solid fa-circle-info about-icon"
             aria-hidden="true"
           ></i>
@@ -144,7 +150,10 @@
           <i
             class="fa-solid fa-address-book contact-icon"
             aria-hidden="true"
-          ></i>
+          ></i> -->
+
+          <i class="fa-solid fa-arrow-right-from-bracket logout-icon"
+          aria-hidden= "true"></i>
   
           </nav>
         </aside>
