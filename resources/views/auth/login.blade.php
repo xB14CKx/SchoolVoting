@@ -1,47 +1,64 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSG Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ asset('css/logIn.css') }}">
+</head>
+<body>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+  <!-- Background Image -->
+  <main class="content-container">
+    <figure class="image-container">
+      <img
+        src="https://cdn.builder.io/api/v1/image/assets/TEMP/814ddc42ba1128d4a4b8fb44f27005c2e9014d5d?placeholderIfAbsent=true&apiKey=aa78da9d1a8c4ca2babcebcf463f7106"
+        class="responsive-image"
+        alt="Featured image"
+      />
+    </figure>
+  </main>
+    
+  <!-- LogIn Field -->
+  <main class="login-container">
+    <div class="background-wrapper">
+      <div class="background-inner"></div>
+    </div>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+    <header class="form-header">
+      <h1 class="login-title">Login</h1>
+    </header>
+
+    <!-- Updated Form -->
+    <form class="form-fields" method="POST" action="{{ route('login') }}">
+      @csrf
+      <div class="input-field">
+        <input type="email" name="email" placeholder="Email" aria-label="Email" required />
+      </div>
+      <div class="input-field">
+        <input type="password" name="password" placeholder="Password" aria-label="Password" required />
+      </div>
+
+      <section class="form-actions">
+        <button type="submit" class="sign-in-button">Sign In</button>
+        <div class="remember-section">
+          <label class="remember-wrapper">
+            <input type="checkbox" name="remember" class="checkbox" aria-label="Remember me" />
+            <span>Remember me</span>
+          </label>
         </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
+      </section>
     </form>
-</x-guest-layout>
+
+    <footer class="register-section">
+      <p class="no-account">No account yet?</p>
+      <a href="#" class="register-link">Register now</a>
+    </footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

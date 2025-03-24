@@ -25,8 +25,8 @@
                             CSG ELECTION<br><span class="system_word">SYSTEM</span>
                         </h1>
                         <div class="landing_registration-row">
-                            <p class="landing_registration-text ui text size-textxs">No account yet?</p>
-                            <a href="{{ route('register') }}" class="landing_registration-link ui text size-textxs">Register Here!</a>
+                            <p class="landing_registration-text ui text size-textxs">First time voter?</p>
+                            <a href="{{ route('eligibility') }}" class="landing_registration-link ui text size-textxs">Check your eligiblity here!</a>
                         </div>
                     </div>
                 </div>
