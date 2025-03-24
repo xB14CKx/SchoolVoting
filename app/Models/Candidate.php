@@ -3,34 +3,57 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Candidate extends Model
 {
-    protected $fillable = ['first_name', 'last_name', 'year_level', 'program', 'image'];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
+    protected $fillable = ['position_id', 'first_name', 'last_name', 'year_level', 'program', 'image'];
 
-    // A candidate can participate in many elections
-    public function elections()
+    /**
+     * Get the position that the candidate is running for.
+     *
+     * @return BelongsTo
+     */
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(Position::class);
+    }
+
+    /**
+     * Get the elections that the candidate is participating in.
+     *
+     * @return BelongsToMany
+     */
+    public function elections(): BelongsToMany
     {
         return $this->belongsToMany(Election::class, 'election_candidates', 'candidate_id', 'election_id')
                     ->withTimestamps();
     }
 
-    // A candidate can have many votes
-    public function votes()
+    /**
+     * Get the votes cast for the candidate.
+     *
+     * @return HasMany
+     */
+    public function votes(): HasMany
     {
         return $this->hasMany(Vote::class, 'candidate_id');
     }
 
-    // A candidate can have many election results
-    public function electionResults()
+    /**
+     * Get the election results for the candidate.
+     *
+     * @return HasMany
+     */
+    public function electionResults(): HasMany
     {
         return $this->hasMany(ElectionResult::class, 'candidate_id');
     }
-
-    public function candidates()
-{
-    return $this->belongsToMany(Candidate::class, 'election_candidates', 'election_id', 'candidate_id')
-                ->withTimestamps()
-                ->using(ElectionCandidate::class);
-}
 }

@@ -8,6 +8,7 @@ use App\Http\Controllers\ElectionResultController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PagesController;
+use App\Http\Controllers\EligibilityController; // Add this import
 use Illuminate\Support\Facades\Route;
 
 // Guest Routes (unauthenticated users)
@@ -15,7 +16,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/', [PagesController::class, 'home'])->name('home');
     Route::get('/about', [PagesController::class, 'about'])->name('about');
     Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
-    Route::get('/eligibility', [PagesController::class, 'eligibility'])->name('eligibility');
+    Route::get('/eligibility', [EligibilityController::class, 'index'])->name('eligibility'); // Updated to use EligibilityController
+    Route::post('/eligibility', [EligibilityController::class, 'check'])->name('eligibility.check'); // Added POST route
     Route::get('/login', [PagesController::class, 'login'])->name('login');
     Route::get('/registration', [PagesController::class, 'registration'])->name('registration');
 });
@@ -39,7 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('elections')->name('elections.')->group(function () {
         // Election Resource Routes
         Route::resource('/', ElectionController::class)
-            ->parameters(['' => 'election']) // Map the resource parameter to 'election'
+            ->parameters(['' => 'election'])
             ->names('elections');
 
         // Nested Election Routes
@@ -58,15 +60,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('results.show');
             Route::post('results', [ElectionResultController::class, 'update'])
                 ->name('results.update')
-                ->middleware('admin'); // Restrict to admins
+                ->middleware('admin');
 
             // Voting Routes
             Route::get('vote', [VoteController::class, 'create'])
                 ->name('vote.create')
-                ->middleware('voter'); // Restrict to voters
+                ->middleware('voter');
             Route::post('vote', [VoteController::class, 'store'])
                 ->name('vote.store')
-                ->middleware('voter'); // Restrict to voters
+                ->middleware('voter');
         });
     });
 });

@@ -7,9 +7,28 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up()
     {
+        // Positions table
+        Schema::create('positions', function (Blueprint $table) {
+            $table->id();
+            $table->enum('name', [
+                'President',
+                'Vice President',
+                'Secretary',
+                'Treasurer',
+                'Auditor',
+                'Student PIO',
+                'Business Manager'
+            ])->unique();
+            $table->timestamps();
+
+            // Add table comment
+            $table->comment = 'Stores available positions for elections';
+        });
+
         // Candidates table
         Schema::create('candidates', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('position_id')->constrained()->onDelete('restrict'); // Link to positions table
             $table->string('first_name', 20);
             $table->string('last_name', 20);
             $table->enum('year_level', ['1st', '2nd', '3rd', '4th']);
@@ -17,12 +36,13 @@ return new class extends Migration {
             $table->string('image')->nullable(); // Changed from binary to string to store file path
             $table->timestamps();
 
-            // Optional: Add unique constraint on first_name and last_name
-            $table->unique(['first_name', 'last_name'], 'candidates_name_unique');
+            // Optional: Add unique constraint on first_name, last_name, and position_id
+            $table->unique(['first_name', 'last_name', 'position_id'], 'candidates_name_position_unique');
 
             // Add indexes for faster queries
             $table->index('program');
             $table->index('year_level');
+            $table->index('position_id');
 
             // Add table comment
             $table->comment = 'Stores candidate information for elections';
@@ -75,15 +95,17 @@ return new class extends Migration {
         Schema::create('votes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('election_id')->constrained()->onDelete('cascade');
+            $table->foreignId('position_id')->constrained()->onDelete('cascade'); // Added to track position
             $table->foreignId('candidate_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
 
-            // Add unique constraint to prevent duplicate votes
-            $table->unique(['election_id', 'user_id'], 'votes_election_user_unique');
+            // Add unique constraint to prevent duplicate votes per position in an election
+            $table->unique(['election_id', 'user_id', 'position_id'], 'votes_election_user_position_unique');
 
             // Add index for faster vote tallying
             $table->index(['election_id', 'candidate_id'], 'votes_election_candidate_index');
+            $table->index('position_id');
 
             // Add table comment
             $table->comment = 'Stores individual votes cast by users';
@@ -98,5 +120,6 @@ return new class extends Migration {
         Schema::dropIfExists('election_candidates');
         Schema::dropIfExists('elections');
         Schema::dropIfExists('candidates');
+        Schema::dropIfExists('positions'); // Added to drop the new table
     }
 };

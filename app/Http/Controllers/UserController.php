@@ -25,7 +25,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:admin,voter', // Restrict to specific roles
+            'role' => 'required|in:admin,student', // Restrict to specific roles
         ]);
 
         try {

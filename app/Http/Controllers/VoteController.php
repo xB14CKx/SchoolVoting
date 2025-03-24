@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VoteCast;
 use App\Models\Election;
 use App\Models\Candidate;
 use App\Models\Vote;
@@ -61,11 +62,27 @@ class VoteController extends Controller
 
         try {
             // Record the vote
-            Vote::create([
+            $vote = Vote::create([
                 'election_id' => $election->id,
                 'candidate_id' => $validated['candidate_id'],
                 'user_id' => $user->id,
             ]);
+
+            // Get the candidate and their position
+            $candidate = Candidate::findOrFail($validated['candidate_id']);
+            $positionId = $candidate->position_id; // Assumes a position_id field on the candidates table
+
+            // Calculate updated vote counts for all candidates in this position
+            $candidates = Candidate::where('position_id', $positionId)
+                ->withCount('votes')
+                ->get();
+
+            $candidateVotes = $candidates->mapWithKeys(function ($candidate) {
+                return [$candidate->id => $candidate->votes_count];
+            })->toArray();
+
+            // Broadcast the updated vote counts
+            event(new VoteCast($positionId, $candidateVotes));
 
             return redirect()->route('elections.show', $election)
                 ->with('success', 'Your vote has been recorded.');
