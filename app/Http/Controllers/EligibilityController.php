@@ -52,32 +52,27 @@ class EligibilityController extends Controller
                 throw new \Exception('The eligibility file (students.xlsx) is missing in storage/app/excel/. Please contact the administrator.');
             }
 
-            // Cache eligible student IDs for 24 hours
-            $eligibleStudentIds = Cache::remember('eligible_student_ids', 60 * 60 * 24, function () use ($absolutePath) {
-                // Import the Excel file using the absolute path
-                $students = Excel::toCollection(new StudentsImport, $absolutePath);
+            // Load the Excel file into a collection
+            $students = Excel::toCollection(new StudentsImport, $absolutePath);
 
-                // Log the raw data for debugging
-                Log::info('Raw Excel data', ['students' => $students->toArray()]);
+            // Log the raw data for debugging
+            Log::info('Raw Excel data', ['students' => $students->toArray()]);
 
-                // Flatten and ensure IDs are strings (first column)
-                $studentIds = $students->flatten()->map(function ($id) {
-                    return (string) $id;
-                })->filter()->values()->all();
+            // Create an instance of StudentsImport to use the checkStudentId method
+            $import = new StudentsImport();
 
-                // Log the processed student IDs
-                Log::info('Processed student IDs', ['student_ids' => $studentIds]);
-
-                return $studentIds;
-            });
-
-            // Check eligibility
-            $isEligible = in_array($validated['student_id'], $eligibleStudentIds);
+            // Check if the student ID exists in the Excel file (skipping the first row)
+            $isEligible = Cache::remember(
+                "eligible_student_id_{$validated['student_id']}",
+                60 * 60 * 24, // Cache for 24 hours
+                function () use ($import, $students, $validated) {
+                    return $import->checkStudentId($students->first(), $validated['student_id']);
+                }
+            );
 
             // Log the eligibility check result
             Log::info('Eligibility check', [
                 'student_id' => $validated['student_id'],
-                'eligible_student_ids' => $eligibleStudentIds,
                 'is_eligible' => $isEligible,
             ]);
 
@@ -98,6 +93,83 @@ class EligibilityController extends Controller
             // Return a user-friendly error message
             return redirect()->route('eligibility')
                 ->with('error', 'Failed to check eligibility: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Check eligibility for multiple student IDs in batch.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkBatch(Request $request)
+    {
+        // Validate the input student IDs (expecting an array)
+        $validated = $request->validate([
+            'student_ids' => 'required|array',
+            'student_ids.*' => 'required|string|max:255',
+        ]);
+
+        try {
+            // Define the file path relative to storage/app
+            $relativePath = 'excel/students.xlsx';
+            $absolutePath = storage_path('app/' . $relativePath);
+
+            // Log the paths and existence checks for debugging
+            Log::info('Checking file existence for batch', [
+                'relative_path' => $relativePath,
+                'absolute_path' => $absolutePath,
+                'exists_with_file' => file_exists($absolutePath),
+                'exists_with_storage' => Storage::disk('local')->exists($relativePath),
+            ]);
+
+            // Verify the file exists using the absolute path
+            if (!file_exists($absolutePath)) {
+                throw new \Exception('The eligibility file (students.xlsx) is missing in storage/app/excel/. Please contact the administrator.');
+            }
+
+            // Load the Excel file into a collection
+            $students = Excel::toCollection(new StudentsImport, $absolutePath);
+
+            // Log the raw data for debugging
+            Log::info('Raw Excel data for batch', ['students' => $students->toArray()]);
+
+            // Create an instance of StudentsImport to use the checkStudentIdsBatch method
+            $import = new StudentsImport();
+
+            // Check the student IDs in batch (using cache for the entire batch result)
+            $studentIds = $validated['student_ids'];
+            $cacheKey = 'eligible_student_ids_batch_' . md5(implode('_', $studentIds));
+            $results = Cache::remember(
+                $cacheKey,
+                60 * 60 * 24, // Cache for 24 hours
+                function () use ($import, $students, $studentIds) {
+                    return $import->checkStudentIdsBatch($students->first(), $studentIds);
+                }
+            );
+
+            // Log the batch eligibility check result
+            Log::info('Batch eligibility check', [
+                'student_ids' => $studentIds,
+                'results' => $results,
+            ]);
+
+            // Return the results as a JSON response
+            return response()->json([
+                'success' => true,
+                'results' => $results,
+            ]);
+        } catch (\Exception $e) {
+            // Log the error for debugging
+            Log::error('Batch eligibility check failed: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+
+            // Return an error response
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to check eligibility: ' . $e->getMessage(),
+            ], 500);
         }
     }
 }
