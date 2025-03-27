@@ -3,10 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\StudentsImport;
+use App\Models\Student; // Use the Student model to query the database
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 
 class EligibilityController extends Controller
@@ -35,38 +33,12 @@ class EligibilityController extends Controller
         ]);
 
         try {
-            // Define the file path relative to storage/app
-            $relativePath = 'excel/students.xlsx';
-            $absolutePath = storage_path('app/' . $relativePath);
-
-            // Log the paths and existence checks for debugging
-            Log::info('Checking file existence', [
-                'relative_path' => $relativePath,
-                'absolute_path' => $absolutePath,
-                'exists_with_file' => file_exists($absolutePath),
-                'exists_with_storage' => Storage::disk('local')->exists($relativePath),
-            ]);
-
-            // Verify the file exists using the absolute path
-            if (!file_exists($absolutePath)) {
-                throw new \Exception('The eligibility file (students.xlsx) is missing in storage/app/excel/. Please contact the administrator.');
-            }
-
-            // Load the Excel file into a collection
-            $students = Excel::toCollection(new StudentsImport, $absolutePath);
-
-            // Log the raw data for debugging
-            Log::info('Raw Excel data', ['students' => $students->toArray()]);
-
-            // Create an instance of StudentsImport to use the checkStudentId method
-            $import = new StudentsImport();
-
-            // Check if the student ID exists in the Excel file (skipping the first row)
+            // Check if the student exists in the database
             $isEligible = Cache::remember(
                 "eligible_student_id_{$validated['student_id']}",
                 60 * 60 * 24, // Cache for 24 hours
-                function () use ($import, $students, $validated) {
-                    return $import->checkStudentId($students->first(), $validated['student_id']);
+                function () use ($validated) {
+                    return Student::where('id', $validated['student_id'])->exists();
                 }
             );
 
@@ -111,40 +83,27 @@ class EligibilityController extends Controller
         ]);
 
         try {
-            // Define the file path relative to storage/app
-            $relativePath = 'excel/students.xlsx';
-            $absolutePath = storage_path('app/' . $relativePath);
-
-            // Log the paths and existence checks for debugging
-            Log::info('Checking file existence for batch', [
-                'relative_path' => $relativePath,
-                'absolute_path' => $absolutePath,
-                'exists_with_file' => file_exists($absolutePath),
-                'exists_with_storage' => Storage::disk('local')->exists($relativePath),
-            ]);
-
-            // Verify the file exists using the absolute path
-            if (!file_exists($absolutePath)) {
-                throw new \Exception('The eligibility file (students.xlsx) is missing in storage/app/excel/. Please contact the administrator.');
-            }
-
-            // Load the Excel file into a collection
-            $students = Excel::toCollection(new StudentsImport, $absolutePath);
-
-            // Log the raw data for debugging
-            Log::info('Raw Excel data for batch', ['students' => $students->toArray()]);
-
-            // Create an instance of StudentsImport to use the checkStudentIdsBatch method
-            $import = new StudentsImport();
-
-            // Check the student IDs in batch (using cache for the entire batch result)
+            // Check the student IDs in batch using the database
             $studentIds = $validated['student_ids'];
             $cacheKey = 'eligible_student_ids_batch_' . md5(implode('_', $studentIds));
             $results = Cache::remember(
                 $cacheKey,
                 60 * 60 * 24, // Cache for 24 hours
-                function () use ($import, $students, $studentIds) {
-                    return $import->checkStudentIdsBatch($students->first(), $studentIds);
+                function () use ($studentIds) {
+                    // Query the database for all matching student IDs
+                    $existingStudents = Student::whereIn('id', $studentIds)
+                        ->pluck('id')
+                        ->map(fn($id) => (string) $id)
+                        ->toArray();
+
+                    // Build the results array
+                    $results = [];
+                    foreach ($studentIds as $studentId) {
+                        $studentId = (string) $studentId;
+                        $results[$studentId] = in_array($studentId, $existingStudents);
+                    }
+
+                    return $results;
                 }
             );
 
