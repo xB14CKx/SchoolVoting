@@ -2,7 +2,13 @@
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/eligibility.css') }}">
+
+<script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 @endpush
+
+@if(request()->header('HX-Request'))
+    <link rel="stylesheet" href="{{ asset('css/eligibility.css') }}">
+@endif
 
 <x-guest-layout>
     <!-- BACKGROUND COLOR -->
