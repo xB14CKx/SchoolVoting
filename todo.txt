@@ -1,0 +1,6 @@
+upload excel file
+create new db table named students
+create imports for excel file to database
+population of data from excel to db students
+
+query using database

@@ -62,4 +62,36 @@ class StudentsImport implements ToCollection
 
         return $results;
     }
+
+    /**
+     * Fetch student details by ID (skipping the first row).
+     *
+     * @param  \Illuminate\Support\Collection  $rows
+     * @param  string  $studentId
+     * @return array|null
+     */
+    public function getStudentById(Collection $rows, string $studentId): ?array
+    {
+        // Skip the header row (first row)
+        $studentRow = $rows->slice(1)->firstWhere(function ($row) use ($studentId) {
+            return isset($row[0]) && (string) $row[0] === $studentId;
+        });
+
+        if (!$studentRow) {
+            return null;
+        }
+
+        // Map the row data to an associative array based on the Excel structure
+        return [
+            'student_id' => (string) ($studentRow[0] ?? ''),
+            'first_name' => $studentRow[1] ?? '',
+            'middle_initial' => $studentRow[2] ?? '',
+            'last_name' => $studentRow[3] ?? '',
+            'email' => $studentRow[4] ?? '',
+            'program' => $studentRow[5] ?? '',
+            'year_level' => $studentRow[6] ?? '',
+            'contact_number' => (string) ($studentRow[7] ?? ''),
+            'date_of_birth' => $studentRow[8] ?? '',
+        ];
+    }
 }
