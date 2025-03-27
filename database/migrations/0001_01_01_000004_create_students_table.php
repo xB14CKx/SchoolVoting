@@ -14,7 +14,7 @@ class CreateStudentsTable extends Migration
     public function up()
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->id(); // Auto-incrementing primary key (replacing ID)
+            $table->integer('id')->primary(); // Non-auto-incrementing primary key
             $table->string('first_name'); // FIRST NAME
             $table->string('middle_initial')->nullable(); // M.I. (nullable since it might not always be provided)
             $table->string('last_name'); // LAST NAME
