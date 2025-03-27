@@ -6,6 +6,13 @@
 />
 @endpush
 
+@if(request()->header('HX-Request'))
+    <hx:head>
+        <link rel="stylesheet" href="{{ asset('css/registration.css') }}">
+    </hx:head>
+@endif
+
+
 <x-guest-layout>
     
     <!-- BACKGROUND COLOR -->
