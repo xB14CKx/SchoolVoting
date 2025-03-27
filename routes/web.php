@@ -17,8 +17,9 @@ Route::middleware('guest')->group(function () {
     Route::get('/', [PagesController::class, 'home'])->name('home');
     Route::get('/about', [PagesController::class, 'about'])->name('about');
     Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
-    Route::get('/eligibility', [EligibilityController::class, 'index'])->name('eligibility'); // Updated to use EligibilityController
-    Route::post('/eligibility', [EligibilityController::class, 'check'])->name('eligibility.check'); // Added POST route
+    Route::get('/eligibility', [EligibilityController::class, 'index'])->name('eligibility');
+    Route::post('/eligibility/check', [EligibilityController::class, 'check'])->name('eligibility.check');
+    Route::post('/eligibility/check-batch', [EligibilityController::class, 'checkBatch'])->name('eligibility.checkBatch');
     Route::get('/login', [PagesController::class, 'login'])->name('login');
     Route::get('/registration', [PagesController::class, 'registration'])->name('registration');
 });
