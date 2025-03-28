@@ -36,11 +36,25 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-//main pages
+//main pages for USER
+
+Route::get('/result', function() {
+    return view('result');
+})->name('result');
+
+Route::get('/vote-counting', function() {
+    return view('vote-counting');
+})->name('vote-counting');
 
 Route::get('/userinfo', function() {
     return view('userinfo');
 })->name('userinfo');
+
+//main pages for ADMIN
+
+Route::get('/admin', function() {
+    return view('admin');
+})->name('admin');
 
 
 Route::middleware('auth')->group(function () {

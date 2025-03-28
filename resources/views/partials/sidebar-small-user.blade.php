@@ -4,10 +4,11 @@
       max-height: 737px;
       background-color: rgba(30, 30, 30, 0.71);
       overflow: hidden;
+      position: fixed;  
     }
     
     .sidebar-content {
-      display: flex;
+      display: flex; /*do this*/
       width: 115%;
       padding: 20px 19px 493px;
       flex-direction: column;
@@ -92,7 +93,7 @@
     color: white;
     font-size: 25px;
     margin-right: 25px;
-    margin-top: 260px;
+    margin-top: 240px;
     } 
     
     
@@ -119,28 +120,32 @@
             alt="Navigation icon"
           />
     
-            <i
-              class="fa-solid fa-heart-circle-check heart-icon"
-              aria-hidden="true"
-            ></i>
+          <a href="{{ url('/elect') }}">
+            <i class="fa-solid fa-heart-circle-check heart-icon" aria-hidden="true"></i>
+          </a>
             
-
-    
+          <a href="{{ url('/vote-counting') }}">
             <img
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/57708c2b7bf18a80cfb5c049ee5efbdd794c2ae8?placeholderIfAbsent=true&apiKey=ddaccfec04494b429f8d3267955938e3"
               class="utility-icon"
               alt="Utility icon"
             />
+          </a>
+          
+          <a href="{{ url('/result') }}">
             <img
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/6e88b81a2cf713f126372d0a85ff0787f282d218?placeholderIfAbsent=true&apiKey=ddaccfec04494b429f8d3267955938e3"
               class="utility-icon"
               alt="Utility icon"
             />
+          </a>
+          <a href="{{ url('/userinfo') }}">
             <img
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/85809c2382e35266a17338b3a5c79ad01ffb9ee6?placeholderIfAbsent=true&apiKey=ddaccfec04494b429f8d3267955938e3"
               class="settings-icon"
               alt="Settings icon"
             />
+          </a>
 
            <!-- <i
             class="fa-solid fa-circle-info about-icon"

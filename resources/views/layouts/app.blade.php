@@ -18,15 +18,11 @@
 </head>
 <body class="font-sans antialiased bg-gray-100">
 
-  {{-- 1) Topbar up top --}}
-{{--  @include('partials.topbar-user')--}}
 
-  {{-- 2) Flex container for sidebar + main content --}}
+  {{-- sidebar-small-user--}}
   <div class="flex min-h-screen">
     {{-- The sidebar on the left --}}
     @include('partials.sidebar-small-user')
-
-    {{-- The main content area takes remaining space --}}
     <div class="flex-1">
       {{ $slot }}
     </div>
