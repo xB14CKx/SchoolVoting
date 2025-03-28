@@ -1,208 +1,218 @@
+/* Prevent scrolling on the entire page */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh; /* Full viewport height */
+  overflow: hidden; /* Prevent scrolling */
+}
+
 /* HEADER TAB */
 .navbar {
-    width: 100%;
-    height: 60px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.8);
-    position: absolute; 
-    top: 0;
-    left: 0;
-    z-index: 10;
-  }
-  
+  width: 100%;
+  height: clamp(40px, 5vh, 60px); /* Dynamic height */
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.nav-links {
+  display: flex;
+  gap: clamp(40px, 5vw, 94px); /* Dynamic gap */
+  margin-right: clamp(20px, 3vw, 36px); /* Dynamic margin */
+}
+
+.nav-link {
+  color: #fff;
+  font-family: "Istok Web", sans-serif;
+  font-size: clamp(16px, 2vw, 20px); /* Dynamic font size */
+  font-weight: 400;
+  cursor: pointer;
+  text-decoration: none;
+  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+}
+
+/* RESPONSIVENESS - HEADER */
+@media (max-width: 991px) {
   .nav-links {
-    display: flex;
-    gap: 94px;
-    margin-right: 36px;
+      gap: 40px;
+      margin-right: 20px;
   }
-  
-  .nav-link {
-    color: #fff;
-    font-family: "Istok Web", sans-serif;
-    font-size: 20px;
-    font-weight: 400;
-    cursor: pointer;
-    text-decoration: none;
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); 
+}
+
+@media (max-width: 640px) {
+  .nav-links {
+      display: none;
   }
-  
-  /* RESPONSIVENESS - HEADER */
-  @media (max-width: 991px) {
-    .nav-links {
-        gap: 40px;
-        margin-right: 20px;
-    }
-  }
-  
-  @media (max-width: 640px) {
-    .nav-links {
-        display: none;
-    }
-  }
-  
-  /* BACKGROUND COLOR */
-  .eligibility {
-    width: 100%;
-    height: 100vh;
-    background-color: #F7BD03;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: -1; 
-  }
-  
-  /* MAIN CONTENT CONTAINER */
+}
+
+/* BACKGROUND COLOR */
+.eligibility {
+  width: 100%;
+  height: 100vh;
+  background-color: #F7BD03;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+/* MAIN CONTENT CONTAINER */
+.content-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100vh;
+  padding-top: clamp(60px, 10vh, 100px); /* Dynamic padding */
+  position: relative;
+  z-index: 1;
+  margin-top: 0; /* Removed negative margin */
+  overflow: hidden; /* Prevent overflow */
+}
+
+/* IMAGE CONTAINER */
+.image-container {
+  margin-bottom: clamp(15px, 3vh, 20px); /* Dynamic margin */
+  width: 100%;
+  max-width: 280px;
+}
+
+.responsive-image {
+  object-fit: contain;
+  object-position: center;
+  width: 100%;
+  max-width: clamp(200px, 25vw, 280px); /* Dynamic width */
+}
+
+/* ELIGIBILITY CHECK COMPONENT STYLES */
+.eligibility-container {
+  width: 100%;
+  max-width: clamp(600px, 90vw, 900px); /* Dynamic width */
+  height: auto;
+  border-radius: 10px;
+  opacity: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #2E2E2E;
+  padding: clamp(20px, 4vw, 40px) clamp(15px, 2vw, 20px); /* Dynamic padding */
+  position: relative;
+  z-index: 2;
+}
+
+.eligibility-wrapper {
+  width: 100%;
+  max-width: clamp(500px, 80vw, 708px); /* Dynamic width */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.eligibility-title {
+  color: #fff;
+  opacity: 1;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(24px, 3vw, 36px); /* Dynamic font size */
+  font-weight: 800;
+  margin-bottom: clamp(20px, 3vh, 31px); /* Dynamic margin */
+  margin-top: 0;
+}
+
+.eligibility-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* FORM STYLES */
+.form-label {
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(16px, 2vw, 20px); /* Dynamic font size */
+  font-weight: 400;
+  margin-bottom: 10px;
+  align-self: flex-start;
+}
+
+.input-wrapper {
+  width: 100%;
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.student-input {
+  width: 100%;
+  height: clamp(40px, 5vh, 53px); /* Dynamic height */
+  padding: clamp(8px, 1.5vh, 12px) clamp(10px, 1.5vw, 16px); /* Dynamic padding */
+  border-radius: 4px;
+  border: 1px solid #fff;
+  color: #000;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(14px, 1.5vw, 16px); /* Dynamic font size */
+  font-weight: 400;
+  background-color: #fff;
+  box-sizing: border-box;
+  opacity: 1;
+}
+
+/* CHECK BUTTON STYLES */
+.check-button {
+  width: clamp(200px, 30vw, 252px); /* Dynamic width */
+  height: clamp(35px, 4vh, 42px); /* Dynamic height */
+  border-radius: 5px;
+  color: #fff;
+  font-family: "Inter", sans-serif;
+  font-size: clamp(14px, 1.5vw, 16px); /* Dynamic font size */
+  font-weight: 400;
+  border: none;
+  cursor: pointer;
+  margin-top: 15px;
+  background-color: #1e1e1e;
+  opacity: 1;
+}
+
+/* RESPONSIVENESS - ELIGIBILITY CHECK COMPONENT */
+@media (max-width: 991px) {
   .content-container {
-    display: flex;
-    flex-direction: column; 
-    justify-content: flex-start;
-    align-items: center; 
-    height: 100vh; 
-    padding-top: 100px;
-    position: relative; 
-    z-index: 1;
-    margin-top: -20px;
+      padding-top: clamp(50px, 8vh, 80px);
   }
-  
-  /* IMAGE CONTAINER */
+
   .image-container {
-    margin-bottom: 20px;
-    width: 100%;
-    max-width: 280px;
+      margin-bottom: clamp(20px, 3vh, 30px);
   }
-  
-  .responsive-image {
-    object-fit: contain;
-    object-position: center;
-    width: 100%;
-    max-width: 280px;
-  }
-  
-  /* ELIGIBILITY CHECK COMPONENT STYLES */
+
   .eligibility-container {
-    width: 100%;
-    max-width: 900px;
-    height: auto;
-    border-radius: 10px;
-    opacity: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #2E2E2E;
-    padding: 40px 20px;
-    position: relative; 
-    z-index: 2; 
+      width: 90%;
+      padding: clamp(15px, 3vw, 30px);
   }
-  
+
   .eligibility-wrapper {
-    width: 100%;
-    max-width: 708px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+      max-width: 100%;
   }
-  
+}
+
+@media (max-width: 640px) {
   .eligibility-title {
-    color: #fff; 
-    opacity: 1; 
-    font-family: "Inter", sans-serif;
-    font-size: 36px;
-    font-weight: 800;
-    margin-bottom: 31px;
-    margin-top: 0;
+      font-size: clamp(20px, 2.5vw, 28px);
   }
-  
-  .eligibility-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  /* FORM STYLES */
+
   .form-label {
-    color: #fff;
-    font-family: "Inter", sans-serif;
-    font-size: 20px;
-    font-weight: 400;
-    margin-bottom: 10px;
-    align-self: flex-start;
+      font-size: clamp(14px, 1.8vw, 18px);
   }
-  
-  .input-wrapper {
-    width: 100%;
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-  }
-  
+
   .student-input {
-    width: 100%;
-    height: 53px;
-    padding: 12px 16px;
-    border-radius: 4px;
-    border: 1px solid #fff;
-    color: #000;
-    font-family: "Inter", sans-serif;
-    font-size: 16px;
-    font-weight: 400;
-    background-color: #fff; 
-    box-sizing: border-box;
-    opacity: 1; 
+      height: clamp(35px, 4vh, 45px);
   }
-  
-  /* CHECK BUTTON STYLES */
+
   .check-button {
-    width: 252px;
-    height: 42px;
-    border-radius: 5px;
-    color: #fff;
-    font-family: "Inter", sans-serif;
-    font-size: 16px;
-    font-weight: 400;
-    border: none;
-    cursor: pointer;
-    margin-top: 15px;
-    background-color: #1e1e1e; 
-    opacity: 1;
+      width: 100%;
   }
-  
-  /* RESPONSIVENESS - ELIGIBILITY CHECK COMPONENT */
-  @media (max-width: 991px) {
-    .content-container {
-        padding-top: 80px;
-    }
-  
-    .image-container {
-        margin-bottom: 30px; 
-    }
-  
-    .eligibility-container {
-        width: 90%;
-        padding: 30px;
-    }
-  
-    .eligibility-wrapper {
-        max-width: 100%;
-    }
-  }
-  
-  @media (max-width: 640px) {
-    .eligibility-title {
-        font-size: 28px;
-    }
-  
-    .form-label {
-        font-size: 18px;
-    }
-  
-    .student-input {
-        height: 45px;
-    }
-  
-    .check-button {
-        width: 100%;
-    }
-  }
+}
