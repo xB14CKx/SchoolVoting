@@ -21,6 +21,7 @@
 <body class="font-sans antialiased bg-gray-100">
 
 
+{{-- Remove ni nga block of code John if naa na tay sessions --}}
   <div class="layout-wrapper">
     @include('partials.sidebar-small-user')
     @include('partials.sidebar-large-user')
@@ -29,6 +30,8 @@
       {{ $slot }}
     </main>
   </div>
+{{-- Until diri--}}
+  
 
   @stack('scripts')
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

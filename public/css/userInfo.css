@@ -8,7 +8,7 @@
     background-color: #f7bd03;
     top: 0;
     left: 0;
-    z-index: -1; 
+    z-index: 0; /* turn to zero para dili niya ma cover ang function sa buttons */
   }
   
   /* Background logo */
@@ -38,24 +38,24 @@ body {
   .user-info-title {
     color: #000000;
     text-align: left;
-    text-shadow:
-      0px 8px 12px rgba(0, 0, 0, 0.50),
-      0px 4px 4px rgba(0, 0, 0, 0.3);
     font-family: "Inter", sans-serif;
-    font-size: 36px;
+    font-size: 34px;
     font-style: bold;
     font-weight: 900;
-    margin-bottom: 14px;
+    margin-left:-270px;
+    margin-top: -50px;
   }
 
   .user-info-divider {
-    width: 1100px;
+    width: 185%;
+    height: 1.5px;
     background-color: #000;
     border: none;
     margin: 0;
-    padding: 0;
-    height: 3px; 
     opacity: 1;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    margin-left: -270px;
   }
 
   @media (max-width: 991px) {
@@ -94,14 +94,14 @@ body {
 
     .profile-container {
         max-width: none;
-        margin-left: auto;
-        margin-right: auto;
         display: flex;
-        justify-content: flex-end; 
+        justify-content: flex-start; 
         align-items: center;
         height: 100vh;
         padding: 20px;
         padding-right: 100px; 
+        margin-left: 250px;
+        margin-bottom: 20px;
     }
 
     .profile-wrapper {
@@ -200,10 +200,11 @@ body {
 /* My Candidates Conatiner and Footer */
 .candidate-container {
     width: 100%;
+    height: 350px;
     max-width: 1000px;
     margin: -380px auto 0 auto;
     position: relative;
-    margin-right: 100px;
+    margin-left: 290px;
   }
   
   .candidate-title {
@@ -224,34 +225,10 @@ body {
     margin: 0;
   }
   
-  .candidate-footer {
-    margin-top: 5px;
-    width: 1100px;
-            margin-left: 420px;
-  }
-  
-  .divider {
-    width: 100%;
-    height: 2px;
-    background-color: #000;
-    border: none;
-    margin: 0;
-    opacity: 1;
-  }
-  
-  .system-name {
-    color: #000;
-    font-family: "Inter", sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    text-align: right;
-    margin-top: 14px;
-    margin-bottom: 0;
-  }
   
   @media (max-width: 991px) {
     .candidate-container {
-      width: 90%;
+      width: 100%;
       margin: 0 auto;
     }
   
@@ -263,7 +240,7 @@ body {
   
   @media (max-width: 640px) {
     .candidate-container {
-      width: 95%;
+      width: 100%;
     }
   
     .candidate-title {

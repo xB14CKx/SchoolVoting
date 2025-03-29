@@ -38,6 +38,10 @@ Route::get('/dashboard', function () {
 
 //main pages for USER
 
+Route::get('/elect', function() {
+    return view('elect');
+})->name('elect');
+
 Route::get('/result', function() {
     return view('result');
 })->name('result');

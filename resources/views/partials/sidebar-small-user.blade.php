@@ -144,16 +144,6 @@
             <i class="fa-solid fa-user user-icon" aria-hidden="true"></i>
           </a>
 
-           <!-- <i
-            class="fa-solid fa-circle-info about-icon"
-            aria-hidden="true"
-          ></i>
-  
-          <i
-            class="fa-solid fa-address-book contact-icon"
-            aria-hidden="true"
-          ></i> -->
-
          <a href= "{{ url('/login') }}"><i class="fa-solid fa-arrow-right-from-bracket logout-icon"
           aria-hidden= "true"></i>
         </a> 
