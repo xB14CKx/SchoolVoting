@@ -1,0 +1,542 @@
+/* Page container */
+.page-container {
+    width: 100%;
+    min-height: 100vh;
+    position: relative; /* do this */
+    align-items: center;
+    background-color: #f7bd03;
+    top: 0;
+    left: 0;
+    z-index: 0; /* turn to zero para dili niya ma cover ang function sa buttons */
+  }
+  
+  .content-wrapper {
+    display: flex; /*do this*/
+    flex-direction: column;
+    position: relative;
+    min-height: 2300px; /* adjust lang ni depende unsa kataas ang needed sa page, so far mao ni sa admin */
+    width: 100%;
+    padding: 56px 80px;
+    align-items: flex-start;
+    z-index: 1; /* add ni para ma apply gihapon siya tas above siya sa background nato */
+  }
+
+  @media (max-width: 991px) {
+    .content-wrapper {
+      max-width: 100%;
+      padding: 56px 20px;
+    }
+  }
+
+  /* Background logo */
+  .background-logo {
+    position: fixed; /* do this */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+    mix-blend-mode: luminosity;
+  }
+
+/* Header Title and Divider */
+body {
+    font-family: "Inter", sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.admin-container {
+    width: 1400px;
+    position: relative;
+    padding-top: 76px;
+    padding-left: 150px;
+}
+
+.admin-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+    width: 100%;
+}
+
+.admin-title {
+    color: #000;
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    font-size: 34px;
+    font-weight: 900;
+    margin-top: -160px;
+    margin-left: -80px;
+    white-space: nowrap;
+}
+
+.school-year-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: #000;
+    font-weight: 700;
+    margin-left: auto;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    margin-top: -90px;
+    margin-right: 80px;
+}
+
+.button-text {
+    color: #000;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.chevron-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.action-button:hover .chevron-icon path {
+    stroke: #4B2E2E !important;
+}
+
+.action-button:hover .button-text {
+    color: #4B2E2E !important;
+}
+
+.school-year-text {
+    width: 130px;
+    object-fit: contain;
+}
+
+.admin-divider {
+    width: 103.4%;
+    height: 2px;
+    background-color: #000;
+    border: none;
+    margin: 0;
+    opacity: 1;
+    margin-top: -50px;
+    margin-bottom: 25px;
+    margin-left: -80px;
+}
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+}
+
+@media (max-width: 991px) {
+    .admin-container {
+        width: 90%;
+        padding-top: 40px;
+    }
+    .admin-title {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-container {
+        width: 95%;
+        padding-top: 30px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .admin-title {
+        font-size: 28px;
+    }
+    .school-year-wrapper {
+        margin-top: 8px;
+    }
+}
+
+/*School Year Dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: -65px; 
+    left: calc(12px - 5px); 
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: none;
+    list-style: none;
+    padding: 0;
+    width: 150px;
+    z-index: 10;
+}
+
+.dropdown-menu li {
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+}
+
+.dropdown-menu li:hover {
+    background: #f0f0f0;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+/* Card Details */
+.ballot-container {
+    border-radius: 0;
+    display: flex;
+    max-width: 330px;
+    align-items: stretch;
+    gap: 40px 100px;
+    font-family:
+      Inter,
+      -apple-system,
+      Roboto,
+      Helvetica,
+      sans-serif;
+    text-align: center;
+    position: relative;
+  }
+  
+  .ballot-content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .candidate-section {
+    padding-left: 13px;
+    white-space: nowrap;
+    position: relative;
+    width: 100%;
+  }
+  
+  .position-title {
+    color: #000;
+    font-size: 25px;
+    font-weight: 900;
+    margin-left: 80px;
+    text-align: left;
+  }
+
+  
+  .more-options-button {
+    position: absolute;
+    top: 10px;
+    right: 5px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .more-options-button svg path {
+    fill: #FFFFFF; 
+}
+
+.more-options-button:hover svg path {
+    fill: gold; 
+}
+
+.options-menu {
+    position: absolute;
+    top: 30px;
+    right: -60px;
+    background: black;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    width: 80px;
+    z-index: 10;
+}
+
+.hidden {
+    display: none;
+}
+
+.option-button {
+    background: none;
+    border: none;
+    padding: 10px;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    font-size: 11px;
+}
+
+.option-button:hover {
+    background: gold;
+}
+
+
+.candidate-grid {
+    display: grid;
+    flex-wrap: wrap;
+    grid-template-columns: repeat(5, 200px);
+    gap: 50px;       /* spacing between cards */
+    margin-top: 20px;
+  }
+  
+  /* Force each card to max out at 5 per row */
+  .candidate-card {    
+        display: flex;
+        gap: 20px;   
+        position: relative;
+        border-radius: 10px;
+        background-color: rgba(30, 30, 30, 0.71);
+        align-items: center;
+        margin-top: 13px;
+        padding: 10px 10px 20px 35px;
+        flex-direction: column;
+        font-size: 14px;
+        color: #fff;
+        font-weight: 600;
+        width: 200px;
+        height: 270px;
+        margin-left: 70px; 
+        margin-top: 20px;
+  }
+  
+  /* The plus button styling */
+  .add-candidate-button {
+    width: 200px;
+    height: 270px;
+    border: 2px dashed black; 
+    background: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 50px;
+    margin-left: 70px;
+  }
+  
+  .add-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  
+  .candidate-figure {
+    aspect-ratio: 1;
+    object-position: center;
+    width: 150px;
+    border-radius: 10px;
+    margin-top: 20px;
+    max-width: 100%;
+    padding-right: 5px;
+    margin-left: -15px;
+  }
+  
+  .candidate-details {
+    align-self: center;
+    margin-top: 9px;
+    margin-left: -11px;
+  }
+
+ 
+
+  .add-president {
+    width: 23px; 
+    height: auto;
+  }
+
+  .president-icon-button:hover .add-president {
+    opacity: 0.5 !important;
+}
+
+/* Vice President */
+  .vice-president-title {
+    margin-top: 270px;
+    position: absolute;
+    margin-left: 125px;
+    width: 184px;
+  }
+
+  .vice-icon-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: absolute;
+    width: 23px;
+    top: 142%;
+    margin-left: 170px;
+    z-index: 2;
+  }
+
+  .add-vice {
+    width: 23px; 
+    height: auto;
+    margin-top: 79px;
+  }
+
+  .vice-icon-button:hover .add-vice {
+    opacity: 0.5 !important;
+}
+
+/* Secretary */
+.secretary-title {
+    margin-top: 572px;
+    position: absolute;
+    margin-left: 125px;
+  }
+
+  .secretary-icon-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: absolute;
+    width: 23px;
+    top: 272%;
+    margin-left: 170px;
+    z-index: 2;
+  }
+
+  .add-secretary {
+    width: 23px; 
+    height: auto;
+    margin-top: 79px;
+  }
+
+  .secretary-icon-button:hover .add-secretary {
+    opacity: 0.5 !important;
+}
+
+/* Treasurer */
+.treasurer-title {
+    margin-top: 874px;
+    position: absolute;
+    margin-left: 125px;
+}
+
+.treasurer-icon-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: absolute;
+    width: 23px;
+    top: 401%;
+    margin-left: 170px;
+    z-index: 2;
+  }
+
+  .add-treasurer {
+    width: 23px; 
+    height: auto;
+    margin-top: 79px;
+  }
+
+  .treasurer-icon-button:hover .add-treasurer {
+    opacity: 0.5 !important;
+}
+
+/* Auditor */
+.auditor-title {
+    margin-top: 1176px;
+    position: absolute;
+    margin-left: 125px;
+}
+
+.auditor-icon-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: absolute;
+    width: 23px;
+    top: 531%;
+    margin-left: 170px;
+    z-index: 2;
+  }
+
+  .add-auditor {
+    width: 23px; 
+    height: auto;
+    margin-top: 79px;
+  }
+
+  .auditor-icon-button:hover .add-auditor {
+    opacity: 0.5 !important;
+}
+
+/* Student PIO */
+.PIO-title {
+    margin-top: 1478px;
+    position: absolute;
+    margin-left: 125px;
+    width: 150px;
+}
+
+.PIO-icon-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: absolute;
+    width: 23px;
+    top: 663%;
+    margin-left: 170px;
+    z-index: 2;
+  }
+
+  .add-PIO {
+    width: 23px; 
+    height: auto;
+    margin-top: 79px;
+  }
+
+  .PIO-icon-button:hover .add-PIO {
+    opacity: 0.5 !important;
+}
+
+/* Business Manager */
+.BusMan-title {
+    margin-top: 1780px;
+    position: absolute;
+    margin-left: 129px;
+    width: 233px;
+}
+
+.BusMan-icon-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    position: absolute;
+    width: 23px;
+    top: 790%;
+    margin-left: 170px;
+    z-index: 2;
+  }
+
+  .add-BusMan {
+    width: 23px; 
+    height: auto;
+    margin-top: 79px;
+  }
+
+  .BusMan-icon-button:hover .add-BusMan {
+    opacity: 0.5 !important;
+}

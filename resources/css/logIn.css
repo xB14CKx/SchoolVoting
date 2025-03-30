@@ -1,0 +1,324 @@
+/* Header tab */
+.navbar {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    position: absolute; 
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+  
+  .nav-links {
+    display: flex;
+    gap: 94px;
+    margin-right: 36px;
+  }
+  
+  .nav-link {
+    color: #fff;
+    font-family: "Istok Web", sans-serif;
+    font-size: 20px;
+    font-weight: 400;
+    cursor: pointer;
+    text-decoration: none;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); 
+}
+
+  
+@media (max-width: 991px) {
+    .nav-links {
+        gap: 40px;
+        margin-right: 20px;
+    }
+}
+  
+@media (max-width: 640px) {
+    .nav-links {
+        display: none;
+    }
+}
+
+/* Background Image */
+  .content-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+}
+  
+  .image-container {
+    width: 100vw;
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+  
+  .responsive-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    filter: saturate(10);
+}
+
+/* LogIn Field */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body { 
+    font-family:
+      Roboto,
+      -apple-system,
+      Helvetica,
+      sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #333;
+  }
+
+  .login-container {
+    position: absolute;  
+    top: 50%;            
+    left: 50%;           
+    transform: translate(-50%, -50%);  
+    border-radius: 50px;
+    display: flex;
+    width: 100%;
+    max-width: 400px;
+    padding: 27px 40px 57px;
+    flex-direction: column;
+    align-items: center;
+    margin: auto;
+    justify-content: center;
+    text-align: center;
+}
+
+  .background-wrapper {
+    border-radius: 50px;
+    position: absolute;
+    z-index: 0;
+    display: flex;
+    min-height: 454px;
+    width: 366px;
+    padding: 5px 10px;
+    align-items: center;
+    right: -2px;
+    bottom: 0;
+    height: 454px;
+  }
+
+  .background-inner {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center; 
+    text-align: center; 
+    background-color: rgba(51, 37, 37, 0.71); 
+    border-radius: 33px;
+    min-height: 444px; 
+    width: 346px; 
+    padding: 20px; 
+}
+
+  .form-header {
+    z-index: 1;
+    width: 100%;
+    font-family:
+      Roboto,
+      -apple-system,
+      Helvetica,
+      sans-serif;
+    color: #ffffff;
+    white-space: nowrap;
+    line-height: 1;
+    text-align: left;  
+    width: 100%;
+    padding-left: 10px;
+  }
+
+  .login-title {
+    font-size: 32px;
+    font-weight: 700;
+    margin-left: 28px;
+  }
+
+  .form-fields {
+    position: relative;
+    margin-top: 20px;
+    width: 100%;
+    font-size: 15px;
+    font-weight: 400;
+    z-index: 1;
+  }
+
+  .input-field {
+    border-radius: 4px;
+    background-color: white;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(30, 30, 30, 0.97);
+    display: flex;
+    min-height: 43px;
+    width: 100%;
+    max-width: 285px;
+    position: relative;
+    margin-bottom: 20px;
+    margin-left: 37px; 
+  }
+
+  .input-field:last-child {
+    min-height: 41px;
+    margin-bottom: 0;
+  }
+
+
+  .input-field input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #333;
+    padding: 0 10px;
+    font-family:
+      Roboto,
+      -apple-system,
+      Helvetica,
+      sans-serif;
+    font-size: 15px;
+  }
+
+  .input-field input::placeholder {
+    color: #333;
+    opacity: 1;
+  }
+
+  .form-actions {
+    z-index: 1;
+    margin-top: 64px;
+    width: 100%;
+    max-width: 284px;
+    font-family:
+      Roboto,
+      -apple-system,
+      Helvetica,
+      sans-serif;
+    color: #ffffff;
+    text-align: center;
+    line-height: 1;
+  }
+
+  .sign-in-button {
+    align-self: center;
+    border-radius: 4px;
+    background-color: #f7c603;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(30, 30, 30, 0.97);
+    min-height: 41px;
+    width: 100%;
+    padding: 10px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    margin-left: 19px; 
+    font-family:
+      Roboto,
+      -apple-system,
+      Helvetica,
+      sans-serif;
+  }
+
+  .remember-section {
+    display: flex;
+    margin-top: 17px;
+    width: 100%;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 200;
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .remember-wrapper {
+    align-self: stretch;
+    display: flex;
+    margin: auto 0;
+    align-items: flex-end;
+    gap: 10px;
+    margin-left: 20px;
+  }
+
+  .checkbox {
+    background-color: #d9d9d9;
+    display: flex;
+    width: 15px;
+    flex-shrink: 0;
+    height: 14px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .checkbox:checked::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #333;
+    font-size: 10px;
+  }
+
+  .register-section {
+    align-self: center;
+    z-index: 1;
+    display: flex;
+    margin-top: 64px;
+    margin-left: 80px;
+    align-items: center;
+    gap: 7px;
+    font-family:
+      Roboto,
+      -apple-system,
+      Helvetica,
+      sans-serif;
+    font-size: 13px;
+    color: #ffffff;
+    text-align: left;
+    line-height: 1;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .no-account {
+    font-weight: 200;
+    align-self: stretch;
+    margin: auto 0;
+  }
+
+  .register-link {
+    font-weight: 700;
+    align-self: stretch;
+    margin: auto 0;
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .register-link:hover {
+    text-decoration: underline;
+  }
+  

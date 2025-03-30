@@ -7,6 +7,7 @@ export default defineConfig({
             input: [
                 'resources/css/Landing.css',
                 'resources/css/eligibility.css',
+                'resources/css/about.css',
                 'resources/js/app.js',
             ],
             refresh: true,
