@@ -6,51 +6,6 @@ html, body {
   height: 100vh; /* Full viewport height */
   overflow: hidden; /* Prevent scrolling */
 }
-
-/* HEADER TAB */
-.navbar {
-  width: 100%;
-  height: clamp(40px, 5vh, 60px); /* Dynamic height */
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.8);
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 10;
-}
-
-.nav-links {
-  display: flex;
-  gap: clamp(40px, 5vw, 94px); /* Dynamic gap */
-  margin-right: clamp(20px, 3vw, 36px); /* Dynamic margin */
-}
-
-.nav-link {
-  color: #fff;
-  font-family: "Istok Web", sans-serif;
-  font-size: clamp(16px, 2vw, 20px); /* Dynamic font size */
-  font-weight: 400;
-  cursor: pointer;
-  text-decoration: none;
-  text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
-}
-
-/* RESPONSIVENESS - HEADER */
-@media (max-width: 991px) {
-  .nav-links {
-      gap: 40px;
-      margin-right: 20px;
-  }
-}
-
-@media (max-width: 640px) {
-  .nav-links {
-      display: none;
-  }
-}
-
 /* BACKGROUND COLOR */
 .eligibility {
   width: 100%;
