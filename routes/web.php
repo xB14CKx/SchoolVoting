@@ -17,61 +17,60 @@ Route::middleware('guest')->group(function () {
     Route::get('/', [PagesController::class, 'home'])->name('home');
     Route::get('/about', [PagesController::class, 'about'])->name('about');
     Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
-    Route::get('/eligibility', [EligibilityController::class, 'index'])->name('eligibility'); // Updated to use EligibilityController
-    Route::post('/eligibility', [EligibilityController::class, 'check'])->name('eligibility.check'); // Added POST route
+    Route::get('/eligibility', [EligibilityController::class, 'index'])->name('eligibility');
+    Route::post('/eligibility', [EligibilityController::class, 'check'])->name('eligibility.check');
     Route::get('/login', [PagesController::class, 'login'])->name('login');
     Route::get('/registration', [PagesController::class, 'registration'])->name('registration');
 });
 
-//Laravel's dashboard template
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Authenticated Routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-//main pages for USER
+    // User Routes
+    Route::get('/elect', function() {
+        return view('elect');
+    })->name('elect');
 
-Route::get('/elect', function() {
-    return view('elect');
-})->name('elect');
+    Route::get('/result', function() {
+        return view('result');
+    })->name('result');
 
-Route::get('/result', function() {
-    return view('result');
-})->name('result');
+    Route::get('/vote-counting', function() {
+        return view('vote-counting');
+    })->name('vote-counting');
 
-Route::get('/vote-counting', function() {
-    return view('vote-counting');
-})->name('vote-counting');
-
-Route::get('/userinfo', function() {
-    return view('userinfo');
-})->name('userinfo');
-
-//main pages for ADMIN
-
-Route::get('/admin', function() {
-    return view('admin');
-})->name('admin');
+    Route::get('/userinfo', function() {
+        return view('userinfo');
+    })->name('userinfo');
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Student Import Routes
-    Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
+    // Admin Routes
+    Route::middleware('admin')->group(function () {
+        Route::get('/admin', function() {
+            return view('admin');
+        })->name('admin');
+
+        Route::resource('users', UserController::class)->names('users');
+        Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
+    });
 
     // Election System Routes
     Route::resource('candidates', CandidateController::class)->names('candidates');
-    Route::resource('users', UserController::class)->names('users')->middleware('admin');
 
-    // Election-related Routes (grouped under elections/{election})
+    // Election-related Routes
     Route::prefix('elections')->name('elections.')->group(function () {
-        // Election Resource Routes
         Route::resource('/', ElectionController::class)
             ->parameters(['' => 'election'])
             ->names('elections');
 
-        // Nested Election Routes
         Route::prefix('{election}')->whereNumber('election')->group(function () {
             // Election Candidates Routes
             Route::get('candidates/create', [ElectionCandidateController::class, 'create'])
@@ -90,12 +89,12 @@ Route::get('/admin', function() {
                 ->middleware('admin');
 
             // Voting Routes
-            Route::get('vote', [VoteController::class, 'create'])
-                ->name('vote.create')
-                ->middleware('voter');
-            Route::post('vote', [VoteController::class, 'store'])
-                ->name('vote.store')
-                ->middleware('voter');
+            Route::middleware('voter')->group(function () {
+                Route::get('vote', [VoteController::class, 'create'])
+                    ->name('vote.create');
+                Route::post('vote', [VoteController::class, 'store'])
+                    ->name('vote.store');
+            });
         });
     });
 });
