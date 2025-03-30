@@ -8,6 +8,7 @@ export default defineConfig({
                 'resources/css/Landing.css',
                 'resources/css/eligibility.css',
                 'resources/css/about.css',
+                'resources/css/contact.css',
                 'resources/js/app.js',
             ],
             refresh: true,
