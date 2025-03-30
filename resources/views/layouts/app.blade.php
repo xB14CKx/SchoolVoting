@@ -11,6 +11,8 @@
   {{-- Include your partial-based CSS, if any --}}
   <link rel="stylesheet" href="{{ asset('css/sidebar-small-user.css') }}">
   <link rel="stylesheet" href="{{ asset('css/topbar.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
   
   {{-- Vite, etc. --}}
   @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -18,19 +20,18 @@
 </head>
 <body class="font-sans antialiased bg-gray-100">
 
-  {{-- 1) Topbar up top --}}
-{{--  @include('partials.topbar-user')--}}
 
-  {{-- 2) Flex container for sidebar + main content --}}
-  <div class="flex min-h-screen">
-    {{-- The sidebar on the left --}}
+{{-- Remove ni nga block of code John if naa na tay sessions --}}
+  <div class="layout-wrapper">
     @include('partials.sidebar-small-user')
-
-    {{-- The main content area takes remaining space --}}
-    <div class="flex-1">
+    @include('partials.sidebar-large-user')
+  
+    <main id="mainContent" class="main-content">
       {{ $slot }}
-    </div>
+    </main>
   </div>
+{{-- Until diri--}}
+  
 
   @stack('scripts')
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

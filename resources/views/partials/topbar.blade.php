@@ -32,7 +32,7 @@
       .nav-links {
         gap: 40px;
         margin-right: 20px;
-      }
+      }q
     }
     
     @media (max-width: 640px) {

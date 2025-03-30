@@ -1,0 +1,322 @@
+/* Page container */
+.page-container {
+    width: 100%;
+    min-height: 100vh;
+    position: relative; /* do this */
+    align-items: center;
+    background-color: #f7bd03;
+    top: 0;
+    left: 0;
+    z-index: 0; /* turn to zero para dili niya ma cover ang function sa buttons */
+  }
+  
+  .content-wrapper {
+    display: flex; /*do this*/
+    flex-direction: column;
+    position: relative;
+    min-height: 831px;
+    width: 100%;
+    padding: 56px 80px;
+    align-items: flex-start;
+    z-index: 1; /* add ni para ma apply gihapon siya tas above siya sa background nato */
+  }
+
+  @media (max-width: 991px) {
+    .content-wrapper {
+      max-width: 100%;
+      padding: 56px 20px;
+    }
+  }
+
+  /* Background logo */
+  .background-logo {
+    position: fixed; /* do this */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+    mix-blend-mode: luminosity;
+  }
+
+/* Header Title and Divider */
+body {
+    font-family: "Inter", sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.elect-container {
+    width: 1400px;
+    position: relative;
+    padding-top: 76px;
+    padding-left: 150px;
+}
+
+.elect-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+    width: 100%;
+}
+
+.elect-title {
+    color: #000;
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    font-size: 34px;
+    font-weight: 900;
+    margin-top: -160px;
+    margin-left: -80px;
+    white-space: nowrap;
+}
+
+.school-year-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    color: #000;
+    font-weight: 700;
+    margin-left: auto;
+}
+
+.action-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
+    margin-top: -90px;
+    margin-right: 80px;
+}
+
+.button-text {
+    color: #000;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.chevron-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.action-button:hover .chevron-icon path {
+    stroke: #4B2E2E !important;
+}
+
+.action-button:hover .button-text {
+    color: #4B2E2E !important;
+}
+
+.school-year-text {
+    width: 130px;
+    object-fit: contain;
+}
+
+.elect-divider {
+    width: 103.4%;
+    height: 2px;
+    background-color: #000;
+    border: none;
+    margin: 0;
+    opacity: 1;
+    margin-top: -50px;
+    margin-bottom: 25px;
+    margin-left: -80px;
+}
+
+.admin-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+}
+
+@media (max-width: 991px) {
+    .elect-container {
+        width: 90%;
+        padding-top: 40px;
+    }
+    .elect-title {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 640px) {
+    .elect-container {
+        width: 95%;
+        padding-top: 30px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .elect-title {
+        font-size: 28px;
+    }
+    .school-year-wrapper {
+        margin-top: 8px;
+    }
+}
+
+/*School Year Dropdown */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: -65px; 
+    left: calc(12px - 5px); 
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    display: none;
+    list-style: none;
+    padding: 0;
+    width: 150px;
+    z-index: 10;
+}
+
+.dropdown-menu li {
+    padding: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: left;
+}
+
+.dropdown-menu li:hover {
+    background: #f0f0f0;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+/* Role Container */
+.candidate-card {
+    display: flex;
+    gap: 20px;   
+    position: relative;
+    border-radius: 10px;
+    background-color: rgba(30, 30, 30, 0.71);
+    align-items: center;
+    margin-top: 13px;
+    padding: 10px 10px 20px 35px;
+    flex-direction: column;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 600;
+    width: 200px;
+    height: 295px;
+    margin-left: 70px; 
+    margin-top: 20px;
+  }
+  
+  .role-label {
+    position: absolute;
+    top: 0;
+    left: 5px;
+    font-family: "Inter", sans-serif;
+    font-size: 25px;
+    font-style: bold;
+    font-weight: 900;
+    color: #000;
+    text-align: center;
+    width: 78px;
+    height: 32px;
+    margin-top: -40px;
+    margin-bottom: 40px;
+  }
+  
+  
+  .profile-image {
+    aspect-ratio: 1;
+    object-position: center;
+    width: 150px;
+    border-radius: 10px;
+    margin-top: 17px;
+    max-width: 100%;
+    padding-right: 5px;
+    margin-left: -13px;
+  }
+  
+  .candidate-details {
+    color: #fff;
+    text-align: center;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 9px;
+    line-height: 1.4;
+    margin-left: -32px;
+
+  }
+  
+  .vote-button {
+    width: 93px;
+    height: 26px;
+    border-radius: 4px;
+    color: #f5f5f5;
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 10px;
+    cursor: pointer;
+    background-color: #f7bd03;
+    border: black;
+    transition: background-color 0.3s ease-in-out;
+    margin-left: 5px;
+    margin-top: 10px;
+
+  }
+
+  .vote-button:hover {
+    background-color: #1B1F3B !important;
+}
+
+/* Submit Vote Button */
+.submit-voteButton {
+    position: fixed;
+    width: 130px;
+    height: 40px;
+    padding: 12px;
+    border-radius: 8px;
+    color: rgba(245, 245, 245, 1);
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 100%;
+    cursor: pointer;
+    background-color: black;
+    border: none;
+    text-align: center;
+    margin-top: 610px;
+    margin-left: 1200px;
+    transition: background-color 0.3s ease-in-out; 
+}
+
+.submit-voteButton:hover {
+    background-color: #1B1F3B !important; 
+}
+  
+  @media (max-width: 991px) {
+    .submit-vote-button {
+      width: 160px;
+      height: 38px;
+      font-size: 15px;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    .submit-vote-button {
+      width: 140px;
+      height: 36px;
+      font-size: 14px;
+      padding: 10px;
+    }
+  }

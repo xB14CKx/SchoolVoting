@@ -72,13 +72,6 @@
             <h1 class="candidate-title">My Candidates</h1>
         </section>
 
-        <!-- Footer -->
-        <footer class="candidate-footer">
-            <hr class="divider" />
-            <p class="system-name">CSG Election System</p>
-        </footer>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </x-app-layout>

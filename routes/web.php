@@ -23,11 +23,34 @@ Route::middleware('guest')->group(function () {
     Route::get('/registration', [PagesController::class, 'registration'])->name('registration');
 });
 
-// Authenticated Routes (authenticated and verified users)
-Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard and User Info
-    Route::get('/dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
-    Route::get('/userinfo', [PagesController::class, 'userinfo'])->name('userinfo');
+//Laravel's dashboard template
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+//main pages for USER
+
+Route::get('/elect', function() {
+    return view('elect');
+})->name('elect');
+
+Route::get('/result', function() {
+    return view('result');
+})->name('result');
+
+Route::get('/vote-counting', function() {
+    return view('vote-counting');
+})->name('vote-counting');
+
+Route::get('/userinfo', function() {
+    return view('userinfo');
+})->name('userinfo');
+
+//main pages for ADMIN
+
+Route::get('/admin', function() {
+    return view('admin');
+})->name('admin');
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

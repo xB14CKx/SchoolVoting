@@ -1,13 +1,13 @@
 
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/about.css') }}">
-<link
-  href="https://fonts.googleapis.com/css2?family=Istok+Web&family=Inria+Sans:wght@300;400;700&family=Inter:wght@900&display=swap"
-  rel="stylesheet"
-/>
-@endpush
+  @push('styles')
+  <link rel="stylesheet" href="{{ asset('css/about.css') }}">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Istok+Web&family=Inria+Sans:wght@300;400;700&family=Inter:wght@900&display=swap"
+    rel="stylesheet"
+  />
+  @endpush
 
-<x-guest-layout>
+  <x-guest-layout>
 
     <main class="about-page">
       <div class="page-container">

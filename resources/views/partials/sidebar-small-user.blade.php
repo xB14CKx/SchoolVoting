@@ -1,13 +1,23 @@
 <style>
-    .sidebar-small {
-      max-width: 90px;
-      max-height: 737px;
-      background-color: rgba(30, 30, 30, 0.71);
-      overflow: hidden;
-    }
+.sidebar-small {
+  width: 90px;
+  height: 100vh;
+  background-color: rgba(30, 30, 30, 0.71);
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  transition: transform 0.3s ease;
+}
+
+.sidebar-small.hidden {
+  transform: translateX(-100%);
+}
+
     
     .sidebar-content {
-      display: flex;
+      display: flex; /*do this*/
       width: 115%;
       padding: 20px 19px 493px;
       flex-direction: column;
@@ -19,75 +29,83 @@
       object-position: center;
       width: 150px;
       height: 74px;
-      margin-right: 20px;
+      margin-right: 15px;
       overflow: hidden;
     }
-    
-    .nav-icon {
-      aspect-ratio: 1;
-      object-fit: contain;
-      object-position: center;
-      width: 33px;
-      margin-top: 20px;
-      margin-right: 20px;
-      margin-bottom: 10px;
-      overflow: hidden;
-    }
-    
-    .utility-icon {
-      aspect-ratio: 1;
-      object-fit: contain;
-      object-position: center;
-      width: 25px;
-      margin-right: 20px;
-      margin-top: 60px;
-      overflow: hidden;
-    }
-    
-    .utility-icon:first-of-type {
-      margin-top: 162px;
-      margin-right: 20px;
 
-    }
-    
-    .utility-icon:last-of-type {
-      margin-top: 70px;
+    .largesb-icon {
+      color: white;
+      font-size: 25px;
+      margin-top: 22px;
       margin-right: 20px;
+      margin-bottom: -10px;
+      transition: color 0.2s ease;
+    }
 
+    .largesb-icon:hover {
+      color: #ffd700;        
     }
     
-    .settings-icon {
-      aspect-ratio: 1;
-      object-fit: contain;
-      object-position: center;
-      width: 22px;
-      margin-top: 64px;
-      margin-right: 20px;
-      margin-bottom: -99px;
-      overflow: hidden;
-    }
-    
+
     .heart-icon {
       color: white;
       font-size: 25px;
-      margin-top: 64px;
+      margin-top: 80px;
       margin-right: 20px;
       margin-bottom: -10px;
+      transition: color 0.2s ease;
     }
 
-    .about-icon {
+    .heart-icon:hover {
+      color: #ffd700;        
+    }
+    
+    .count-icon {
+      font-size: 25px;        
+      color: white;          
+      margin-right: 20px;
+      margin-top: 50px;
+      margin-bottom: -10px;
+      transition: color 0.2s ease;
+    }
+
+    .count-icon:hover {
+      color: #ffd700;        
+    }
+
+    .result-icon {
+      font-size: 25px;        
+      color: white;          
+      margin-right: 20px;
+      margin-top: 50px;
+      margin-bottom: -10px;
+      transition: color 0.2s ease;
+    }
+
+    .result-icon:hover {
+      color: #ffd700;        
+    }
+
+    .user-icon {
+      font-size: 25px;        
+      color: white;          
+      margin-right: 20px;
+      margin-top: 50px;
+      margin-bottom: -10px;
+      transition: color 0.2s ease;
+    }
+
+    .user-icon:hover {
+      color: #ffd700;        
+    }
+    
+
+    .logout-icon {
     color: white;
     font-size: 25px;
     margin-right: 25px;
-    margin-top: 170px;
-    }
-
-    .contact-icon {
-    color: white;
-    font-size: 25px;
-    margin-right: 25px;
-    margin-top: 64px;
-    }
+    margin-top: 200px;
+    } 
     
     
     </style>
@@ -97,7 +115,7 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         />
  
-        <aside class="sidebar-small">
+        <aside id="sidebarSmall" class="sidebar-small">
           <nav class="sidebar-content">
     
             
@@ -107,44 +125,37 @@
               alt="Logo"
             />
 
-            <img
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/15d0910f1802cc48b2e90b0a1b75216907fe9bd6?placeholderIfAbsent=true&apiKey=ddaccfec04494b429f8d3267955938e3"
-            class="nav-icon"
-            alt="Navigation icon"
-          />
-    
-            <i
-              class="fa-solid fa-heart-circle-check heart-icon"
-              aria-hidden="true"
-            ></i>
+            <button id="openLargeSidebar" class="largesb-icon" aria-label="Open large sidebar">
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>            
+
+          <a href="{{ url('/elect') }}">
+            <i class="fa-solid fa-heart-circle-check heart-icon" aria-hidden="true"></i>
+          </a>
             
+          <a href="{{ url('/vote-counting') }}">
+            <i class="fa-solid fa-square-poll-horizontal count-icon" aria-hidden="true"></i>
+          </a>          
+          
+          <a href="{{ url('/result') }}">
+            <i class="fa-solid fa-check-to-slot result-icon" aria-hidden="true"></i>
+          </a>
+          <a href="{{ url('/userinfo') }}">
+            <i class="fa-solid fa-user user-icon" aria-hidden="true"></i>
+          </a>
 
-    
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/57708c2b7bf18a80cfb5c049ee5efbdd794c2ae8?placeholderIfAbsent=true&apiKey=ddaccfec04494b429f8d3267955938e3"
-              class="utility-icon"
-              alt="Utility icon"
-            />
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/6e88b81a2cf713f126372d0a85ff0787f282d218?placeholderIfAbsent=true&apiKey=ddaccfec04494b429f8d3267955938e3"
-              class="utility-icon"
-              alt="Utility icon"
-            />
-            <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/85809c2382e35266a17338b3a5c79ad01ffb9ee6?placeholderIfAbsent=true&apiKey=ddaccfec04494b429f8d3267955938e3"
-              class="settings-icon"
-              alt="Settings icon"
-            />
-
-            <i
-            class="fa-solid fa-circle-info about-icon"
-            aria-hidden="true"
-          ></i>
-  
-          <i
-            class="fa-solid fa-address-book contact-icon"
-            aria-hidden="true"
-          ></i>
+         <a href= "{{ url('/login') }}"><i class="fa-solid fa-arrow-right-from-bracket logout-icon"
+          aria-hidden= "true"></i>
+        </a> 
   
           </nav>
         </aside>
+
+        <script>
+          document.getElementById('openLargeSidebar').addEventListener('click', function () {
+            document.getElementById('sidebarSmall').style.display = 'none';
+            document.getElementById('sidebarLarge').style.display = 'flex';
+            document.getElementById('mainContent').style.marginLeft = '300px'; // match large sidebar width
+          });
+        </script>
+        
