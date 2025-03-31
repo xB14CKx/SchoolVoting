@@ -15,7 +15,7 @@
         
         <!-- REGISTRATION CONTAINER -->
         <main class="form-container">
-            <form class="registration-form" method="POST" action="{{ route('register') }}">
+            <form class="registration-form" method="POST" action="{{ route('register.register') }}">
                 @csrf
                 <h1 class="form-title" style="margin-top: 10px;">Registration Form</h1>
 

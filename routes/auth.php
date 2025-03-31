@@ -9,7 +9,7 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
-use App\Http\Controllers\Auth\EligibilityController; // Updated namespace
+use App\Http\Controllers\Auth\EligibilityController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -26,7 +26,8 @@ Route::middleware('guest')->group(function () {
         Route::get('/', [RegisteredUserController::class, 'create'])
             ->name('form');
 
-        Route::post('/', [RegisteredUserController::class, 'store']);
+        Route::post('/', [RegisteredUserController::class, 'store'])
+            ->name('register');
     });
 
     // Login Routes
@@ -34,7 +35,7 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store'])
-        ->name('login');
+        ->name('login.store'); // Changed to avoid conflict
 
     // Password Reset Routes
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
