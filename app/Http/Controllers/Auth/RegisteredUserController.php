@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules;
+use App\Enums\Role;
 
 class RegisteredUserController extends Controller
 {
@@ -60,29 +61,50 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'student_id' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'middle_initial' => 'nullable|string|max:10',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email|max:255',
-            'program' => 'required|string|max:255',
-            'year_level' => 'required|integer|min:1|max:5',
-            'contact_number' => 'required|string|max:20',
-            'date_of_birth' => 'required|date|before:today',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        Log::info('Received registration request', [
+            'request_data' => $request->all(),
         ]);
 
         try {
-            $fullName = $validated['first_name'] . ' ' . ($validated['middle_initial'] ? $validated['middle_initial'] . ' ' : '') . $validated['last_name'];
+            // Validate the request
+            $validated = $request->validate([
+                'student_id' => 'required|string|max:255',
+                'first_name' => 'required|string|max:255',
+                'middle_initial' => 'nullable|string|max:10',
+                'last_name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email|max:255',
+                'program' => 'required|string|max:255',
+                'year_level' => 'required|integer|min:1|max:5',
+                'contact_number' => 'required|string|max:20',
+                'date_of_birth' => 'required|date|before:today',
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation failed during registration', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all(),
+            ]);
+            throw $e; // Re-throw to let Laravel handle the redirect with errors
+        }
 
-            $user = User::create([
+        try {
+            // Combine the name fields
+            $fullName = trim($validated['first_name'] . ' ' . ($validated['middle_initial'] ? $validated['middle_initial'] . ' ' : '') . $validated['last_name']);
+
+            // Prepare user data
+            $userData = [
                 'name' => $fullName,
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'role' => 'student',
-            ]);
+                'role' => Role::Student->value, // Use the Role enum value
+            ];
 
+            Log::info('Attempting to create user', $userData);
+
+            // Create the user
+            $user = User::create($userData);
+
+            // Log the successful registration
             Log::info('User registered successfully', [
                 'user_id' => $user->id,
                 'student_id' => $validated['student_id'],
@@ -94,17 +116,25 @@ class RegisteredUserController extends Controller
             // Fire the Registered event (Breeze's default behavior)
             event(new Registered($user));
 
-            // Log the user in (Breeze's default behavior)
+            // Log the user in
             Auth::login($user);
 
-            return redirect()->route('dashboard');
+            // Log the login status for debugging
+            Log::info('User logged in after registration', [
+                'user_id' => $user->id,
+                'is_authenticated' => Auth::check(),
+            ]);
+
+            // Redirect to the landing page (assuming the landing page route is 'home')
+            return redirect()->route('home')->with('success', 'Registration successful! Welcome to the platform.');
         } catch (\Exception $e) {
             Log::error('Registration failed: ' . $e->getMessage(), [
                 'exception' => $e,
+                'request_data' => $request->all(),
             ]);
 
             return redirect()->back()
-                ->with('error', 'Failed to register. Please try again.')
+                ->with('error', 'Failed to register: ' . $e->getMessage())
                 ->withInput();
         }
     }

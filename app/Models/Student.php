@@ -31,4 +31,14 @@ class Student extends Model
     {
         return $this->year;
     }
+
+    /**
+     * Get the user associated with this student.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function user()
+    {
+        return $this->hasOne(User::class, 'email', 'email');
+    }
 }

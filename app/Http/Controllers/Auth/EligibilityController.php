@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -46,6 +47,24 @@ class EligibilityController extends Controller
                     'student_id' => $request->student_id,
                 ]);
                 $errorMessage = 'Student ID not found. Please contact the administrator.';
+                if ($isHtmxRequest) {
+                    return response()->view('auth.eligibility', [
+                        'error' => $errorMessage,
+                    ])->header(self::HX_PUSH_URL, 'false');
+                }
+                return redirect()->route('register.eligibility')
+                    ->with('error', $errorMessage);
+            }
+
+            // Check if the student is already registered by looking for a User with the same email
+            $existingUser = User::where('email', $student->email)->first();
+            if ($existingUser) {
+                Log::info('Student is already registered', [
+                    'student_id' => $student->id,
+                    'email' => $student->email,
+                    'user_id' => $existingUser->id,
+                ]);
+                $errorMessage = 'This student is already registered. Please log in or contact the administrator.';
                 if ($isHtmxRequest) {
                     return response()->view('auth.eligibility', [
                         'error' => $errorMessage,
