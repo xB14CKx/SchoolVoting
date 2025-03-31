@@ -14,7 +14,7 @@
 
   
   {{-- Vite, etc. --}}
-  @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/topbar.css'])
+  @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/sidebar.css', 'resources/css/sidebar-large.css'])
   @stack('styles')
 </head>
 <body class="font-sans antialiased bg-gray-100">
@@ -22,7 +22,7 @@
 
 {{-- Remove ni nga block of code John if naa na tay sessions --}}
   <div class="layout-wrapper">
-    @include('partials.sidebar-small-user')
+    @include('partials.sidebar-small')
     @include('partials.sidebar-large-user')
   
     <main id="mainContent" class="main-content">

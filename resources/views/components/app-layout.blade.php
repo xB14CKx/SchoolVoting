@@ -17,8 +17,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;400;700&display=swap" rel="stylesheet">
 
-    <!-- Vite assets and global CSS -->
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/topbar.css', 'resources/js/topbar.js'])
+    <!-- Vite assets (removing topbar.css and topbar.js since no top bar) -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @stack('styles')
 </head>
@@ -28,15 +28,9 @@
         <!-- Include the sidebar partial -->
         @include('votings.partials.sidebar-small-user')
 
-        <!-- Main Content Area with Top Bar -->
-        <div class="flex-1 flex flex-col">
-            <!-- Top bar for authenticated users -->
-            @include('partials.topbar')
-
-            <!-- Main Content -->
-            <div class="flex-1">
-                {{ $slot }}
-            </div>
+        <!-- Main Content Area (no top bar) -->
+        <div class="flex-1">
+            {{ $slot }}
         </div>
     </div>
 
