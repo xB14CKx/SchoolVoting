@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Student; // Use the Student model to query the database
+use App\Models\Student;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -27,44 +27,36 @@ class EligibilityController extends Controller
      */
     public function check(Request $request)
     {
-        // Validate the input student ID
         $validated = $request->validate([
-            'student_id' => 'required|string|max:255',
+            'student_id' => 'required|integer|exists:students,id',
         ]);
 
         try {
-            // Check if the student exists in the database
-            $isEligible = Cache::remember(
-                "eligible_student_id_{$validated['student_id']}",
-                60 * 60 * 24, // Cache for 24 hours
-                function () use ($validated) {
-                    return Student::where('id', $validated['student_id'])->exists();
-                }
-            );
+            $studentId = $validated['student_id'];
 
-            // Log the eligibility check result
-            Log::info('Eligibility check', [
-                'student_id' => $validated['student_id'],
+            // Use caching to reduce database queries
+            $isEligible = Cache::remember("eligible_student_{$studentId}", 86400, function () use ($studentId) {
+                return Student::where('id', $studentId)->exists();
+            });
+
+            Log::info('Eligibility check performed', [
+                'student_id' => $studentId,
                 'is_eligible' => $isEligible,
             ]);
 
             if ($isEligible) {
-                // Redirect to registration with student_id as a query parameter
-                return redirect()->route('registration', ['student_id' => $validated['student_id']])
-                    ->with('success', 'You are eligible to register! Please complete the registration form to vote.');
+                Log::info('Redirecting to registration', ['student_id' => $studentId]);
+                return redirect()->route('registration', ['student_id' => $studentId])
+                    ->with('success', 'You are eligible to register!');
             }
 
             return redirect()->route('eligibility')
                 ->with('error', 'You are not eligible to register and vote. Please contact the administrator.');
         } catch (\Exception $e) {
-            // Log the error for debugging
-            Log::error('Eligibility check failed: ' . $e->getMessage(), [
-                'exception' => $e,
-            ]);
+            Log::error('Eligibility check failed', ['error' => $e->getMessage()]);
 
-            // Return a user-friendly error message
             return redirect()->route('eligibility')
-                ->with('error', 'Failed to check eligibility: ' . $e->getMessage());
+                ->with('error', 'An error occurred while checking eligibility. Please try again.');
         }
     }
 
@@ -76,59 +68,29 @@ class EligibilityController extends Controller
      */
     public function checkBatch(Request $request)
     {
-        // Validate the input student IDs (expecting an array)
         $validated = $request->validate([
-            'student_ids' => 'required|array',
-            'student_ids.*' => 'required|string|max:255',
+            'student_ids' => 'required|array|min:1',
+            'student_ids.*' => 'integer|exists:students,id',
         ]);
 
         try {
-            // Check the student IDs in batch using the database
             $studentIds = $validated['student_ids'];
-            $cacheKey = 'eligible_student_ids_batch_' . md5(implode('_', $studentIds));
-            $results = Cache::remember(
-                $cacheKey,
-                60 * 60 * 24, // Cache for 24 hours
-                function () use ($studentIds) {
-                    // Query the database for all matching student IDs
-                    $existingStudents = Student::whereIn('id', $studentIds)
-                        ->pluck('id')
-                        ->map(fn($id) => (string) $id)
-                        ->toArray();
+            $cacheKey = 'eligible_students_batch_' . md5(json_encode($studentIds));
 
-                    // Build the results array
-                    $results = [];
-                    foreach ($studentIds as $studentId) {
-                        $studentId = (string) $studentId;
-                        $results[$studentId] = in_array($studentId, $existingStudents);
-                    }
+            $results = Cache::remember($cacheKey, 86400, function () use ($studentIds) {
+                $existingStudents = Student::whereIn('id', $studentIds)->pluck('id')->toArray();
+                return array_fill_keys($existingStudents, true) + array_fill_keys($studentIds, false);
+            });
 
-                    return $results;
-                }
-            );
-
-            // Log the batch eligibility check result
-            Log::info('Batch eligibility check', [
+            Log::info('Batch eligibility check performed', [
                 'student_ids' => $studentIds,
                 'results' => $results,
             ]);
 
-            // Return the results as a JSON response
-            return response()->json([
-                'success' => true,
-                'results' => $results,
-            ]);
+            return response()->json(['success' => true, 'results' => $results]);
         } catch (\Exception $e) {
-            // Log the error for debugging
-            Log::error('Batch eligibility check failed: ' . $e->getMessage(), [
-                'exception' => $e,
-            ]);
-
-            // Return an error response
-            return response()->json([
-                'success' => false,
-                'error' => 'Failed to check eligibility: ' . $e->getMessage(),
-            ], 500);
+            Log::error('Batch eligibility check failed', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'error' => 'An error occurred while checking eligibility.'], 500);
         }
     }
 }

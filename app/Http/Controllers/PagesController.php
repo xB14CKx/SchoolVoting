@@ -33,19 +33,16 @@ class PagesController extends Controller
 
     public function registration(Request $request)
     {
-        // Get the student_id from the query parameter
+        // Get student_id safely
         $studentId = $request->query('student_id');
-
-        // If student_id is not provided, redirect to eligibility check
+    
         if (!$studentId) {
-            return redirect()->route('eligibility')
-                ->with('error', 'Please check your eligibility before registering.');
+            return redirect()->route('eligibility')->with('error', 'Please check your eligibility before registering.');
         }
-
-        //sql query to grab details
+    
         return view('registration', compact('studentId'));
-        
     }
+    
 
     public function dashboard()
     {

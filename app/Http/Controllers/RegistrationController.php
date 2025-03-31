@@ -3,71 +3,36 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Imports\StudentsImport;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Student;
 
 class RegistrationController extends Controller
 {
     /**
      * Display the registration form with pre-filled student data.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\View\View
+     * @param  string  $student_id
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function index(Request $request)
+    public function show($student_id)
     {
         try {
-            // Get the student_id from the query parameter
-            $studentId = $request->query('student_id');
-            if (!$studentId) {
-                return redirect()->route('eligibility')
-                    ->with('error', 'Student ID is required to access the registration form.');
+            $student = Student::find($student_id);
+    
+            if (!$student) {
+                return redirect()->route('eligibility')->with('error', 'Student ID not found. Please contact the administrator.');
             }
-
-            // Define the file path relative to storage/app
-            $relativePath = 'excel/students.xlsx';
-            $absolutePath = storage_path('app/' . $relativePath);
-
-            // Verify the file exists
-            if (!file_exists($absolutePath)) {
-                throw new \Exception('The eligibility file (students.xlsx) is missing in storage/app/excel/. Please contact the administrator.');
-            }
-
-            // Load the Excel file into a collection
-            $students = Excel::toCollection(new StudentsImport, $absolutePath);
-
-            // Log the raw data for debugging
-            Log::info('Raw Excel data for registration', ['students' => $students->toArray()]);
-
-            // Create an instance of StudentsImport to use the getStudentById method
-            $import = new StudentsImport();
-
-            // Fetch the student details by ID
-            $studentData = $import->getStudentById($students->first(), $studentId);
-
-            if (!$studentData) {
-                return redirect()->route('eligibility')
-                    ->with('error', 'Student ID not found in the eligibility list. Please contact the administrator.');
-            }
-
-            // Log the fetched student data
-            Log::info('Fetched student data for registration', ['student' => $studentData]);
-
-            // Pass the student data to the view
-            return view('registration', ['student' => $studentData]);
+    
+            return view('registration', compact('student'));
         } catch (\Exception $e) {
-            Log::error('Failed to load registration form: ' . $e->getMessage(), [
-                'exception' => $e,
-            ]);
-
-            return redirect()->route('eligibility')
-                ->with('error', 'Failed to load registration form: ' . $e->getMessage());
+            Log::error('Failed to load registration form: ' . $e->getMessage());
+    
+            return redirect()->route('eligibility')->with('error', 'Failed to load registration form. Please try again.');
         }
     }
+    
 
     /**
      * Handle the registration form submission.
@@ -104,15 +69,14 @@ class RegistrationController extends Controller
                 'date_of_birth' => $validated['date_of_birth'],
             ]);
 
-            // Log the successful registration
+            // Log successful registration
             Log::info('User registered successfully', [
                 'user_id' => $user->id,
                 'student_id' => $validated['student_id'],
             ]);
 
-            // Redirect to a success page or login page
-            return redirect()->route('login')
-                ->with('success', 'Registration successful! Please log in to continue.');
+            // Redirect to login page with success message
+            return redirect()->route('login')->with('success', 'Registration successful! Please log in to continue.');
         } catch (\Exception $e) {
             Log::error('Registration failed: ' . $e->getMessage(), [
                 'exception' => $e,

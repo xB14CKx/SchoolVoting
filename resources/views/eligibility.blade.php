@@ -17,7 +17,6 @@
                 <h2 class="eligibility-title">Check Eligibility</h2>
                 <form class="eligibility-form" method="POST" action="{{ route('eligibility.check') }}"
                     hx-post="{{ route('eligibility.check') }}" 
-                    hx-get="{{ route('registration') }}"
                     hx-target="body" 
                     hx-swap="outerHTML">
                     @csrf

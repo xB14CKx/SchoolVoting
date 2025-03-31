@@ -21,4 +21,14 @@ class Student extends Model
         'contact_number',
         'date_of_birth',
     ];
+
+    /**
+     * Accessor to map the 'year' column to 'year_level'.
+     *
+     * @return int
+     */
+    public function getYearLevelAttribute()
+    {
+        return $this->year;
+    }
 }

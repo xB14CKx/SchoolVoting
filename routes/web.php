@@ -9,6 +9,7 @@ use App\Http\Controllers\VoteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\EligibilityController;
+use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,10 +18,13 @@ Route::middleware('guest')->group(function () {
     Route::get('/', [PagesController::class, 'home'])->name('home');
     Route::get('/about', [PagesController::class, 'about'])->name('about');
     Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
-    Route::get('/eligibility', [EligibilityController::class, 'index'])->name('eligibility');
-    Route::post('/eligibility', [EligibilityController::class, 'check'])->name('eligibility.check');
     Route::get('/login', [PagesController::class, 'login'])->name('login');
-    Route::get('/registration', [PagesController::class, 'registration'])->name('registration');
+
+    Route::get('/eligibility', [EligibilityController::class, 'index'])->name('eligibility');
+    Route::post('/eligibility/check', [EligibilityController::class, 'check'])->name('eligibility.check');
+
+    Route::get('/registration/{student_id}', [RegistrationController::class, 'show'])->name('registration');
+    Route::post('/registration', [RegistrationController::class, 'register'])->name('register');
 });
 
 // Authenticated Routes
