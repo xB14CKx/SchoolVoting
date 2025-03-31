@@ -9,7 +9,7 @@ export default defineConfig({
                 'resources/css/eligibility.css',
                 'resources/css/about.css',
                 'resources/css/contact.css',
-                'resources/css/logIn.css',
+                'resources/css/login.css',
                 'resources/css/registration.css',
                 'resources/js/app.js',
                 'resources/js/topbar.js',

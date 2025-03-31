@@ -9,7 +9,6 @@ use App\Http\Controllers\VoteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\EligibilityController;
-use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,21 +17,15 @@ Route::middleware('guest')->group(function () {
     Route::get('/', [PagesController::class, 'home'])->name('home');
     Route::get('/about', [PagesController::class, 'about'])->name('about');
     Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
-    Route::get('/login', [PagesController::class, 'login'])->name('login');
 
     Route::get('/eligibility', [EligibilityController::class, 'index'])->name('eligibility');
     Route::post('/eligibility/check', [EligibilityController::class, 'check'])->name('eligibility.check');
-
-    Route::get('/registration/{student_id}', [RegistrationController::class, 'show'])->name('registration');
-    Route::post('/registration', [RegistrationController::class, 'register'])->name('register');
 });
 
 // Authenticated Routes
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
 
     // User Routes
     Route::get('/elect', function() {
@@ -47,9 +40,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return view('vote-counting');
     })->name('vote-counting');
 
-    Route::get('/userinfo', function() {
-        return view('userinfo');
-    })->name('userinfo');
+    Route::get('/userinfo', [PagesController::class, 'userinfo'])->name('userinfo');
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -103,5 +94,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 });
 
-// Laravel Authentication Routes
+// Laravel Authentication Routes (Breeze)
 require __DIR__.'/auth.php';
