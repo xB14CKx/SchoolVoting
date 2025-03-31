@@ -29,10 +29,9 @@
                 <form class="eligibility-form" 
                       method="POST" 
                       action="{{ route('register.eligibility.check') }}"
-                      hx-post="{{ route('register.eligibility.check') }}" 
-                      hx-target="body" 
-                      hx-swap="outerHTML"
-                      hx-push-url="true">
+                      hx-post="{{ route('register.eligibility.check') }}"
+                      hx-target="body"
+                      hx-swap="outerHTML">
                     @csrf
                     <label for="student-id" class="form-label">ID Number</label>
                     <div class="input-wrapper">

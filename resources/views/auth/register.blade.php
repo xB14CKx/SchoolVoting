@@ -177,7 +177,7 @@
                         <input 
                             type="password" 
                             name="password" 
-                            placeholder="6-12 characters" 
+                            placeholder="8-12 characters" 
                             class="form-input" 
                             required 
                         />
@@ -190,7 +190,7 @@
                         <input 
                             type="password" 
                             name="password_confirmation" 
-                            placeholder="6-12 characters" 
+                            placeholder="8-12 characters" 
                             class="form-input" 
                             required 
                         />
