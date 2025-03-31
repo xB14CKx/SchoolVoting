@@ -19,8 +19,8 @@
                             </h1>
                             <div class="landing_registration-row">
                                 <p class="landing_registration-text ui text size-textxs">First time voter?</p>
-                                <a href="{{ route('eligibility') }}" 
-                                    hx-get="{{ route('eligibility') }}"
+                                <a href="{{ route('register.eligibility') }}" 
+                                    hx-get="{{ route('register.eligibility') }}"
                                     hx-target="body"
                                     hx-swap="outerHTML"
                                     hx-push-url="true"

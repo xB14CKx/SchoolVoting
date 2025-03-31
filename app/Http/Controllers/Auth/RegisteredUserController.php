@@ -31,21 +31,24 @@ class RegisteredUserController extends Controller
 
             if (!$studentId) {
                 Log::info('Redirecting to eligibility due to session mismatch');
-                return redirect()->route('eligibility')->with('error', 'Please check your eligibility before registering.');
+                return redirect()->route('register.eligibility')
+                    ->with('error', 'Please check your eligibility before registering.');
             }
 
             $student = Student::find($studentId);
 
             if (!$student) {
                 Log::info('Redirecting to eligibility due to student not found');
-                return redirect()->route('eligibility')->with('error', 'Student ID not found. Please contact the administrator.');
+                return redirect()->route('register.eligibility')
+                    ->with('error', 'Student ID not found. Please contact the administrator.');
             }
 
             return view('auth.register', compact('student'));
         } catch (\Exception $e) {
             Log::error('Failed to load registration form: ' . $e->getMessage());
 
-            return redirect()->route('eligibility')->with('error', 'Failed to load registration form. Please try again.');
+            return redirect()->route('register.eligibility')
+                ->with('error', 'Failed to load registration form. Please try again.');
         }
     }
 
@@ -71,14 +74,13 @@ class RegisteredUserController extends Controller
         ]);
 
         try {
-            // Merge first_name, middle_initial, and last_name into the name field
             $fullName = $validated['first_name'] . ' ' . ($validated['middle_initial'] ? $validated['middle_initial'] . ' ' : '') . $validated['last_name'];
 
             $user = User::create([
                 'name' => $fullName,
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
-                'role' => 'student', // Set a default role (adjust as needed)
+                'role' => 'student',
             ]);
 
             Log::info('User registered successfully', [

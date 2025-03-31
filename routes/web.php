@@ -8,7 +8,6 @@ use App\Http\Controllers\ElectionResultController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PagesController;
-use App\Http\Controllers\EligibilityController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
@@ -18,8 +17,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/about', [PagesController::class, 'about'])->name('about');
     Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
 
-    Route::get('/eligibility', [EligibilityController::class, 'index'])->name('eligibility');
-    Route::post('/eligibility/check', [EligibilityController::class, 'check'])->name('eligibility.check');
 });
 
 // Authenticated Routes
