@@ -6,4 +6,6 @@ import 'htmx.org';
 
 window.Alpine = Alpine;
 
+window.htmx = htmx;
+
 Alpine.start();

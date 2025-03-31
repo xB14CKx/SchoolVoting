@@ -23,9 +23,9 @@
                     <div class="form-group full-width">
                         <label class="form-label">Name</label>
                         <div class="name-inputs">
-                            <input type="text" name="first_name" placeholder="First name" class="form-input" value="{{ old('first_name', $student->first_name ?? '') }}" required />
-                            <input type="text" name="last_name" placeholder="Last Name" class="form-input" value="{{ old('last_name', $student->last_name ?? '') }}" required />
-                            <input type="text" name="middle_initial" placeholder="M.I" class="form-input" value="{{ old('middle_initial', $student->middle_initial ?? '') }}" />
+                            <input type="text" name="first_name" placeholder="First name" class="form-input" value="{{ old('first_name', $student->first_name ?? '') }}" required, readonly />
+                            <input type="text" name="last_name" placeholder="Last Name" class="form-input" value="{{ old('last_name', $student->last_name ?? '') }}" required, readonly />
+                            <input type="text" name="middle_initial" placeholder="M.I" class="form-input" value="{{ old('middle_initial', $student->middle_initial ?? '') }}"readonly />
                         </div>
                     </div>
                 </div>
@@ -37,29 +37,29 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Student Email</label>
-                        <input type="email" name="email" placeholder="Email" class="form-input" value="{{ old('email', $student->email ?? '') }}" required />
+                        <input type="email" name="email" placeholder="Email" class="form-input" value="{{ old('email', $student->email ?? '') }}" required, readonly />
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Program</label>
-                        <input type="text" name="program" placeholder="Program" class="form-input" value="{{ old('program', $student->program ?? '') }}" required />
+                        <input type="text" name="program" placeholder="Program" class="form-input" value="{{ old('program', $student->program ?? '') }}" required, readonly />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Year Level</label>
-                        <input type="number" name="year_level" placeholder="Year Level" class="form-input" min="1" max="5" value="{{ old('year_level', $student->year_level ?? '') }}" required />
+                        <input type="number" name="year_level" placeholder="Year Level" class="form-input" min="1" max="5" value="{{ old('year_level', $student->year_level ?? '') }}" required, readonly />
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Contact Number</label>
-                        <input type="tel" name="contact_number" placeholder="Enter contact number" class="form-input" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ old('contact_number', $student->contact_number ?? '') }}" required />
+                        <input type="tel" name="contact_number" placeholder="Enter contact number" class="form-input" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ old('contact_number', $student->contact_number ?? '') }}" required, readonly />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Date of Birth</label>
-                        <input type="date" name="date_of_birth" class="form-input" value="{{ old('date_of_birth', $student->date_of_birth ?? '') }}" required />
+                        <input type="date" name="date_of_birth" class="form-input" value="{{ old('date_of_birth', $student->date_of_birth ?? '') }}" required, readonly />
                     </div>
                 </div>
                 
