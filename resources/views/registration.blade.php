@@ -19,7 +19,6 @@
             <form class="registration-form" method="POST" action="{{ route('register') }}">
                 @csrf
                 <h1 class="form-title" style="margin-top: 10px;">Registration Form</h1>
-                
                 <div class="form-row">
                     <div class="form-group full-width">
                         <label class="form-label">Name</label>
