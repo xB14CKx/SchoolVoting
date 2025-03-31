@@ -1,20 +1,10 @@
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/registration.css') }}">
-<link
-  href="https://fonts.googleapis.com/css2?family=Istok+Web&family=Inria+Sans:wght@300;400;700&family=Inter:wght@900&display=swap"
-  rel="stylesheet"
-/>
-@endpush
-
-@if(request()->header('HX-Request'))
-    <hx:head>
-        <link rel="stylesheet" href="{{ asset('css/registration.css') }}">
-    </hx:head>
-@endif
-
+{{-- resources/views/registration.blade.php --}}
 
 <x-guest-layout>
-    
+
+    {{-- Include Vite assets (CSS and JS) --}}
+    @vite(['resources/css/registration.css', 'resources/js/app.js'])
+
     <!-- BACKGROUND COLOR -->
     <div class="registration"></div>
     

@@ -6,9 +6,6 @@
     {{-- Include Vite assets (CSS and JS) --}}
     @vite(['resources/css/eligibility.css', 'resources/js/app.js'])
 
-    {{-- Load HTMX via CDN (or bundle it in app.js) --}}
-    <script src="node_modules/htmx.org/dist/htmx.min.js"></script>
-
     <div class="eligibility"></div>
     <div class="content-container">
         <div class="image-container">

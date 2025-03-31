@@ -1,4 +1,6 @@
 
+@import url('https://fonts.googleapis.com/css2?family=Istok+Web&family=Inria+Sans:wght@300;400;700&family=Inter:wght@900&display=swap');
+
 /* RESPONSIVENESS - HEADER */
 @media (max-width: 991px) {
     .nav-links {
@@ -32,7 +34,7 @@
 }
 
 body {
-    font-family: sans-serif;
+    font-family: 'Inria Sans', sans-serif;
 }
 
 .container {
