@@ -21,3 +21,6 @@ must have admin then have an option to add file
 might use same the database to reference the candidate
 
 must generate resource (admin)
+
+must finish registration setup, after registering it must return to the landing page.
+need to finish the topbar for the unauthorized pages.
