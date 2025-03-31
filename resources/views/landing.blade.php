@@ -7,6 +7,7 @@
     @vite(['resources/css/Landing.css', 'resources/js/app.js'])
 
     {{-- Load HTMX via CDN --}}
+    <script src="node_modules/htmx.org/dist/htmx.min.js"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 
     <div class="landing">

@@ -7,7 +7,7 @@
     @vite(['resources/css/eligibility.css', 'resources/js/app.js'])
 
     {{-- Load HTMX via CDN (or bundle it in app.js) --}}
-    <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+    <script src="node_modules/htmx.org/dist/htmx.min.js"></script>
 
     <div class="eligibility"></div>
     <div class="content-container">
