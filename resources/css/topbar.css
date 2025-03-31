@@ -1,41 +1,132 @@
 /* Navigation Bar Styles */
 .navbar {
-    width: 100%;
-    height: 55px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 70);
-  }
-  
+  width: 100%;
+  height: 55px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.7); /* Match the semi-transparent background */
+  position: relative; /* For hamburger menu positioning */
+}
+
+/* Nav Links Container */
+.nav-links {
+  display: flex;
+  gap: 30px; /* Adjusted gap to match the screenshot */
+  margin-right: 36px;
+  list-style: none;
+  padding: 0;
+}
+
+/* Nav Link Items */
+.nav-item a {
+  color: #fff;
+  font-family: "Istok Web", sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center; /* Align icons and text */
+  gap: 5px; /* Space between icon and text */
+}
+
+.nav-item a:hover {
+  color: #ddd; /* Hover effect */
+}
+
+/* Ensure the Login text color isn't overridden */
+.nav-item a span {
+  color: #FFdF61; /* Yellow color for "Login" text */
+}
+
+/* Style for Font Awesome icons */
+.nav-item a i {
+  font-size: 14px; /* Adjust icon size */
+  color: #fff; /* White icons */
+}
+
+.nav-item a:hover i {
+  color: #ddd; /* Match hover effect for icons */
+}
+
+/* Hamburger Menu Icon (Hidden by Default) */
+.hamburger {
+  display: none; /* Hidden on larger screens */
+  font-size: 24px;
+  color: #fff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Responsive Styles */
+
+/* Tablet (max-width: 991px) */
+@media (max-width: 991px) {
   .nav-links {
-    display: flex;
-    gap: 95px;
-    margin-right: 36px;
-    list-style: none;
-    padding: 0;
-  }
-  
-  .nav-item a {
-    color: #fff;
-    font-family: "Istok Web", sans-serif;
-    font-size: 15px;
-    font-weight: 400;
-    cursor: pointer;
-    text-decoration: none;
-  }
-  
-  /* Responsive Styles */
-  @media (max-width: 991px) {
-    .nav-links {
-      gap: 40px;
+      gap: 20px; /* Reduced gap for tablet */
       margin-right: 20px;
-    }
   }
-  
-  @media (max-width: 640px) {
-    .nav-links {
-      display: none;
-    }
+
+  .nav-item a {
+      font-size: 14px; /* Slightly smaller font for tablet */
   }
-  
+
+  .nav-item a i {
+      font-size: 13px; /* Slightly smaller icon for tablet */
+  }
+}
+
+/* Mobile (max-width: 640px) */
+@media (max-width: 640px) {
+  .navbar {
+      justify-content: space-between; /* Adjust for hamburger menu */
+      padding: 0 15px; /* Add padding for better spacing */
+  }
+
+  .nav-links {
+      display: none !important; /* Force hide on mobile */
+      flex-direction: column; /* Stack links vertically */
+      position: absolute;
+      top: 55px; /* Below navbar */
+      left: 0; /* Full width from left */
+      width: 100%; /* Full width for dropdown */
+      background-color: rgba(0, 0, 0, 0.9); /* Darker background for dropdown */
+      margin: 0; /* Remove margin */
+      padding: 10px 0;
+      text-align: center;
+      z-index: 1000; /* Ensure dropdown appears above other content */
+  }
+
+  /* Show nav-links when active (toggled by JS) */
+  .nav-links.active {
+      display: flex !important; /* Force show when active */
+  }
+
+  .nav-item {
+      margin: 10px 0; /* Spacing between items */
+  }
+
+  .nav-item a {
+      font-size: 16px; /* Larger font for readability on mobile */
+      padding: 10px; /* Larger tap area */
+      display: flex;
+      justify-content: center; /* Center icon and text in mobile view */
+      gap: 5px; /* Maintain icon-text spacing */
+  }
+
+  .nav-item a i {
+      font-size: 15px; /* Adjust icon size for mobile */
+  }
+
+  .hamburger {
+      display: block; /* Show hamburger on mobile */
+  }
+}
