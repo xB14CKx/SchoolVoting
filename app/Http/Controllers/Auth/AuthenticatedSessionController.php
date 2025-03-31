@@ -11,37 +11,40 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    /**
-     * Display the login view.
-     */
     public function create(): View
     {
         return view('auth.login');
     }
 
-    /**
-     * Handle an incoming authentication request.
-     */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request)
     {
-        $request->authenticate();
+        try {
+            $request->authenticate();
+            $request->session()->regenerate();
 
-        $request->session()->regenerate();
-
-        return redirect()->intended(route('dashboard', absolute: false));
+            // For HTMX SPA: Return a redirect instruction
+            if ($request->header('HX-Request')) {
+                return response('<meta http-equiv="refresh" content="0;url=' . route('dashboard', absolute: false) . '">', 200)
+                    ->header('HX-Redirect', route('dashboard', absolute: false));
+            }
+            return redirect()->intended(route('dashboard', absolute: false));
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // For HTMX SPA: Return the login view with errors
+            if ($request->header('HX-Request')) {
+                return response()->view('auth.login', [
+                    'email' => $request->input('email'),
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+            throw $e; // Fallback for non-HTMX
+        }
     }
 
-    /**
-     * Destroy an authenticated session.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         return redirect('/');
     }
 }
