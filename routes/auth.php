@@ -10,7 +10,7 @@ use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\Auth\EligibilityController;
-use App\Http\Controllers\Auth\AuthController; // Add this import
+use App\Http\Controllers\Auth\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -36,7 +36,7 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store'])
-        ->name('login.store'); // Changed to avoid conflict
+        ->name('login');
 
     // Password Reset Routes
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
@@ -71,7 +71,7 @@ Route::middleware('auth')->group(function () {
 
     Route::put('password', [PasswordController::class, 'update'])->name('password.update');
 
-    // Update the logout route to use AuthController
+    // Logout Route
     Route::post('logout', [AuthController::class, 'logout'])
         ->name('logout');
 });
