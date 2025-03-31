@@ -19,3 +19,5 @@ population of data from excel to db studentss
 query using database
 must have admin then have an option to add file
 might use same the database to reference the candidate
+
+must generate resource (admin)

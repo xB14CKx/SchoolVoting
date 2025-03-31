@@ -6,7 +6,7 @@
       <a href="{{ route('about')}}"><i class="fa-solid fa-question"></i> &nbsp; About</a>
     </li>
     <li class="nav-item">
-      <a href="#contact"><i class="fa-solid fa-address-book"></i> &nbsp; Contact</a>
+      <a href="{{ route('contact')}}"><i class="fa-solid fa-address-book"></i> &nbsp; Contact</a>
     </li>
     <li class="nav-item">
       <a href="{{ route('login') }}">

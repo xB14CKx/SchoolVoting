@@ -42,7 +42,9 @@ class PagesController extends Controller
                 ->with('error', 'Please check your eligibility before registering.');
         }
 
+        //sql query to grab details
         return view('registration', compact('studentId'));
+        
     }
 
     public function dashboard()
