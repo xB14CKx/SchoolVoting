@@ -68,16 +68,6 @@
                   </section>
               </div>
           </section>
-
-          <!-- Button container with HTMX -->
-          <div class="button-container">
-              <button class="check-eligibility" hx-get="{{ route('eligibility') }}" hx-target="body" hx-swap="outerHTML" hx-push-url="true">
-                  Check Eligibility
-              </button>
-              <button class="log-in-button" hx-get="{{ route('login') }}" hx-target="body" hx-swap="outerHTML" hx-push-url="true">
-                  Log In
-              </button>
-          </div>
       </div>
   </main>
 </x-guest-layout>

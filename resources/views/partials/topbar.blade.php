@@ -1,5 +1,15 @@
-<!-- resources/views/partials/topbar.blade.php -->
 <nav class="navbar">
+    <!-- Logo Container -->
+    <div class="logo-container">
+        <a href="{{ route('home') }}"
+           hx-get="{{ route('home') }}"
+           hx-target="body"
+           hx-swap="outerHTML"
+           hx-push-url="true">
+            <img src="{{ asset('images/csglogo_nobg.ico') }}" alt="CSG Logo" class="logo">
+        </a>
+    </div>
+
     <ul class="nav-links">
         @if (auth()->check())
             <!-- Authenticated User Links -->
