@@ -60,6 +60,14 @@ Route::get('/admin', function() {
     return view('admin');
 })->name('admin');
 
+Route::get('/reports', function() {
+    return view('reports');
+})->name('reports');
+
+Route::get('/file-upload', function() {
+    return view('file-upload');
+})->name('file-upload');
+
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

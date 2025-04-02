@@ -85,6 +85,32 @@
         .result-icon:hover {
           color: #ffd700;        
         }
+
+        .reports-icon {
+          font-size: 25px;        
+          color: white;          
+          margin-right: 20px;
+          margin-top: 50px;
+          margin-bottom: -10px;
+          transition: color 0.2s ease;
+        }
+    
+        .reports-icon:hover {
+          color: #ffd700;        
+        }
+
+        .upload-icon {
+          font-size: 25px;        
+          color: white;          
+          margin-right: 20px;
+          margin-top: 50px;
+          margin-bottom: -10px;
+          transition: color 0.2s ease;
+        }
+    
+        .upload-icon:hover {
+          color: #ffd700;        
+        }
     
     
         .logout-icon {
@@ -126,6 +152,14 @@
               
               <a href="{{ url('/result') }}">
                 <i class="fa-solid fa-check-to-slot result-icon" aria-hidden="true"></i>
+              </a>
+
+              <a href="{{ url('/reports') }}">
+                <i class="fa-solid fa-chart-pie reports-icon" aria-hidden="true"></i>
+              </a>
+
+              <a href="{{ url('/file-upload') }}">
+                <i class="fa-solid fa-file-arrow-up upload-icon" aria-hidden="true"></i>
               </a>
     
              <a href= "{{ url('/login') }}"><i class="fa-solid fa-arrow-right-from-bracket logout-icon"
