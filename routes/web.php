@@ -18,47 +18,34 @@ Route::middleware('guest')->group(function () {
     Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
 });
 
-// Authenticated Routes
-Route::middleware(['auth', 'verified'])->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
+// Authenticated Routes (combined)
+Route::middleware('auth')->group(function () {
+    // Routes for all authenticated users (with 'verified' middleware where needed)
+    Route::middleware('verified')->group(function () {
+        Route::get('/dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
+        Route::get('/elect', function () {
+            return view('elect');
+        })->name('elect');
+        Route::get('/result', function () {
+            return view('result');
+        })->name('result');
+        Route::get('/vote-counting', function () {
+            return view('vote-counting');
+        })->name('vote-counting');
+        Route::get('/userinfo', [PagesController::class, 'userinfo'])->name('userinfo');
+    });
 
-    // User Routes
-    Route::get('/elect', function() {
-        return view('elect');
-    })->name('elect');
-
-    Route::get('/result', function() {
-        return view('result');
-    })->name('result');
-
-    Route::get('/vote-counting', function() {
-        return view('vote-counting');
-    })->name('vote-counting');
-
-    Route::get('/userinfo', [PagesController::class, 'userinfo'])->name('userinfo');
-
-    // Profile Routes
+    // Profile Routes (available to all authenticated users)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Admin Routes
-    Route::middleware('admin')->group(function () {
-        Route::get('/admin', function() {
-            return view('admin');
-        })->name('admin');
-
-        Route::resource('users', UserController::class)->names('users');
-        Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
-    });
-
-    // Election System Routes
+    // General Election System Routes (available to all authenticated users)
     Route::resource('candidates', CandidateController::class)->names('candidates');
 
     // Election-related Routes
     Route::prefix('elections')->name('elections.')->group(function () {
-        Route::resource('/', ElectionController::class)
+        Route::resource('', ElectionController::class)
             ->parameters(['' => 'election'])
             ->names('elections');
 
@@ -77,9 +64,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 ->name('results.show');
             Route::post('results', [ElectionResultController::class, 'update'])
                 ->name('results.update')
-                ->middleware('admin');
+                ->middleware('admin'); // Admin-only for updating results
 
-            // Voting Routes
+            // Voting Routes (voter middleware for voting)
             Route::middleware('voter')->group(function () {
                 Route::get('vote', [VoteController::class, 'create'])
                     ->name('vote.create');
@@ -88,7 +75,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
             });
         });
     });
+
+    // Reports Route (available to all authenticated users)
+    Route::get('/reports', function () {
+        return view('reports');
+    })->name('reports');
+
+    // Admin-only Routes (nested middleware 'admin' check)
+    Route::middleware('admin')->group(function () {
+        Route::get('/admin', function () {
+            return view('admin');
+        })->name('admin');
+
+        Route::resource('users', UserController::class)->names('users');
+        Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
+
+        // File Upload Route (admin-only)
+        Route::get('/file-upload', function () {
+            return view('file-upload');
+        })->name('file-upload');
+    });
 });
 
-// Laravel Authentication Routes (Breeze)
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

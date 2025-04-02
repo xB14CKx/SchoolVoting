@@ -127,6 +127,48 @@
       background-color: gold;
       color: black;
     }
+
+    .reports-button {
+      display: inline-block;
+      margin-top: -15px;
+      padding: 10px 24px;
+      background-color: white;
+      color: black;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      border: 1px solid black;
+      border-radius: 6px;
+      text-decoration: none;
+      text-align: center;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .reports-button:hover {
+      background-color: gold;
+      color: black;
+    }
+
+    .upload-button {
+      display: inline-block;
+      margin-top: -15px;
+      padding: 10px 24px;
+      background-color: white;
+      color: black;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      border: 1px solid black;
+      border-radius: 6px;
+      text-decoration: none;
+      text-align: center;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .upload-button:hover {
+      background-color: gold;
+      color: black;
+    }
     
     .logout-button {
       display: inline-block;
@@ -215,6 +257,8 @@
       <a href="{{ url('/admin') }}" class="admin-button"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> &nbsp;Admin</a>
       <a href="{{ url('/vote-counting') }}" class="count-button"><i class="fa-solid fa-square-poll-horizontal" aria-hidden="true"></i> &nbsp;Vote Counting</a>
       <a href="{{ url('/result') }}" class="results-button"><i class="fa-solid fa-check-to-slot" aria-hidden="true"></i> &nbsp;Results</a>
+      <a href="{{ url('/reports') }}" class="reports-button"><i class="fa-solid fa-chart-pie"></i> &nbsp;Reports</a>
+      <a href="{{ url('/file-upload') }}" class="upload-button"><i class="fa-solid fa-file-arrow-up"></i> &nbsp;File Upload</a>
       <a href="{{ url('/login') }}" class="logout-button"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> &nbsp;Log Out</a>
     </nav>
   
