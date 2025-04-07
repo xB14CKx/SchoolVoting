@@ -22,7 +22,7 @@
 
     @stack('styles')
 </head>
-<body class="font-sans text-gray-900 antialiased">
+<body class="font-sans antialiased">
     <!-- Top bar for Guest Pages -->
     @include('partials.topbar')
 

@@ -27,10 +27,18 @@
     <!-- Flex container for layout -->
     <div class="flex min-h-screen bg-gray-100">
         <!-- Small Sidebar -->
-        @include('votings.partials.sidebar-small-user')
+        @auth
+            @include('votings.partials.sidebar-small', ['isAdmin' => auth()->user()->role === 'admin'])
+        @else
+            @include('votings.partials.sidebar-small', ['isAdmin' => false])
+        @endauth
 
         <!-- Large Sidebar -->
-        @include('votings.partials.sidebar-large-user')
+        @auth
+            @include('votings.partials.sidebar-large', ['isAdmin' => auth()->user()->role === 'admin'])
+        @else
+            @include('votings.partials.sidebar-large', ['isAdmin' => false])
+        @endauth
 
         <!-- Main Content Area -->
         <div id="mainContent" class="flex-1 transition-all duration-300">
