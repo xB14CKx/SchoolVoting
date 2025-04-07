@@ -16,25 +16,54 @@
     <link href="https://fonts.googleapis.com/css2?family=Istok+Web&family=Inria+Sans:wght@300;400;700&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- Vite assets (removing topbar.css and topbar.js since no top bar) -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Vite assets -->
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/sidebar.css', 'resources/css/sidebar-large.css', 'resources/css/sidebar-small-user.css'])
 
     @stack('styles')
 </head>
 <body class="font-sans antialiased">
-    <!-- Flex container: sidebar on the left, main content on the right -->
+    <!-- Flex container for layout -->
     <div class="flex min-h-screen bg-gray-100">
-        <!-- Include the sidebar partial -->
+        <!-- Small Sidebar -->
         @include('votings.partials.sidebar-small-user')
 
-        <!-- Main Content Area (no top bar) -->
-        <div class="flex-1">
+        <!-- Large Sidebar -->
+        @include('votings.partials.sidebar-large-user')
+
+        <!-- Main Content Area -->
+        <div id="mainContent" class="flex-1 transition-all duration-300">
             {{ $slot }}
         </div>
     </div>
 
     @stack('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Sidebar Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const openBtn = document.querySelector('.largesb-icon');
+            const closeBtn = document.getElementById('closeSidebar');
+            const smallSidebar = document.querySelector('.sidebar-small');
+            const largeSidebar = document.getElementById('sidebarLarge');
+            const mainContent = document.getElementById('mainContent');
+
+            openBtn?.addEventListener('click', () => {
+                smallSidebar.style.display = 'none';
+                largeSidebar.classList.remove('hidden');
+                largeSidebar.classList.add('show');
+                mainContent.style.marginLeft = '250px'; // Match sidebar-large width
+            });
+
+            closeBtn?.addEventListener('click', () => {
+                smallSidebar.style.display = 'block';
+                largeSidebar.classList.remove('show');
+                largeSidebar.classList.add('hidden');
+                mainContent.style.marginLeft = '0px';
+            });
+        });
+    </script>
 </body>
 </html>

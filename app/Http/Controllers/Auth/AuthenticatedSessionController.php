@@ -27,6 +27,8 @@ class AuthenticatedSessionController extends Controller
                 return response('<meta http-equiv="refresh" content="0;url=' . route('dashboard', absolute: false) . '">', 200)
                     ->header('HX-Redirect', route('dashboard', absolute: false));
             }
+
+            // Standard redirect to the dashboard in votings directory
             return redirect()->intended(route('dashboard', absolute: false));
         } catch (\Illuminate\Validation\ValidationException $e) {
             // For HTMX SPA: Return the login view with errors

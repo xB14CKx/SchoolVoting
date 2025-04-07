@@ -11,7 +11,7 @@ use App\Http\Controllers\PagesController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 
-// Guest Routes (unauthenticated users)
+// Guest Routes (unauthenticated users) - No changes needed here
 Route::middleware('guest')->group(function () {
     Route::get('/', [PagesController::class, 'home'])->name('home');
     Route::get('/about', [PagesController::class, 'about'])->name('about');
@@ -22,15 +22,17 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Routes for all authenticated users (with 'verified' middleware where needed)
     Route::middleware('verified')->group(function () {
-        Route::get('/dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', function () {
+            return view('votings.dashboard');
+        })->name('dashboard');
         Route::get('/elect', function () {
-            return view('elect');
+            return view('votings.elect');
         })->name('elect');
         Route::get('/result', function () {
-            return view('result');
+            return view('votings.result');
         })->name('result');
         Route::get('/vote-counting', function () {
-            return view('vote-counting');
+            return view('votings.vote-counting');
         })->name('vote-counting');
         Route::get('/userinfo', [PagesController::class, 'userinfo'])->name('userinfo');
     });
@@ -78,13 +80,13 @@ Route::middleware('auth')->group(function () {
 
     // Reports Route (available to all authenticated users)
     Route::get('/reports', function () {
-        return view('reports');
+        return view('votings.reports');
     })->name('reports');
 
     // Admin-only Routes (nested middleware 'admin' check)
     Route::middleware('admin')->group(function () {
         Route::get('/admin', function () {
-            return view('admin');
+            return view('votings.admin');
         })->name('admin');
 
         Route::resource('users', UserController::class)->names('users');
@@ -92,7 +94,7 @@ Route::middleware('auth')->group(function () {
 
         // File Upload Route (admin-only)
         Route::get('/file-upload', function () {
-            return view('file-upload');
+            return view('votings.file-upload');
         })->name('file-upload');
     });
 });

@@ -21,11 +21,6 @@ class PagesController extends Controller
         return view('contact');
     }
 
-    public function dashboard()
-    {
-        return view('dashboard');
-    }
-
     public function userinfo()
     {
         return view('userinfo');
