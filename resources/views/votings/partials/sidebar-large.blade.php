@@ -1,4 +1,4 @@
-<!-- resources/views/votings/partials/sidebar-large-user.blade.php -->
+<!-- resources/views/votings/partials/sidebar-large.blade.php
 <nav class="sidebar-large hidden" id="sidebarLarge">
     <header class="sidebar-header">
         <img
@@ -29,9 +29,11 @@
     <a href="{{ url('/reports') }}" class="reports-button">
         <i class="fa-solid fa-chart-pie"></i>  Reports
     </a>
-    <a href="{{ url('/file-upload') }}" class="upload-button">
-        <i class="fa-solid fa-file-arrow-up"></i>  File Upload
-    </a>
+    @if ($isAdmin)
+        <a href="{{ url('/file-upload') }}" class="upload-button">
+            <i class="fa-solid fa-file-arrow-up"></i>  File Upload
+        </a>
+    @endif
     <a href="{{ url('/login') }}" class="logout-button">
         <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>  Log Out
     </a>

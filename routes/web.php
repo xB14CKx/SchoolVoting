@@ -34,7 +34,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/vote-counting', function () {
             return view('votings.vote-counting');
         })->name('vote-counting');
-        Route::get('/userinfo', [PagesController::class, 'userinfo'])->name('userinfo');
+        Route::get('/userinfo', function () {
+            return view('votings.userinfo');
+        })->name('userinfo');
     });
 
     // Profile Routes (available to all authenticated users)

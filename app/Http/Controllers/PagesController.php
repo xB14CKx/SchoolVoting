@@ -20,9 +20,4 @@ class PagesController extends Controller
     {
         return view('contact');
     }
-
-    public function userinfo()
-    {
-        return view('userinfo');
-    }
 }
