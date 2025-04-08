@@ -91,7 +91,8 @@
         <section class="statistics-container">
             <h2 class="statistics-title">Statistics</h2>
         </section>
-        
+      </div>
+    </div>
  
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>

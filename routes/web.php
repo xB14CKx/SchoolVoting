@@ -2,6 +2,13 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Program;
+use App\Models\Partylist;
+use App\Http\Controllers\CandidateController;
+
+
+//post routes
+Route::post('/candidates', [CandidateController::class, 'store'])->name('candidates.store');
 
 
 //guest pages
@@ -56,8 +63,10 @@ Route::get('/userinfo', function() {
 
 //main pages for ADMIN
 
-Route::get('/admin', function() {
-    return view('admin');
+Route::get('/admin', function () {
+    $programs = Program::all();
+    $partylists = Partylist::all();
+    return view('admin', compact('programs', 'partylists'));
 })->name('admin');
 
 Route::get('/reports', function() {

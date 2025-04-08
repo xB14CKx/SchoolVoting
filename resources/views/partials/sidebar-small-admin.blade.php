@@ -86,6 +86,7 @@
           color: #ffd700;        
         }
 
+        /*reports icon*/
         .reports-icon {
           font-size: 25px;        
           color: white;          
@@ -99,6 +100,7 @@
           color: #ffd700;        
         }
 
+        /*upload icon*/
         .upload-icon {
           font-size: 25px;        
           color: white;          

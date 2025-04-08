@@ -94,7 +94,7 @@
         </button>
       </div>
     </div>
-  
+
 
   <!-- Vice President -->
 <div class="position-wrapper">
@@ -213,11 +213,102 @@
   </section>
 
   </div>
+</div>
+
+   <!-- Add Candidate Modal -->
+   <div class="modal fade" id="addCandidateModal" tabindex="-1" aria-labelledby="addCandidateLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content p-4">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addCandidateLabel">Add Candidate</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Image Upload -->
+
+          <h6>Image Upload</h6>
+          <br>
+          <div class="mb-3 text-center">
+            <div id="imagePreview" class="mb-2">
+              <img src="#" alt="Preview" id="previewImg" class="img-thumbnail d-none" width="150">
+            </div>
+            <input class="form-control" type="file" id="candidateImage" accept="image/*">
+          </div>
+          <hr />
+
+  
+          <!-- Position + Partylist -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="candidatePosition" class="form-label">Position</label>
+            <input type="text" class="form-control" id="candidatePosition" readonly>
+          </div>
+          <div class="col-md-6">
+            <label for="candidatePartylist" class="form-label">Partylist</label>
+              <select class="form-select" id="candidatePartylist">
+                <option disabled selected>Choose a partylist</option>
+                @foreach ($partylists as $party)
+                  <option value="{{ $party->partylist_id }}">{{ $party->partylist_name }}</option>
+                @endforeach
+              </select>
+          </div>
+        </div>
+        <br>
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label for="candidateLastName" class="form-label">Last Name</label>
+            <input type="text" class="form-control" id="candidateLastName">
+          </div>
+          <div class="col-md-4">
+            <label for="candidateFirstName" class="form-label">First Name</label>
+            <input type="text" class="form-control" id="candidateFirstName">
+          </div>
+          <div class="col-md-3">
+            <label for="candidateMiddleName" class="form-label">Middle Name</label>
+            <input type="text" class="form-control" id="candidateMiddleName">
+          </div>
+        </div>
+
+        <br>
+        <!-- Year Level + Program -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="candidateYearLevel" class="form-label">Year Level</label>
+            <select class="form-select" id="candidateYearLevel">
+              <option value="1st">1st Year</option>
+              <option value="2nd">2nd Year</option>
+              <option value="3rd">3rd Year</option>
+              <option value="4th">4th Year</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="candidateProgram" class="form-label">Program</label>
+            <select class="form-select" id="candidateProgram">
+              @foreach ($programs as $program)
+                <option value="{{ $program->program_id }}">{{ $program->program_name }}</option>
+              @endforeach
+            </select>
+            
+          </div>
+        </div>
+        <br>
+        
+        <div class="modal-footer">
+          <br>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="saveCandidateBtn">Save Candidate</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+  const candidateStoreUrl = "{{ route('candidates.store') }}";
+
   document.addEventListener("DOMContentLoaded", function () {
+    console.log("Modal element:", document.getElementById("addCandidateModal")); // <- Add this here
 
     const dropdownButton = document.getElementById("yearDropdownButton");
     const dropdownMenu = document.getElementById("yearDropdown");
@@ -243,26 +334,22 @@
       }
     });
 
-    document.addEventListener("click", function (event) {
-    // Check if a "more-options-button" was clicked (or one of its children)
-    const moreButton = event.target.closest(".more-options-button");
-    if (moreButton) {
-      // Find the candidate card that contains this button
-      const card = moreButton.closest(".candidate-card");
-      if (card) {
-        const menu = card.querySelector(".options-menu");
-        if (menu) {
-          // Toggle the menu visibility
-          menu.classList.toggle("hidden");
-        }
+    document.querySelectorAll('.more-options-button').forEach(button => {
+    button.addEventListener('click', function (event) {
+      event.stopPropagation(); // prevent it from triggering other click listeners
+      const card = button.closest(".candidate-card");
+      const menu = card.querySelector(".options-menu");
+      document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
+      if (menu) {
+        menu.classList.toggle("hidden");
       }
-    } else {
-      // Click outside: close all open options menus
-      document.querySelectorAll(".options-menu").forEach(menu => {
-        menu.classList.add("hidden");
-      });
-    }
+    });
   });
+
+  document.addEventListener("click", function () {
+    document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
+  });
+
 
     function createCandidateCard() {
   const cardHTML = `
@@ -292,23 +379,145 @@
   return wrapper.firstElementChild;
 }
 
-    // (B) Find all plus buttons and attach click event
+function getPositionTitle(id) {
+  const map = {
+    presidentCandidates: "President",
+    vicePresidentCandidates: "Vice President",
+    secretaryCandidates: "Secretary",
+    treasurerCandidates: "Treasurer",
+    auditorCandidates: "Auditor",
+    PIOCandidates: "Student PIO",
+    businessManagerCandidates: "Business Manager"
+  };
+  return map[id] || "Position";
+}
+
+    // ========== Modal Trigger ==========
     const addButtons = document.querySelectorAll('.add-candidate-button');
-    addButtons.forEach(btn => {
-      btn.addEventListener('click', function() {
-        // Which container to append?
-        const targetId = btn.getAttribute('data-position');
-        const container = document.getElementById(targetId);
 
-        // Create a new card
-        const newCard = createCandidateCard();
+addButtons.forEach(btn => {
+  btn.addEventListener('click', function () {
+    console.log("Add button clicked"); // <-- Add this
+    const targetId = btn.getAttribute('data-position');
+    const container = document.getElementById(targetId);
+    
 
-        // Append to the correct candidate-grid
-        container.insertBefore(newCard, btn);
-        ;
-      });
+    const currentCards = container.querySelectorAll('.candidate-card').length;
+    if (currentCards >= 2) {
+      alert('You can only add up to 2 candidates for this position.');
+      return;
+    }
+
+    const positionName = getPositionTitle(targetId);
+
+    // Update modal fields
+    document.getElementById("candidatePosition").value = positionName;
+    document.getElementById("addCandidateLabel").textContent = `Add Candidate for ${positionName}`;
+    document.getElementById("candidateImage").value = '';
+    document.getElementById("previewImg").classList.add("d-none");
+
+    // Show the modal
+    const modal = new bootstrap.Modal(document.getElementById("addCandidateModal"));
+    modal.show();
+  });
+});
+
+// This should be called after you append the new card:
+function checkCardLimit(containerId) {
+  const container = document.getElementById(containerId);
+  const addBtn = container.querySelector('.add-candidate-button');
+  const cardCount = container.querySelectorAll('.candidate-card').length;
+
+  if (cardCount >= 2) {
+    addBtn.disabled = true;
+    addBtn.style.opacity = 0.5;
+    addBtn.style.pointerEvents = 'none';
+  } else {
+    addBtn.disabled = false;
+    addBtn.style.opacity = 1;
+    addBtn.style.pointerEvents = 'auto';
+  }
+}
+
+    // ========== Image Preview ==========
+    document.getElementById("candidateImage").addEventListener("change", function () {
+      const file = this.files[0];
+      const preview = document.getElementById("previewImg");
+
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.classList.remove("d-none");
+        };
+        reader.readAsDataURL(file);
+      }
     });
+
+    // ========== Utility: Get Position Name ==========
+    function getPositionId(positionName) {
+    const map = {
+      "President": 1,
+      "Vice President": 2,
+      "Secretary": 3,
+      "Treasurer": 4,
+      "Auditor": 5,
+      "Student PIO": 6,
+      "Business Manager": 7
+    };
+    return map[positionName] || null;
+  }
+
+
+    // ========== Modal Submission ==========
+    document.getElementById('saveCandidateBtn').addEventListener('click', function () {
+      console.log("Save Candidate button clicked");
+  const positionName = document.getElementById("candidatePosition").value;
+  const positionId = getPositionId(positionName);
+
+  const formData = new FormData();
+  const imageFile = document.getElementById("candidateImage").files[0];
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
+
+  formData.append('position_id', positionId);
+  formData.append('partylist_id', document.getElementById("candidatePartylist").value);
+  formData.append('first_name', document.getElementById("candidateFirstName").value);
+  formData.append('last_name', document.getElementById("candidateLastName").value);
+  formData.append('middle_name', document.getElementById("candidateMiddleName").value);
+  formData.append('year_level', document.getElementById("candidateYearLevel").value);
+  formData.append('program_id', document.getElementById("candidateProgram").value);
+  formData.append('_token', '{{ csrf_token() }}');
+
+  fetch(candidateStoreUrl, {
+    method: "POST",
+    body: formData,
+    headers: {
+      'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    }
+  })
+  .then(response => {
+    if (!response.ok) {
+      return response.json().then(err => Promise.reject(err));
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
+      modal.hide();
+      location.reload();
+    } else {
+      alert("Failed to add candidate: " + (data.message || "Unknown error"));
+    }
+  })
+  .catch(error => {
+    console.error("Error submitting candidate:", error);
+    alert("Error submitting candidate: " + (error.message || "Unknown error"));
+  });
+});
+
   });
 </script>
-
 </x-app-layout>

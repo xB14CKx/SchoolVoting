@@ -128,6 +128,7 @@
       color: black;
     }
 
+ /* reports button */
     .reports-button {
       display: inline-block;
       margin-top: -15px;
@@ -149,6 +150,7 @@
       color: black;
     }
 
+  /* file upload button */
     .upload-button {
       display: inline-block;
       margin-top: -15px;
