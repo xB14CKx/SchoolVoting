@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Define a Gate to check if a user is an admin
+        Gate::define('is-admin', function ($user) {
+            return strtolower($user->role) === 'admin';
+        });
     }
 }

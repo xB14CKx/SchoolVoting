@@ -10,12 +10,10 @@ class Admin
 {
     public function handle(Request $request, Closure $next)
     {
-        // Check if the user is authenticated and has the 'admin' role
-        if (Auth::check() && Auth::user()->role === 'admin') {
+        if (Auth::check() && strtolower(Auth::user()->role) === 'admin') {
             return $next($request);
         }
 
-        // If not an admin, redirect or abort
         abort(403, 'Unauthorized: You do not have admin access.');
     }
 }

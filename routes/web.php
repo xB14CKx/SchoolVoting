@@ -21,29 +21,27 @@ Route::middleware('guest')->group(function () {
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
 
+    Route::middleware('verified')->group(function () {
+        Route::get('/dashboard', function () {
+            return view('votings.dashboard');
+        })->name('dashboard');
 
-Route::middleware('verified')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('votings.dashboard');
-    })->name('dashboard');
+        Route::get('/elect', function () {
+            return view('votings.elect');
+        })->name('elect');
 
-    Route::get('/elect', function () {
-        return view('votings.elect');
-    })->name('elect');
+        Route::get('/result', function () {
+            return view('votings.result');
+        })->name('result');
 
-    Route::get('/result', function () {
-        return view('votings.result');
-    })->name('result');
+        Route::get('/vote-counting', function () {
+            return view('votings.vote-counting');
+        })->name('vote-counting');
 
-    Route::get('/vote-counting', function () {
-        return view('votings.vote-counting');
-    })->name('vote-counting');
-
-    Route::get('/userinfo', function () {
-        return view('votings.userinfo');
-    })->name('userinfo');
-});
-
+        Route::get('/userinfo', function () {
+            return view('votings.userinfo');
+        })->name('userinfo');
+    });
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -56,7 +54,7 @@ Route::middleware('verified')->group(function () {
     })->name('reports');
 
     // Admin-only Routes
-    Route::middleware('admin')->group(function () {
+    Route::middleware('can:is-admin')->group(function () {
         Route::get('/admin', function () {
             return view('votings.admin');
         })->name('admin');
