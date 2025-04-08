@@ -9,10 +9,9 @@
   <title>{{ config('app.name', 'Laravel') }}</title>
 
   {{-- Include your partial-based CSS, if any --}}
-  <link rel="stylesheet" href="{{ asset('css/sidebar-small-user.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  
+
   {{-- Vite, etc. --}}
   @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/topbar.css'])
   @stack('styles')

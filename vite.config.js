@@ -14,6 +14,9 @@ export default defineConfig({
                 'resources/css/registration.css',
                 'resources/js/app.js',
                 'resources/js/topbar.js',
+                'resources/css/sidebar.css',
+                'resources/css/sidebar-large.css',
+                'resources/css/sidebar.css'
             ],
             refresh: true,
         }),

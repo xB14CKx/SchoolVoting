@@ -16,62 +16,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Istok+Web&family=Inria+Sans:wght@300;400;700&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- Vite assets -->
+    <!-- Vite assets (removing topbar.css and topbar.js since no top bar) -->
     @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/sidebar.css', 'resources/css/sidebar-large.css'])
 
     @stack('styles')
 </head>
 <body class="font-sans antialiased">
-    <!-- Flex container for layout -->
+    <!-- Flex container: sidebar on the left, main content on the right -->
     <div class="flex min-h-screen bg-gray-100">
-        <!-- Small Sidebar -->
-        @auth
-            @include('votings.partials.sidebar-small', ['isAdmin' => auth()->user()->role === 'admin'])
-        @else
-            @include('votings.partials.sidebar-small', ['isAdmin' => false])
-        @endauth
+        <!-- Include the sidebar partial -->
+        @include('partials.sidebar-small')
+        @include('partials.sidebar-large')
 
-        <!-- Large Sidebar -->
-        @auth
-            @include('votings.partials.sidebar-large', ['isAdmin' => auth()->user()->role === 'admin'])
-        @else
-            @include('votings.partials.sidebar-large', ['isAdmin' => false])
-        @endauth
-
-        <!-- Main Content Area -->
-        <div id="mainContent" class="flex-1 transition-all duration-300">
+        <!-- Main Content Area (no top bar) -->
+        <div class="flex-1">
             {{ $slot }}
         </div>
     </div>
 
     @stack('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Sidebar Toggle Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const openBtn = document.querySelector('.largesb-icon');
-            const closeBtn = document.getElementById('closeSidebar');
-            const smallSidebar = document.querySelector('.sidebar-small');
-            const largeSidebar = document.getElementById('sidebarLarge');
-            const mainContent = document.getElementById('mainContent');
-
-            openBtn?.addEventListener('click', () => {
-                smallSidebar.style.display = 'none';
-                largeSidebar.classList.remove('hidden');
-                largeSidebar.classList.add('show');
-                mainContent.style.marginLeft = '250px'; // Match sidebar-large width
-            });
-
-            closeBtn?.addEventListener('click', () => {
-                smallSidebar.style.display = 'block';
-                largeSidebar.classList.remove('show');
-                largeSidebar.classList.add('hidden');
-                mainContent.style.marginLeft = '0px';
-            });
-        });
-    </script>
 </body>
 </html>
