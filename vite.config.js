@@ -16,7 +16,7 @@ export default defineConfig({
                 'resources/js/topbar.js',
                 'resources/css/sidebar.css',
                 'resources/css/sidebar-large.css',
-                'resources/css/sidebar.css'
+                'resources/js/sidebar.js'
             ],
             refresh: true,
         }),
