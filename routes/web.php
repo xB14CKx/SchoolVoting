@@ -18,82 +18,78 @@ Route::middleware('guest')->group(function () {
     Route::get('/contact', [PagesController::class, 'contact'])->name('contact');
 });
 
-// Authenticated Routes (combined)
+// Authenticated Routes
 Route::middleware('auth')->group(function () {
-    // Routes for all authenticated users (with 'verified' middleware where needed)
-    Route::middleware('verified')->group(function () {
-        Route::get('/dashboard', [PagesController::class, 'dashboard'])->name('dashboard');
-        Route::get('/elect', function () {
-            return view('elect');
-        })->name('elect');
-        Route::get('/result', function () {
-            return view('result');
-        })->name('result');
-        Route::get('/vote-counting', function () {
-            return view('vote-counting');
-        })->name('vote-counting');
-        Route::get('/userinfo', [PagesController::class, 'userinfo'])->name('userinfo');
-    });
 
-    // Profile Routes (available to all authenticated users)
+
+Route::middleware('verified')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('votings.dashboard');
+    })->name('dashboard');
+
+    Route::get('/elect', function () {
+        return view('votings.elect');
+    })->name('elect');
+
+    Route::get('/result', function () {
+        return view('votings.result');
+    })->name('result');
+
+    Route::get('/vote-counting', function () {
+        return view('votings.vote-counting');
+    })->name('vote-counting');
+
+    Route::get('/userinfo', function () {
+        return view('votings.userinfo');
+    })->name('userinfo');
+});
+
+
+    // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // General Election System Routes (available to all authenticated users)
-    Route::resource('candidates', CandidateController::class)->names('candidates');
-
-    // Election-related Routes
-    Route::prefix('elections')->name('elections.')->group(function () {
-        Route::resource('', ElectionController::class)
-            ->parameters(['' => 'election'])
-            ->names('elections');
-
-        Route::prefix('{election}')->whereNumber('election')->group(function () {
-            // Election Candidates Routes
-            Route::get('candidates/create', [ElectionCandidateController::class, 'create'])
-                ->name('candidates.create');
-            Route::post('candidates', [ElectionCandidateController::class, 'store'])
-                ->name('candidates.store');
-            Route::delete('candidates/{candidate}', [ElectionCandidateController::class, 'destroy'])
-                ->name('candidates.destroy')
-                ->whereNumber('candidate');
-
-            // Election Results Routes
-            Route::get('results', [ElectionResultController::class, 'show'])
-                ->name('results.show');
-            Route::post('results', [ElectionResultController::class, 'update'])
-                ->name('results.update')
-                ->middleware('admin'); // Admin-only for updating results
-
-            // Voting Routes (voter middleware for voting)
-            Route::middleware('voter')->group(function () {
-                Route::get('vote', [VoteController::class, 'create'])
-                    ->name('vote.create');
-                Route::post('vote', [VoteController::class, 'store'])
-                    ->name('vote.store');
-            });
-        });
-    });
-
-    // Reports Route (available to all authenticated users)
+    // Reports Route
     Route::get('/reports', function () {
         return view('reports');
     })->name('reports');
 
-    // Admin-only Routes (nested middleware 'admin' check)
+    // Admin-only Routes
     Route::middleware('admin')->group(function () {
         Route::get('/admin', function () {
-            return view('admin');
+            return view('votings.admin');
         })->name('admin');
 
         Route::resource('users', UserController::class)->names('users');
         Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
 
-        // File Upload Route (admin-only)
         Route::get('/file-upload', function () {
-            return view('file-upload');
+            return view('votings.file-upload');
         })->name('file-upload');
+
+        // Candidates Management
+        Route::resource('candidates', CandidateController::class)->names('candidates');
+
+        // Elections Management
+        Route::resource('elections', ElectionController::class)->names('elections');
+
+        // Election Subroutes (Admin)
+        Route::prefix('elections/{election}')->whereNumber('election')->group(function () {
+            Route::get('candidates/create', [ElectionCandidateController::class, 'create'])->name('elections.candidates.create');
+            Route::post('candidates', [ElectionCandidateController::class, 'store'])->name('elections.candidates.store');
+            Route::delete('candidates/{candidate}', [ElectionCandidateController::class, 'destroy'])
+                ->whereNumber('candidate')->name('elections.candidates.destroy');
+
+            Route::get('results', [ElectionResultController::class, 'show'])->name('elections.results.show');
+            Route::post('results', [ElectionResultController::class, 'update'])->name('elections.results.update');
+        });
+    });
+
+    // Voting Routes for voters only
+    Route::prefix('elections/{election}')->whereNumber('election')->middleware('voter')->group(function () {
+        Route::get('vote', [VoteController::class, 'create'])->name('elections.vote.create');
+        Route::post('vote', [VoteController::class, 'store'])->name('elections.vote.store');
     });
 });
 
