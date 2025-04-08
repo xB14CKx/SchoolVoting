@@ -73,27 +73,46 @@
   </article>
 </template>
 
+
   <!-- Card Details -->
   <section class="ballot-container">
   <div class="ballot-content">
   <div class="  section">
 
-    <div class="position-wrapper">
-      <h2 class="position-title">President</h2>
-      
-      <div class="candidate-grid" id="presidentCandidates">
-            <button 
-          class="add-candidate-button" 
-          data-position="presidentCandidates"
-        >
-          <img
-            src="https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/d104a5502307640106c3586dc9010ea9a04b4473?placeholderIfAbsent=true"
-            class="add-candidate-icon"
-            alt="plus/add"
-          />
+<div class="position-wrapper">
+  <h2 class="position-title">President</h2>
+  <div class="candidate-grid" id="presidentCandidates">
+    @foreach($candidates->where('position_id', 1) as $candidate)
+      <article class="candidate-card">
+        <button class="more-options-button" aria-label="More options">
+          <!-- SVG icon; omitted for brevity -->
         </button>
-      </div>
-    </div>
+        <div class="options-menu hidden">
+          <button class="option-button">Edit</button>
+          <button class="option-button">Delete</button>
+        </div>
+        <figure class="candidate-figure">
+          <!-- Ensure your candidate image is properly stored and retrieved from the storage folder -->
+          <img src="{{ asset('storage/' . $candidate->image) }}"
+               class="candidate-image"
+               alt="Candidate">
+          <figcaption class="candidate-details">
+            {{ $candidate->last_name }}, {{ $candidate->first_name }} {{ $candidate->middle_name }}<br>
+            {{ $candidate->program->program_name }}<br>
+            {{ $candidate->partylist->partylist_name }}
+          </figcaption>
+        </figure>
+      </article>
+    @endforeach
+
+    <!-- Plus button remains for adding new candidates -->
+    <button class="add-candidate-button" data-position="presidentCandidates">
+      <img src="https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/d104a5502307640106c3586dc9010ea9a04b4473?placeholderIfAbsent=true"
+           class="add-candidate-icon" alt="plus/add">
+    </button>
+  </div>
+</div>
+
 
 
   <!-- Vice President -->
@@ -462,7 +481,7 @@ function checkCardLimit(containerId) {
       "Secretary": 3,
       "Treasurer": 4,
       "Auditor": 5,
-      "Student PIO": 6,
+      "PIO": 6,
       "Business Manager": 7
     };
     return map[positionName] || null;
@@ -472,51 +491,65 @@ function checkCardLimit(containerId) {
     // ========== Modal Submission ==========
     document.getElementById('saveCandidateBtn').addEventListener('click', function () {
       console.log("Save Candidate button clicked");
-  const positionName = document.getElementById("candidatePosition").value;
-  const positionId = getPositionId(positionName);
+      const positionName = document.getElementById("candidatePosition").value;
+      const positionId = getPositionId(positionName);
 
-  const formData = new FormData();
-  const imageFile = document.getElementById("candidateImage").files[0];
-  if (imageFile) {
-    formData.append('image', imageFile);
-  }
+      const formData = new FormData();
+      const imageFile = document.getElementById("candidateImage").files[0];
+      if (imageFile) {
+          formData.append('image', imageFile);
+      }
 
-  formData.append('position_id', positionId);
-  formData.append('partylist_id', document.getElementById("candidatePartylist").value);
-  formData.append('first_name', document.getElementById("candidateFirstName").value);
-  formData.append('last_name', document.getElementById("candidateLastName").value);
-  formData.append('middle_name', document.getElementById("candidateMiddleName").value);
-  formData.append('year_level', document.getElementById("candidateYearLevel").value);
-  formData.append('program_id', document.getElementById("candidateProgram").value);
-  formData.append('_token', '{{ csrf_token() }}');
+      formData.append('position_id', positionId);
+      formData.append('partylist_id', document.getElementById("candidatePartylist").value);
+      formData.append('first_name', document.getElementById("candidateFirstName").value);
+      formData.append('last_name', document.getElementById("candidateLastName").value);
+      formData.append('middle_name', document.getElementById("candidateMiddleName").value);
+      formData.append('year_level', document.getElementById("candidateYearLevel").value);
+      formData.append('program_id', document.getElementById("candidateProgram").value);
 
-  fetch(candidateStoreUrl, {
-    method: "POST",
-    body: formData,
-    headers: {
-      'X-CSRF-TOKEN': '{{ csrf_token() }}'
-    }
-  })
-  .then(response => {
-    if (!response.ok) {
-      return response.json().then(err => Promise.reject(err));
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data.success) {
-      const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
-      modal.hide();
-      location.reload();
-    } else {
-      alert("Failed to add candidate: " + (data.message || "Unknown error"));
-    }
-  })
-  .catch(error => {
-    console.error("Error submitting candidate:", error);
-    alert("Error submitting candidate: " + (error.message || "Unknown error"));
+      fetch(candidateStoreUrl, {
+          method: "POST",
+          body: formData,
+          headers: {
+              'X-CSRF-TOKEN': '{{ csrf_token() }}',
+              'Accept': 'application/json'
+          }
+      })
+      .then(response => {
+          if (!response.ok) {
+              // First try to parse as JSON
+              return response.text().then(text => {
+                  try {
+                      return Promise.reject(JSON.parse(text));
+                  } catch (e) {
+                      // If it's not JSON, return the text itself
+                      return Promise.reject(new Error(text));
+                  }
+              });
+          }
+          return response.json();
+      })
+      .then(data => {
+          if (data.success) {
+              const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
+              modal.hide();
+              location.reload();
+          } else {
+              alert("Failed to add candidate: " + (data.message || "Unknown error"));
+          }
+      })
+      .catch(error => {
+          console.error("Error submitting candidate:", error);
+          if (error.errors) {
+              // Handle validation errors
+              const errorMessages = Object.values(error.errors).flat().join('\n');
+              alert("Validation errors:\n" + errorMessages);
+          } else {
+              alert("Error submitting candidate: " + (error.message || "Unknown error"));
+          }
+      });
   });
-});
 
   });
 </script>

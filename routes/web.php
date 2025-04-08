@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\Program;
 use App\Models\Partylist;
 use App\Http\Controllers\CandidateController;
+use App\Models\Candidate;
 
 
 //post routes
@@ -66,7 +67,8 @@ Route::get('/userinfo', function() {
 Route::get('/admin', function () {
     $programs = Program::all();
     $partylists = Partylist::all();
-    return view('admin', compact('programs', 'partylists'));
+    $candidates = Candidate::with(['program', 'partylist', 'position'])->get();
+    return view('admin', compact('programs', 'partylists', 'candidates'));
 })->name('admin');
 
 Route::get('/reports', function() {
