@@ -1,3 +1,128 @@
+<style>
+    .sidebar-small {
+      width: 90px;
+      height: 100vh;
+      background-color: rgba(30, 30, 30, 0.71);
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 999;
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-small.hidden {
+      transform: translateX(-100%);
+    }
+
+
+        .sidebar-content {
+          display: flex; /*do this*/
+          width: 115%;
+          padding: 20px 19px 493px;
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .logo {
+          object-fit: contain;
+          object-position: center;
+          width: 150px;
+          height: 74px;
+          margin-right: 15px;
+          overflow: hidden;
+        }
+
+        .largesb-icon {
+          color: white;
+          font-size: 25px;
+          margin-top: 22px;
+          margin-right: 20px;
+          margin-bottom: -10px;
+          transition: color 0.2s ease;
+        }
+
+        .largesb-icon:hover {
+          color: #ffd700;
+        }
+
+
+        .admin-icon {
+          color: white;
+          font-size: 25px;
+          margin-top: 80px;
+          margin-right: 20px;
+          margin-bottom: -10px;
+          transition: color 0.2s ease;
+        }
+
+        .admin-icon:hover {
+          color: #ffd700;
+        }
+
+        .count-icon {
+          font-size: 25px;
+          color: white;
+          margin-right: 20px;
+          margin-top: 50px;
+          margin-bottom: -10px;
+          transition: color 0.2s ease;
+        }
+
+        .count-icon:hover {
+          color: #ffd700;
+        }
+
+        .result-icon {
+          font-size: 25px;
+          color: white;
+          margin-right: 20px;
+          margin-top: 50px;
+          margin-bottom: -10px;
+          transition: color 0.2s ease;
+        }
+
+        .result-icon:hover {
+          color: #ffd700;
+        }
+
+        .reports-icon {
+          font-size: 25px;
+          color: white;
+          margin-right: 20px;
+          margin-top: 50px;
+          margin-bottom: -10px;
+          transition: color 0.2s ease;
+        }
+
+        .reports-icon:hover {
+          color: #ffd700;
+        }
+
+        .upload-icon {
+          font-size: 25px;
+          color: white;
+          margin-right: 20px;
+          margin-top: 50px;
+          margin-bottom: -10px;
+          transition: color 0.2s ease;
+        }
+
+        .upload-icon:hover {
+          color: #ffd700;
+        }
+
+
+        .logout-icon {
+        color: white;
+        font-size: 25px;
+        margin-right: 25px;
+        margin-top: 200px;
+        }
+
+
+        </style>
+
             <link
               rel="stylesheet"
               href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
