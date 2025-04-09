@@ -3,6 +3,11 @@
 
     @vite(['resources/css/eligibility.css', 'resources/js/app.js'])
 
+    <!-- Inject the eligibility check URL as a global variable -->
+    <script>
+        window.eligibilityCheckUrl = '{{ route("register.eligibility.check") }}';
+    </script>
+
     <div class="eligibility"></div>
     <div class="content-container">
         <div class="image-container">
@@ -13,7 +18,6 @@
             <div class="eligibility-wrapper" id="eligibility-container">
                 <h2 class="eligibility-title">Check Eligibility</h2>
 
-                <!-- Display error or success messages -->
                 @if (session('error'))
                     <div class="message error">
                         {{ session('error') }}
@@ -26,21 +30,21 @@
                     </div>
                 @endif
 
-                <form class="eligibility-form" 
-                      method="POST" 
+                <form class="eligibility-form"
+                      method="POST"
                       action="{{ route('register.eligibility.check') }}"
                       hx-post="{{ route('register.eligibility.check') }}"
-                      hx-target="body"
-                      hx-swap="outerHTML">
+                      hx-target="#eligibility-container"
+                      hx-swap="none">
                     @csrf
                     <label for="student-id" class="form-label">ID Number</label>
                     <div class="input-wrapper">
-                        <input type="number" 
-                               id="student-id" 
-                               name="student_id" 
-                               placeholder="Student Number" 
-                               class="student-input" 
-                               value="{{ old('student_id') }}" 
+                        <input type="number"
+                               id="student-id"
+                               name="student_id"
+                               placeholder="Student Number"
+                               class="student-input"
+                               value="{{ old('student_id') }}"
                                required>
                         @error('student_id')
                             <div class="message error">
