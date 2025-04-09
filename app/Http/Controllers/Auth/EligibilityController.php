@@ -38,7 +38,13 @@ class EligibilityController extends Controller
                     'student_id' => $request->student_id,
                 ]);
                 $errorMessage = 'Student ID not found. Please contact the administrator.';
-                return $this->handleResponse($isHtmxRequest, false, $errorMessage);
+                if ($isHtmxRequest) {
+                    return response()->view('auth.eligibility', [
+                        'error' => $errorMessage,
+                        'student_id' => $request->student_id,
+                    ])->header(self::HX_PUSH_URL, 'false');
+                }
+                return redirect()->route('register.eligibility')->with('error', $errorMessage);
             }
 
             $existingUser = User::where('email', $student->email)->first();
@@ -49,7 +55,13 @@ class EligibilityController extends Controller
                     'user_id' => $existingUser->id,
                 ]);
                 $errorMessage = 'This student is already registered. Please log in or contact the administrator.';
-                return $this->handleResponse($isHtmxRequest, false, $errorMessage);
+                if ($isHtmxRequest) {
+                    return response()->view('auth.eligibility', [
+                        'error' => $errorMessage,
+                        'student_id' => $request->student_id,
+                    ])->header(self::HX_PUSH_URL, 'false');
+                }
+                return redirect()->route('register.eligibility')->with('error', $errorMessage);
             }
 
             if ($student->year < 1 || $student->year > 5 || !$student->email) {
@@ -59,20 +71,23 @@ class EligibilityController extends Controller
                     'email' => $student->email,
                 ]);
                 $errorMessage = 'You are not eligible to register. Please contact the administrator.';
-                return $this->handleResponse($isHtmxRequest, false, $errorMessage);
+                if ($isHtmxRequest) {
+                    return response()->view('auth.eligibility', [
+                        'error' => $errorMessage,
+                        'student_id' => $request->student_id,
+                    ])->header(self::HX_PUSH_URL, 'false');
+                }
+                return redirect()->route('register.eligibility')->with('error', $errorMessage);
             }
 
             session(['eligible_student_id' => $student->id]);
-            Log::info('Student eligible, redirecting to registration', [
+            Log::info('Student eligible, proceeding to registration', [
                 'student_id' => $student->id,
             ]);
 
             if ($isHtmxRequest) {
-                return response()->json([
-                    'success' => true,
-                    'redirect' => route('register.form'),
-                    'message' => 'You are eligible! Redirecting to registration...',
-                ])->header(self::HX_PUSH_URL, route('register.form'));
+                return response()->view('auth.register', compact('student'))
+                    ->header(self::HX_PUSH_URL, route('register.form'));
             }
 
             return redirect()->route('register.form');
@@ -82,22 +97,13 @@ class EligibilityController extends Controller
                 'stack_trace' => $e->getTraceAsString(),
             ]);
             $errorMessage = 'Failed to check eligibility. Please try again.';
-            return $this->handleResponse($isHtmxRequest, false, $errorMessage);
+            if ($isHtmxRequest) {
+                return response()->view('auth.eligibility', [
+                    'error' => $errorMessage,
+                    'student_id' => $request->student_id,
+                ])->header(self::HX_PUSH_URL, 'false');
+            }
+            return redirect()->route('register.eligibility')->with('error', $errorMessage);
         }
-    }
-
-    private function handleResponse($isHtmxRequest, $success, $message)
-    {
-        if ($isHtmxRequest) {
-            $response = response()->json([
-                'success' => $success,
-                'message' => $message,
-            ]);
-            Log::debug('HTMX Response', [
-                'response' => $response->getContent(),
-            ]);
-            return $response->header(self::HX_PUSH_URL, 'false');
-        }
-        return redirect()->route('register.eligibility')->with('error', $message);
     }
 }

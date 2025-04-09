@@ -8,8 +8,13 @@
         window.eligibilityCheckUrl = '{{ route("register.eligibility.check") }}';
     </script>
 
+    <!-- Hidden element to store the error message for JavaScript -->
+    @if (isset($error))
+        <div id="error-message-data" style="display: none;" data-error="{{ $error }}"></div>
+    @endif
+
     <div class="eligibility"></div>
-    <div class="content-container">
+    <div class="content-container" id="main-content">
         <div class="image-container">
             <img src="{{ asset('images/csglogo_nobg.png') }}" alt="Centered Image" class="responsive-image">
         </div>
@@ -34,8 +39,8 @@
                       method="POST"
                       action="{{ route('register.eligibility.check') }}"
                       hx-post="{{ route('register.eligibility.check') }}"
-                      hx-target="#eligibility-container"
-                      hx-swap="none">
+                      hx-target="body"
+                      hx-swap="outerHTML">
                     @csrf
                     <label for="student-id" class="form-label">ID Number</label>
                     <div class="input-wrapper">
@@ -44,7 +49,7 @@
                                name="student_id"
                                placeholder="Student Number"
                                class="student-input"
-                               value="{{ old('student_id') }}"
+                               value="{{ $student_id ?? old('student_id') }}"
                                required>
                         @error('student_id')
                             <div class="message error">
