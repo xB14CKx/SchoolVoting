@@ -15,6 +15,7 @@ export default defineConfig({
                 'resources/css/registration.css',
                 'resources/js/app.js',
                 'resources/js/topbar.js',
+                'resources/css/file-upload.css'
             ],
             refresh: true,
         }),

@@ -9,6 +9,7 @@ use App\Http\Controllers\VoteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\FileUploadController;
 use Illuminate\Support\Facades\Route;
 
 // Guest Routes (unauthenticated users)
@@ -65,6 +66,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/file-upload', function () {
             return view('votings.file-upload');
         })->name('file-upload');
+
+        // File Upload Routes
+        Route::get('/upload', [FileUploadController::class, 'index'])->name('upload.index');
+        Route::post('/upload', [FileUploadController::class, 'upload'])->name('upload.store');
 
         // Candidates Management
         Route::resource('candidates', CandidateController::class)->names('candidates');
