@@ -139,6 +139,25 @@ class FileUploadController extends Controller
             // Store the file
             $path = $file->store('uploads');
 
+            // Check if the request is from HTMX
+            if ($request->header('HX-Request') === 'true') {
+                // Return HTML for HTMX to update the table
+                $html = '';
+                foreach ($students as $student) {
+                    $html .= '<tr>';
+                    $html .= '<td>' . htmlspecialchars($student['id']) . '</td>';
+                    $html .= '<td>' . htmlspecialchars($student['name']) . '</td>';
+                    $html .= '<td>' . htmlspecialchars($student['email']) . '</td>';
+                    $html .= '<td>' . htmlspecialchars($student['program']) . '</td>';
+                    $html .= '<td>' . htmlspecialchars($student['year_level']) . '</td>';
+                    $html .= '<td>' . htmlspecialchars($student['contact_number']) . '</td>';
+                    $html .= '<td>' . htmlspecialchars($student['date_of_birth'] ?? '') . '</td>';
+                    $html .= '</tr>';
+                }
+                return response($html)->header('HX-Trigger', 'uploadSuccess');
+            }
+
+            // For non-HTMX requests, return JSON
             return response()->json([
                 'message' => "File uploaded successfully. Added $added new students, skipped $skipped duplicates or invalid records.",
                 'students' => $students,
@@ -146,6 +165,14 @@ class FileUploadController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            // For HTMX requests, return the error as JSON (will be handled by hx-on::after-request)
+            if ($request->header('HX-Request') === 'true') {
+                return response()->json([
+                    'message' => 'Error processing file: ' . $e->getMessage()
+                ], 500);
+            }
+
+            // For non-HTMX requests, return JSON as before
             return response()->json([
                 'message' => 'Error processing file: ' . $e->getMessage()
             ], 500);

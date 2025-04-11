@@ -35,7 +35,18 @@
 
                 <!-- File Upload/Generate -->
                 <section class="file-upload-container">
-                    <form id="uploadForm" enctype="multipart/form-data">
+                    <form id="uploadForm"
+                          hx-post="/upload"
+                          hx-target="#studentTableBody"
+                          hx-swap="innerHTML"
+                          hx-encoding="multipart/form-data"
+                          hx-on::after-request="if (event.detail.successful) {
+                              document.getElementById('fileInput').value = '';
+                              document.getElementById('fileName').value = 'No file chosen';
+                              alert('File uploaded successfully!');
+                          } else {
+                              alert(event.detail.xhr.responseText ? JSON.parse(event.detail.xhr.responseText).message : 'Error uploading file');
+                          }">
                         @csrf
                         <div class="upload-panel">
                             <input type="file" name="file" id="fileInput" class="d-none" accept=".csv,.xlsx,.xls">
@@ -112,59 +123,6 @@
                 fileInput.addEventListener('change', function() {
                     fileNameDisplay.value = this.files[0]?.name || 'No file chosen';
                 });
-
-                // Form submission
-                document.getElementById('uploadForm').addEventListener('submit', async function(e) {
-                    e.preventDefault();
-
-                    const formData = new FormData(this);
-
-                    try {
-                        const response = await fetch('/upload', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-                            }
-                        });
-
-                        const data = await response.json();
-
-                        if (response.ok) {
-                            updateTable(data.students);
-                            alert('File uploaded successfully!');
-
-                            // Clear the file input and text field after successful upload
-                            fileInput.value = ''; // Reset the file input
-                            fileNameDisplay.value = 'No file chosen'; // Reset the text field
-                        } else {
-                            alert(data.message || 'Error uploading file');
-                        }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('An error occurred while uploading the file');
-                    }
-                });
-
-                // Update table with student data
-                function updateTable(students) {
-                    const tableBody = document.getElementById('studentTableBody');
-                    tableBody.innerHTML = '';
-
-                    students.forEach(student => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${student.id}</td>
-                            <td>${student.name}</td>
-                            <td>${student.email}</td>
-                            <td>${student.program}</td>
-                            <td>${student.year_level}</td>
-                            <td>${student.contact_number}</td>
-                            <td>${student.date_of_birth}</td>
-                        `;
-                        tableBody.appendChild(row);
-                    });
-                }
             });
         </script>
     @endpush
