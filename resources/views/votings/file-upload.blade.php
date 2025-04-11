@@ -7,9 +7,6 @@
 @endpush
 
 <x-app-layout>
-
-
-    @vite(['resources/css/file-upload.css'])
     <div class="page-container">
         <!-- Background Image -->
         <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/fe992e701c7edc01644f69af503f11ed319f8132"
@@ -136,6 +133,10 @@
                         if (response.ok) {
                             updateTable(data.students);
                             alert('File uploaded successfully!');
+
+                            // Clear the file input and text field after successful upload
+                            fileInput.value = ''; // Reset the file input
+                            fileNameDisplay.value = 'No file chosen'; // Reset the text field
                         } else {
                             alert(data.message || 'Error uploading file');
                         }
