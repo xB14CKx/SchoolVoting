@@ -10,6 +10,8 @@ use App\Models\Candidate;
 
 //post routes
 Route::post('/candidates', [CandidateController::class, 'store'])->name('candidates.store');
+Route::delete('/candidates/{candidate}', [CandidateController::class, 'destroy'])->name('candidates.destroy');
+Route::post('/candidates/{candidate}', [CandidateController::class, 'update'])->name('candidates.update');
 
 
 //guest pages

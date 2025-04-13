@@ -337,6 +337,11 @@ body {
   
   
   .candidate-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
     aspect-ratio: 1;
     object-position: center;
     width: 150px;
@@ -346,8 +351,21 @@ body {
     padding-right: 5px;
     margin-left: -15px;
   }
+
+  .candidate-image {
+    width: 600px;
+    height: 600px;
+    object-fit: cover;
+    border-radius: 8px;
+    aspect-ratio: 1/1;
+  }
   
   .candidate-details {
+     text-align: center;
+    font-size: 16px;
+    line-height: 1.5;
+    color: white;
+    width: 100%;
     align-self: center;
     margin-top: 9px;
     margin-left: -11px;

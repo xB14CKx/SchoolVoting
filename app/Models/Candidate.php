@@ -19,16 +19,16 @@ class Candidate extends Model
 
     public function program()
     {
-        return $this->belongsTo(Program::class);
+        return $this->belongsTo(Program::class, 'program_id', 'program_id');
     }
 
     public function partylist()
     {
-        return $this->belongsTo(Partylist::class);
+        return $this->belongsTo(Partylist::class, 'partylist_id', 'partylist_id');
     }
 
     public function position()
     {
-        return $this->belongsTo(Position::class);
+        return $this->belongsTo(Position::class, 'position_id', 'position_id');
     }
 }
