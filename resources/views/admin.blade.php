@@ -504,6 +504,39 @@
 
 
         function createCandidateCard(candidateData) {
+            // Format program name to show initials
+            let programName = candidateData.program.program_name;
+            
+            if (programName.includes('BS in ')) {
+                // Handle BS programs
+                const words = programName.split(' ');
+                
+                // Check if it's a program with a major/specialization
+                if (programName.includes('–')) {
+                    const [mainProgram, major] = programName.split('–').map(part => part.trim());
+                    const mainWords = mainProgram.split(' ').filter(word => word.toLowerCase() !== 'and');
+                    const initials = mainWords.slice(2).map(word => word.charAt(0)).join('');
+                    
+                    // Special handling for BSEMC
+                    if (mainProgram.includes('Entertainment and Multimedia Computing')) {
+                        programName = 'BSEMC - ' + major;
+                    } else {
+                        programName = 'BS' + initials + ' - ' + major;
+                    }
+                } else {
+                    // Regular BS program without major
+                    const filteredWords = words.filter(word => word.toLowerCase() !== 'and');
+                    const initials = filteredWords.slice(2).map(word => word.charAt(0)).join('');
+                    programName = 'BS' + initials;
+                }
+            } else if (programName.includes('Bachelor of ')) {
+                // Handle Bachelor programs
+                programName = programName.replace('Bachelor of ', 'B');
+                const words = programName.split(' ').filter(word => word.toLowerCase() !== 'and');
+                const initials = words.map(word => word.charAt(0)).join('');
+                programName = 'B' + initials;
+            }
+
             const cardHTML = `
                 <article class="candidate-card" data-candidate-id="${candidateData.id}">
                     <button class="more-options-button" aria-label="More options">
@@ -521,9 +554,10 @@
                             class="candidate-image"
                             alt="Candidate">
                         <figcaption class="candidate-details">
-                            ${candidateData.last_name}, ${candidateData.first_name} ${candidateData.middle_name ? candidateData.middle_name.charAt(0) + '.' : ''}<br>
-                            ${candidateData.program.program_name}<br>
-                            ${candidateData.partylist.partylist_name}
+                            <div class="candidate-name">${candidateData.last_name}, ${candidateData.first_name} ${candidateData.middle_name ? candidateData.middle_name.charAt(0) + '.' : ''}</div>
+                            <div class="candidate-partylist">${candidateData.partylist.partylist_name}</div>
+                            <div>${candidateData.year_level} Year</div>
+                            <div>${programName}</div>
                         </figcaption>
                     </figure>
                 </article>

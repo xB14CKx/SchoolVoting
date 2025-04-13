@@ -197,7 +197,6 @@ body {
     display: block;
 }
 
-/* Card Details */
 .ballot-container {
     border-radius: 0;
     display: flex;
@@ -290,14 +289,13 @@ body {
     display: grid;
     flex-wrap: wrap;
     grid-template-columns: repeat(5, 200px);
-    gap: 50px;       /* spacing between cards */
+    gap: 50px;       
     margin-top: 20px;
   }
   
-  /* Force each card to max out at 5 per row */
   .candidate-card {    
         display: flex;
-        gap: 20px;   
+        gap: 50px;   
         position: relative;
         border-radius: 10px;
         background-color: rgba(30, 30, 30, 0.71);
@@ -308,16 +306,16 @@ body {
         font-size: 14px;
         color: #fff;
         font-weight: 600;
-        width: 200px;
-        height: 270px;
+        width: 210px;
+        height: 310px;
         margin-left: 70px; 
         margin-top: 20px;
+        margin-bottom: 50px;
   }
   
-  /* The plus button styling */
   .add-candidate-button {
-    width: 200px;
-    height: 270px;
+    width: 210px;
+    height: 310px;
     border: 2px dashed black; 
     background: none;
     border-radius: 10px;
@@ -327,7 +325,7 @@ body {
     justify-content: center;
     margin-top: 20px;
     margin-bottom: 50px;
-    margin-left: 70px;
+    margin-left: 80px;
   }
   
   .add-icon {
@@ -361,14 +359,21 @@ body {
   }
   
   .candidate-details {
-     text-align: center;
-    font-size: 16px;
-    line-height: 1.5;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.6;
     color: white;
-    width: 100%;
-    align-self: center;
-    margin-top: 9px;
-    margin-left: -11px;
+    width: 150%;
+    max-width: 570px;
+    padding: 0 10px;
+
+  }
+
+  .candidate-name, .candidate-partylist {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 5px;
+    margin-bottom: 5px;
   }
 
   #imagePreview img {
