@@ -79,23 +79,23 @@
   <div class="ballot-content">
   <div class="  section">
 
-  <div class="position-wrapper">
-  <h2 class="position-title">President</h2>
+    <div class="position-wrapper">
+      <h2 class="position-title">President</h2>
+      
+      <div class="candidate-grid" id="presidentCandidates">
 
-  <div class="candidate-grid" id="presidentCandidates">
-
-  <button 
-    class="add-candidate-button" 
-    data-position="presidentCandidates"
-  >
-    <img
-    src="https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/d104a5502307640106c3586dc9010ea9a04b4473?placeholderIfAbsent=true"
-    class="add-candidate-icon"
-    alt="plus/add"
-    />
-  </button>
-</div>
-</div>
+            <button 
+          class="add-candidate-button" 
+          data-position="presidentCandidates"
+        >
+          <img
+            src="https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/d104a5502307640106c3586dc9010ea9a04b4473?placeholderIfAbsent=true"
+            class="add-candidate-icon"
+            alt="plus/add"
+          />
+        </button>
+      </div>
+    </div>
 
 
 
@@ -392,11 +392,11 @@
 <!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const candidateStoreUrl = "{{ route('candidates.store') }}";
+  const candidateStoreUrl = "{{ route('candidates.store') }}";
     const candidates = @json($candidates);
     let currentEditingCandidateId = null;
 
-    document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("DOMContentLoaded", function () {
         // Initialize existing candidates
         candidates.forEach(candidate => {
             const container = document.getElementById(getPositionContainerId(candidate.position.name));
@@ -462,45 +462,45 @@
             });
         });
 
-        const dropdownButton = document.getElementById("yearDropdownButton");
-        const dropdownMenu = document.getElementById("yearDropdown");
+    const dropdownButton = document.getElementById("yearDropdownButton");
+    const dropdownMenu = document.getElementById("yearDropdown");
 
-        for (let year = 2025; year <= 2035; year++) {
-          let listItem = document.createElement("li");
-          listItem.textContent = `School Year ${year}`;
-          listItem.addEventListener("click", function () {
-            dropdownButton.querySelector(".button-text").textContent = `School Year ${year}`;
-            dropdownMenu.classList.remove("show");
-          });
-          dropdownMenu.appendChild(listItem);
-        }
+    for (let year = 2025; year <= 2035; year++) {
+      let listItem = document.createElement("li");
+      listItem.textContent = `School Year ${year}`;
+      listItem.addEventListener("click", function () {
+        dropdownButton.querySelector(".button-text").textContent = `School Year ${year}`;
+        dropdownMenu.classList.remove("show");
+      });
+      dropdownMenu.appendChild(listItem);
+    }
 
-        dropdownButton.addEventListener("click", function (event) {
-          event.stopPropagation();
-          dropdownMenu.classList.toggle("show");
-        });
+    dropdownButton.addEventListener("click", function (event) {
+      event.stopPropagation();
+      dropdownMenu.classList.toggle("show");
+    });
 
-        document.addEventListener("click", function (event) {
-          if (!dropdownButton.contains(event.target)) {
-            dropdownMenu.classList.remove("show");
-          }
-        });
+    document.addEventListener("click", function (event) {
+      if (!dropdownButton.contains(event.target)) {
+        dropdownMenu.classList.remove("show");
+      }
+    });
 
-        document.querySelectorAll('.more-options-button').forEach(button => {
-        button.addEventListener('click', function (event) {
+    document.querySelectorAll('.more-options-button').forEach(button => {
+    button.addEventListener('click', function (event) {
           event.stopPropagation(); 
-          const card = button.closest(".candidate-card");
-          const menu = card.querySelector(".options-menu");
-          document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
-          if (menu) {
-            menu.classList.toggle("hidden");
-          }
-        });
-      });
+      const card = button.closest(".candidate-card");
+      const menu = card.querySelector(".options-menu");
+      document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
+      if (menu) {
+        menu.classList.toggle("hidden");
+      }
+    });
+  });
 
-      document.addEventListener("click", function () {
-        document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
-      });
+  document.addEventListener("click", function () {
+    document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
+  });
 
 
         function createCandidateCard(candidateData) {
@@ -537,38 +537,38 @@
                 programName = 'B' + initials;
             }
 
-            const cardHTML = `
+  const cardHTML = `
                 <article class="candidate-card" data-candidate-id="${candidateData.id}">
                     <button class="more-options-button" aria-label="More options">
-                        <svg class="more-icon" width="20" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M9.70312 12.9345C9.2584 12.9345 8.87769 12.8078 8.56099 12.5545C8.24429 12.3012 8.08594 11.9967 8.08594 11.641C8.08594 11.2853 8.24429 10.9808 8.56099 10.7275C8.87769 10.4742 9.2584 10.3476 9.70312 10.3476C10.1479 10.3476 10.5286 10.4742 10.8453 10.7275C11.162 10.9808 11.3203 11.2853 11.3203 11.641C11.3203 11.9967 11.162 12.3012 10.8453 12.5545C10.5286 12.8078 10.1479 12.9345 9.70312 12.9345ZM9.70312 9.05415C9.2584 9.05415 8.87769 8.9275 8.56099 8.6742C8.24429 8.4209 8.08594 8.1164 8.08594 7.7607C8.08594 7.40501 8.24429 7.10051 8.56099 6.84721C8.87769 6.59391 9.2584 6.46726 9.70312 6.46726C10.1479 6.46726 10.5286 6.59391 10.8453 6.84721C11.162 7.10051 11.3203 7.40501 11.3203 7.7607C11.3203 8.1164 11.162 8.4209 10.8453 8.6742C10.5286 8.9275 10.1479 9.05415 9.70312 9.05415ZM9.70312 5.17381C9.2584 5.17381 8.87769 5.04716 8.56099 4.79386C8.24429 4.54056 8.08594 4.23606 8.08594 3.88036C8.08594 3.52466 8.24429 3.22016 8.56099 2.96686C8.87769 2.71356 9.2584 2.58691 9.70312 2.58691C10.1479 2.58691 10.5286 2.71356 10.8453 2.96686C11.162 3.22016 11.3203 3.52466 11.3203 3.88036C11.3203 4.23606 11.162 4.54056 10.8453 4.79386C10.5286 5.04716 10.1479 5.17381 9.70312 5.17381Z" fill="#1D1B20"></path>
-                        </svg>
-                    </button>
-                    <div class="options-menu hidden">
-                        <button class="option-button">Edit</button>
-                        <button class="option-button">Delete</button>
-                    </div>
-                    <figure class="candidate-figure">
-                        <img 
+        <svg class="more-icon" width="20" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9.70312 12.9345C9.2584 12.9345 8.87769 12.8078 8.56099 12.5545C8.24429 12.3012 8.08594 11.9967 8.08594 11.641C8.08594 11.2853 8.24429 10.9808 8.56099 10.7275C8.87769 10.4742 9.2584 10.3476 9.70312 10.3476C10.1479 10.3476 10.5286 10.4742 10.8453 10.7275C11.162 10.9808 11.3203 11.2853 11.3203 11.641C11.3203 11.9967 11.162 12.3012 10.8453 12.5545C10.5286 12.8078 10.1479 12.9345 9.70312 12.9345ZM9.70312 9.05415C9.2584 9.05415 8.87769 8.9275 8.56099 8.6742C8.24429 8.4209 8.08594 8.1164 8.08594 7.7607C8.08594 7.40501 8.24429 7.10051 8.56099 6.84721C8.87769 6.59391 9.2584 6.46726 9.70312 6.46726C10.1479 6.46726 10.5286 6.59391 10.8453 6.84721C11.162 7.10051 11.3203 7.40501 11.3203 7.7607C11.3203 8.1164 11.162 8.4209 10.8453 8.6742C10.5286 8.9275 10.1479 9.05415 9.70312 9.05415ZM9.70312 5.17381C9.2584 5.17381 8.87769 5.04716 8.56099 4.79386C8.24429 4.54056 8.08594 4.23606 8.08594 3.88036C8.08594 3.52466 8.24429 3.22016 8.56099 2.96686C8.87769 2.71356 9.2584 2.58691 9.70312 2.58691C10.1479 2.58691 10.5286 2.71356 10.8453 2.96686C11.162 3.22016 11.3203 3.52466 11.3203 3.88036C11.3203 4.23606 11.162 4.54056 10.8453 4.79386C10.5286 5.04716 10.1479 5.17381 9.70312 5.17381Z" fill="#1D1B20"></path>
+        </svg>
+      </button>
+      <div class="options-menu hidden">
+        <button class="option-button">Edit</button>
+        <button class="option-button">Delete</button>
+      </div>
+      <figure class="candidate-figure">
+        <img 
                             src="${candidateData.image ? '{{ asset('storage/') }}/' + candidateData.image : 'https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/567fdf519eb08658d3207d7508f0b1db1ca7b3a2'}"
-                            class="candidate-image"
-                            alt="Candidate">
-                        <figcaption class="candidate-details">
+          class="candidate-image"
+          alt="Candidate">
+        <figcaption class="candidate-details">
                             <div class="candidate-name">${candidateData.last_name}, ${candidateData.first_name} ${candidateData.middle_name ? candidateData.middle_name.charAt(0) + '.' : ''}</div>
                             <div class="candidate-partylist">${candidateData.partylist.partylist_name}</div>
                             <div>${candidateData.year_level} Year</div>
                             <div>${programName}</div>
-                        </figcaption>
-                    </figure>
-                </article>
-            `;
-            const wrapper = document.createElement('div');
-            wrapper.innerHTML = cardHTML.trim();
-            return wrapper.firstElementChild;
-        }
+        </figcaption>
+      </figure>
+    </article>
+  `;
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = cardHTML.trim();
+  return wrapper.firstElementChild;
+}
 
         function getPositionContainerId(positionName) {
-            const map = {
+  const map = {
                 "President": "presidentCandidates",
                 "Vice President": "vicePresidentCandidates",
                 "Secretary": "secretaryCandidates",
@@ -578,64 +578,64 @@
                 "Business Manager": "businessManagerCandidates"
             };
             return map[positionName] || null;
-        }
+}
 
-        // ========== Modal Trigger ==========
-        const addButtons = document.querySelectorAll('.add-candidate-button');
+    // ========== Modal Trigger ==========
+    const addButtons = document.querySelectorAll('.add-candidate-button');
 
-        addButtons.forEach(btn => {
-            btn.addEventListener('click', function () {
-                console.log("Add button clicked"); // <-- Add this
-                const targetId = btn.getAttribute('data-position');
-                const container = document.getElementById(targetId);
-                
+addButtons.forEach(btn => {
+  btn.addEventListener('click', function () {
+    console.log("Add button clicked"); // <-- Add this
+    const targetId = btn.getAttribute('data-position');
+    const container = document.getElementById(targetId);
+    
 
-                const currentCards = container.querySelectorAll('.candidate-card').length;
-                if (currentCards >= 2) {
-                    alert('You can only add up to 2 candidates for this position.');
-                    return;
-                }
+    const currentCards = container.querySelectorAll('.candidate-card').length;
+    if (currentCards >= 2) {
+      alert('You can only add up to 2 candidates for this position.');
+      return;
+    }
 
-                const positionName = getPositionTitle(targetId);
+    const positionName = getPositionTitle(targetId);
 
-                // Update modal fields
-                document.getElementById("candidatePosition").value = positionName;
-                document.getElementById("addCandidateLabel").textContent = `Add Candidate for ${positionName}`;
-                document.getElementById("candidateImage").value = '';
-                document.getElementById("previewImg").classList.add("d-none");
+    // Update modal fields
+    document.getElementById("candidatePosition").value = positionName;
+    document.getElementById("addCandidateLabel").textContent = `Add Candidate for ${positionName}`;
+    document.getElementById("candidateImage").value = '';
+    document.getElementById("previewImg").classList.add("d-none");
 
-                const modal = new bootstrap.Modal(document.getElementById("addCandidateModal"));
-                modal.show();
-            });
-        });
+    const modal = new bootstrap.Modal(document.getElementById("addCandidateModal"));
+    modal.show();
+  });
+});
 
-        function checkCardLimit(containerId) {
-            const container = document.getElementById(containerId);
-            const addBtn = container.querySelector('.add-candidate-button');
-            const cardCount = container.querySelectorAll('.candidate-card').length;
+function checkCardLimit(containerId) {
+  const container = document.getElementById(containerId);
+  const addBtn = container.querySelector('.add-candidate-button');
+  const cardCount = container.querySelectorAll('.candidate-card').length;
 
-            if (cardCount >= 2) {
+  if (cardCount >= 2) {
                 addBtn.style.visibility = 'hidden';
-                addBtn.style.pointerEvents = 'none';
-            } else {
+    addBtn.style.pointerEvents = 'none';
+  } else {
                 addBtn.style.visibility = 'visible';
-                addBtn.style.pointerEvents = 'auto';
-            }
-        }
+    addBtn.style.pointerEvents = 'auto';
+  }
+}
 
-        document.getElementById("candidateImage").addEventListener("change", function () {
-            const file = this.files[0];
-            const preview = document.getElementById("previewImg");
+    document.getElementById("candidateImage").addEventListener("change", function () {
+      const file = this.files[0];
+      const preview = document.getElementById("previewImg");
 
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                    preview.classList.remove("d-none");
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.classList.remove("d-none");
+        };
+        reader.readAsDataURL(file);
+      }
+    });
 
         function getPositionTitle(id) {
             const map = {
@@ -650,41 +650,41 @@
             return map[id] || "Position";
         }
 
-        function getPositionId(positionName) {
-            const map = {
-                "President": 1,
-                "Vice President": 2,
-                "Secretary": 3,
-                "Treasurer": 4,
-                "Auditor": 5,
-                "Student PIO": 6,
-                "Business Manager": 7
-            };
-            return map[positionName] || null;
-        }
+    function getPositionId(positionName) {
+    const map = {
+      "President": 1,
+      "Vice President": 2,
+      "Secretary": 3,
+      "Treasurer": 4,
+      "Auditor": 5,
+      "Student PIO": 6,
+      "Business Manager": 7
+    };
+    return map[positionName] || null;
+  }
 
-        // ========== Modal Submission ==========
-        document.getElementById('saveCandidateBtn').addEventListener('click', function () {
-            console.log("Save Candidate button clicked");
-            const positionName = document.getElementById("candidatePosition").value;
-            const positionId = getPositionId(positionName);
+    // ========== Modal Submission ==========
+    document.getElementById('saveCandidateBtn').addEventListener('click', function () {
+      console.log("Save Candidate button clicked");
+  const positionName = document.getElementById("candidatePosition").value;
+  const positionId = getPositionId(positionName);
 
-            const formData = new FormData();
-            const imageFile = document.getElementById("candidateImage").files[0];
-            if (imageFile) {
-                formData.append('image', imageFile);
-            }
+  const formData = new FormData();
+  const imageFile = document.getElementById("candidateImage").files[0];
+  if (imageFile) {
+    formData.append('image', imageFile);
+  }
 
-            formData.append('position_id', positionId);
-            formData.append('partylist_id', document.getElementById("candidatePartylist").value);
-            formData.append('first_name', document.getElementById("candidateFirstName").value);
-            formData.append('last_name', document.getElementById("candidateLastName").value);
-            formData.append('middle_name', document.getElementById("candidateMiddleName").value);
-            formData.append('year_level', document.getElementById("candidateYearLevel").value);
-            formData.append('program_id', document.getElementById("candidateProgram").value);
+  formData.append('position_id', positionId);
+  formData.append('partylist_id', document.getElementById("candidatePartylist").value);
+  formData.append('first_name', document.getElementById("candidateFirstName").value);
+  formData.append('last_name', document.getElementById("candidateLastName").value);
+  formData.append('middle_name', document.getElementById("candidateMiddleName").value);
+  formData.append('year_level', document.getElementById("candidateYearLevel").value);
+  formData.append('program_id', document.getElementById("candidateProgram").value);
 
-            fetch(candidateStoreUrl, {
-                method: "POST",
+  fetch(candidateStoreUrl, {
+    method: "POST",
                 body: formData,
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -703,17 +703,17 @@
                 }
                 return response.json();
             })
-            .then(data => {
-                if (data.success) {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
-                    modal.hide();
+  .then(data => {
+    if (data.success) {
+      const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
+      modal.hide();
                     location.reload();
-                } else {
+    } else {
                     alert("Failed to add candidate: " + (data.message || "Unknown error"));
-                }
-            })
-            .catch(error => {
-                console.error("Error submitting candidate:", error);
+    }
+  })
+  .catch(error => {
+    console.error("Error submitting candidate:", error);
                 alert("Error submitting candidate: " + (error.message || "Unknown error"));
             });
         });
@@ -752,8 +752,8 @@
                         editModal.show();
                     }
                 }
-            });
-        });
+  });
+});
 
         // Handle image preview in edit modal
         document.getElementById("editCandidateImage").addEventListener("change", function () {
@@ -820,6 +820,6 @@
                 alert("Error updating candidate: " + (error.message || "Unknown error"));
             });
         });
-    });
+  });
 </script>
 </x-app-layout>
