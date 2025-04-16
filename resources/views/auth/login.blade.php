@@ -41,7 +41,7 @@
                 <div class="forgot-password-section">
                     <a href="{{ route('password.request') }}"
                        hx-get="{{ route('password.request') }}"
-                       hx-target="main"
+                       hx-target="body"
                        hx-swap="outerHTML"
                        hx-push-url="true"
                        class="forgot-password-link">
@@ -55,7 +55,7 @@
             <p class="no-account">No account yet?</p>
             <a href="{{ route('register.form') }}"
                hx-get="{{ route('register.form') }}"
-               hx-target="main"
+               hx-target="body"
                hx-swap="outerHTML"
                hx-push-url="true"
                class="register-link">
