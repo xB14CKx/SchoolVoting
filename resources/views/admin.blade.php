@@ -296,6 +296,14 @@
         </div>
         <br>
         
+        <!-- Add this before the modal-footer in the Add Candidate Modal -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <label for="candidatePlatform" class="form-label">Platform</label>
+                <textarea class="form-control" id="candidatePlatform" rows="4" placeholder="Enter candidate's platform"></textarea>
+            </div>
+        </div>
+        
         <div class="modal-footer">
           <br>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -378,6 +386,14 @@
               @endforeach
             </select>
           </div>
+        </div>
+
+        <!-- Add this before the modal-footer in the Edit Candidate Modal -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <label for="editCandidatePlatform" class="form-label">Platform</label>
+                <textarea class="form-control" id="editCandidatePlatform" rows="4" placeholder="Enter candidate's platform"></textarea>
+            </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -529,12 +545,14 @@
                     const initials = filteredWords.slice(2).map(word => word.charAt(0)).join('');
                     programName = 'BS' + initials;
                 }
+            } else if (programName.includes('Bachelor of Multimedia Arts')) {
+                programName = 'BMA';
             } else if (programName.includes('Bachelor of ')) {
-                // Handle Bachelor programs
+                // Handle other Bachelor programs
                 programName = programName.replace('Bachelor of ', 'B');
                 const words = programName.split(' ').filter(word => word.toLowerCase() !== 'and');
                 const initials = words.map(word => word.charAt(0)).join('');
-                programName = 'B' + initials;
+                programName = initials;
             }
 
   const cardHTML = `
@@ -665,58 +683,67 @@ function checkCardLimit(containerId) {
 
     // ========== Modal Submission ==========
     document.getElementById('saveCandidateBtn').addEventListener('click', function () {
-      console.log("Save Candidate button clicked");
-  const positionName = document.getElementById("candidatePosition").value;
-  const positionId = getPositionId(positionName);
+      const platform = document.getElementById("candidatePlatform").value;
+      console.log("Platform before sending:", platform);
 
-  const formData = new FormData();
-  const imageFile = document.getElementById("candidateImage").files[0];
-  if (imageFile) {
-    formData.append('image', imageFile);
-  }
+      const formData = new FormData();
+      const imageFile = document.getElementById("candidateImage").files[0];
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
 
-  formData.append('position_id', positionId);
-  formData.append('partylist_id', document.getElementById("candidatePartylist").value);
-  formData.append('first_name', document.getElementById("candidateFirstName").value);
-  formData.append('last_name', document.getElementById("candidateLastName").value);
-  formData.append('middle_name', document.getElementById("candidateMiddleName").value);
-  formData.append('year_level', document.getElementById("candidateYearLevel").value);
-  formData.append('program_id', document.getElementById("candidateProgram").value);
+      formData.append('position_id', getPositionId(document.getElementById("candidatePosition").value));
+      formData.append('partylist_id', document.getElementById("candidatePartylist").value);
+      formData.append('first_name', document.getElementById("candidateFirstName").value);
+      formData.append('last_name', document.getElementById("candidateLastName").value);
+      formData.append('middle_name', document.getElementById("candidateMiddleName").value);
+      formData.append('year_level', document.getElementById("candidateYearLevel").value);
+      formData.append('program_id', document.getElementById("candidateProgram").value);
+      formData.append('platform', platform);
+      formData.append('_token', '{{ csrf_token() }}');
 
-  fetch(candidateStoreUrl, {
-    method: "POST",
-                body: formData,
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => {
-                        try {
-                            return Promise.reject(JSON.parse(text));
-                        } catch (e) {
-                            return Promise.reject(new Error(text));
-                        }
-                    });
-                }
-                return response.json();
-            })
-  .then(data => {
-    if (data.success) {
-      const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
-      modal.hide();
-                    location.reload();
-    } else {
-                    alert("Failed to add candidate: " + (data.message || "Unknown error"));
-    }
-  })
-  .catch(error => {
-    console.error("Error submitting candidate:", error);
-                alert("Error submitting candidate: " + (error.message || "Unknown error"));
-            });
-        });
+      // Debug: Log all form data
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+
+      fetch(candidateStoreUrl, {
+        method: "POST",
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        credentials: 'same-origin'
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            console.log("Error response:", text);
+            try {
+              return Promise.reject(JSON.parse(text));
+            } catch (e) {
+              return Promise.reject(new Error(text));
+            }
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log("Success response:", data);
+        if (data.success) {
+          const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
+          modal.hide();
+          location.reload();
+        } else {
+          alert("Failed to add candidate: " + (data.message || "Unknown error"));
+        }
+      })
+      .catch(error => {
+        console.error("Error submitting candidate:", error);
+        alert("Error submitting candidate: " + (error.message || "Unknown error"));
+      });
+    });
 
         // Add event listeners for edit buttons
         document.querySelectorAll('.option-button').forEach(button => {
@@ -737,6 +764,7 @@ function checkCardLimit(containerId) {
                         document.getElementById("editCandidateMiddleName").value = candidate.middle_name;
                         document.getElementById("editCandidateYearLevel").value = candidate.year_level;
                         document.getElementById("editCandidateProgram").value = candidate.program_id;
+                        document.getElementById("editCandidatePlatform").value = candidate.platform || '';
                         
                         // Set the current image preview
                         const previewImg = document.getElementById("editPreviewImg");
@@ -785,6 +813,7 @@ function checkCardLimit(containerId) {
             formData.append('middle_name', document.getElementById("editCandidateMiddleName").value);
             formData.append('year_level', document.getElementById("editCandidateYearLevel").value);
             formData.append('program_id', document.getElementById("editCandidateProgram").value);
+            formData.append('platform', document.getElementById("editCandidatePlatform").value);
 
             fetch(`/candidates/${currentEditingCandidateId}`, {
                 method: 'POST',

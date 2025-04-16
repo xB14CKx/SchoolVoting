@@ -6,6 +6,7 @@ use App\Models\Program;
 use App\Models\Partylist;
 use App\Http\Controllers\CandidateController;
 use App\Models\Candidate;
+use App\Http\Controllers\VoteController;
 
 
 //post routes
@@ -48,9 +49,7 @@ Route::get('/dashboard', function () {
 
 //main pages for USER
 
-Route::get('/elect', function() {
-    return view('elect');
-})->name('elect');
+Route::get('/elect', [CandidateController::class, 'index'])->name('elect');
 
 Route::get('/result', function() {
     return view('result');
@@ -91,5 +90,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/', function () {
     return view('landing');
 });
+
+Route::post('/votes', [VoteController::class, 'store'])->name('votes.store')->middleware('auth');
 
 require __DIR__.'/auth.php';

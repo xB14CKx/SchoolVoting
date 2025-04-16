@@ -15,6 +15,7 @@ class Candidate extends Model
         'partylist_id',
         'position_id',
         'image',
+        'platform',
     ];
 
     public function program()
