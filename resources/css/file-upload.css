@@ -2,41 +2,46 @@
 .page-container {
     width: 100%;
     min-height: 100vh;
-    position: relative; /* do this */
+    position: relative;
+    /* do this */
     align-items: center;
     background-color: #f7bd03;
     top: 0;
     left: 0;
-    z-index: 0; 
-  }
-  
-  .content-wrapper {
-    display: flex; /*do this*/
+    z-index: 0;
+}
+
+.content-wrapper {
+    display: flex;
+    /*do this*/
     flex-direction: column;
     position: relative;
-    min-height: 2300px; /* adjust lang ni depende unsa kataas ang needed sa page, so far mao ni sa admin */
+    min-height: 2300px;
+    /* adjust lang ni depende unsa kataas ang needed sa page, so far mao ni sa admin */
     width: 100%;
     padding: 56px 80px;
     align-items: flex-start;
-    z-index: 1; /* add ni para ma apply gihapon siya tas above siya sa background nato */
-  }
+    z-index: 1;
+    /* add ni para ma apply gihapon siya tas above siya sa background nato */
+}
 
-  @media (max-width: 991px) {
+@media (max-width: 991px) {
     .content-wrapper {
-      max-width: 100%;
-      padding: 56px 20px;
+        max-width: 100%;
+        padding: 56px 20px;
     }
-  }
+}
 
-  /* Background logo */
-  .background-logo {
-    position: fixed; /* do this */
+/* Background logo */
+.background-logo {
+    position: fixed;
+    /* do this */
     width: 100%;
     height: 100%;
     object-fit: cover;
     opacity: 0.5;
     mix-blend-mode: luminosity;
-  }
+}
 
 /* Header Title and Divider */
 body {
@@ -134,7 +139,7 @@ body {
 .upload-actions {
     display: flex;
     align-items: center;
-    gap: 20px; 
+    gap: 20px;
 }
 
 @media (max-width: 991px) {
@@ -142,6 +147,7 @@ body {
         width: 90%;
         padding-top: 40px;
     }
+
     .upload-title {
         font-size: 32px;
     }
@@ -154,9 +160,11 @@ body {
         flex-direction: column;
         align-items: flex-start;
     }
+
     .upload-title {
         font-size: 28px;
     }
+
     .school-year-wrapper {
         margin-top: 8px;
     }
@@ -170,8 +178,8 @@ body {
 
 .dropdown-menu {
     position: absolute;
-    top: -65px; 
-    left: calc(12px - 5px); 
+    top: -65px;
+    left: calc(12px - 5px);
     background: white;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -203,29 +211,29 @@ body {
     max-width: 943px;
     height: 240px;
     font-family:
-      Inter,
-      -apple-system,
-      Roboto,
-      Helvetica,
-      sans-serif;
+        Inter,
+        -apple-system,
+        Roboto,
+        Helvetica,
+        sans-serif;
     font-size: 16px;
     font-weight: 400;
     line-height: 1;
     margin-left: 90px;
     margin-bottom: 60px;
     padding-top: 20px;
-  }
-  
-  .upload-panel {
+}
+
+.upload-panel {
     border-radius: 10px;
     background-color: rgba(30, 30, 30, 0.71);
     display: flex;
     width: 100%;
     padding: 66px 80px;
     flex-direction: column;
-  }
-  
-  .upload-button {
+}
+
+.upload-button {
     align-self: center;
     border-radius: 5px;
     background-color: rgba(247, 189, 3, 1);
@@ -240,14 +248,14 @@ body {
     cursor: pointer;
     font-size: 16px;
     margin-top: -20px;
-  }
+}
 
-  .upload-button:hover {
+.upload-button:hover {
     background-color: #000000 !important;
     color: white !important;
 }
-  
-  .input-controls {
+
+.input-controls {
     align-self: flex-end;
     display: flex;
     margin-top: 34px;
@@ -256,9 +264,9 @@ body {
     align-items: stretch;
     gap: 38px;
     flex-wrap: wrap;
-  }
-  
-  .file-input-wrapper {
+}
+
+.file-input-wrapper {
     align-self: flex-start;
     min-height: 40px;
     color: #b3b3b3;
@@ -266,9 +274,9 @@ body {
     flex-shrink: 0;
     flex-basis: 0;
     width: fit-content;
-  }
-  
-  .file-input {
+}
+
+.file-input {
     align-self: stretch;
     flex: 1;
     flex-shrink: 1;
@@ -282,15 +290,15 @@ body {
     overflow: hidden;
     color: #000000;
     font-family:
-      Inter,
-      -apple-system,
-      Roboto,
-      Helvetica,
-      sans-serif;
+        Inter,
+        -apple-system,
+        Roboto,
+        Helvetica,
+        sans-serif;
     font-size: 16px;
-  }
-  
-  .generate-button {
+}
+
+.generate-button {
     align-self: stretch;
     border-radius: 5px;
     background-color: rgba(30, 30, 30, 1);
@@ -302,38 +310,38 @@ body {
     border: none;
     cursor: pointer;
     font-size: 16px;
-  }
+}
 
-  .generate-button:hover {
+.generate-button:hover {
     background-color: rgba(247, 189, 3, 1) !important;
     color: black !important;
 }
-  
-  @media (max-width: 991px) {
-    .upload-panel {
-      max-width: 100%;
-      padding: 66px 20px;
-    }
-  
-    .input-controls {
-      max-width: 100%;
-    }
-  
-    .file-input-wrapper {
-      max-width: 100%;
-    }
-  
-    .file-input {
-      max-width: 100%;
-    }
-  }
 
-  .table-wrapper {
+@media (max-width: 991px) {
+    .upload-panel {
+        max-width: 100%;
+        padding: 66px 20px;
+    }
+
+    .input-controls {
+        max-width: 100%;
+    }
+
+    .file-input-wrapper {
+        max-width: 100%;
+    }
+
+    .file-input {
+        max-width: 100%;
+    }
+}
+
+.table-wrapper {
     max-width: 100%;
 }
 
 .table-scroll {
-    max-height: 350px; 
+    max-height: 350px;
     overflow-y: auto;
     border: 1px solid #dee2e6;
     border-radius: 8px;
@@ -361,4 +369,18 @@ body {
     background-color: #ffffff;
     color: #333;
     vertical-align: middle;
+}
+
+.fetch-button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.fetch-button:hover {
+    background-color: #0056b3;
 }

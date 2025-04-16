@@ -27,7 +27,9 @@
                                 </svg>
                                 <span class="button-text">School Year 2025</span>
                             </button>
-                            <ul class="dropdown-menu hidden" id="yearDropdown"></ul>
+                            <ul class="dropdown-menu hidden" id="yearDropdown"
+                                hx-target="#studentTableBody"
+                                hx-swap="innerHTML"></ul>
                         </div>
                     </div>
                 </div>
@@ -98,6 +100,9 @@
                 for (let year = 2025; year <= 2035; year++) {
                     let listItem = document.createElement("li");
                     listItem.textContent = `School Year ${year}`;
+                    listItem.setAttribute("hx-get", `/fetch-students?year=${year}`);
+                    listItem.setAttribute("hx-target", "#studentTableBody");
+                    listItem.setAttribute("hx-swap", "innerHTML");
                     listItem.addEventListener("click", function () {
                         dropdownButton.querySelector(".button-text").textContent = `School Year ${year}`;
                         dropdownMenu.classList.remove("show");
@@ -115,6 +120,9 @@
                         dropdownMenu.classList.remove("show");
                     }
                 });
+
+                // Trigger fetch for default year (2025) on page load
+                htmx.trigger(dropdownMenu.querySelector(`[hx-get='/fetch-students?year=2025']`), "click");
 
                 // File input handling
                 const fileInput = document.getElementById('fileInput');

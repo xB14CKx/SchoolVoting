@@ -163,7 +163,6 @@ class FileUploadController extends Controller
                 'students' => $students,
                 'file_path' => $path,
             ]);
-
         } catch (\Exception $e) {
             // For HTMX requests, return the error as JSON (will be handled by hx-on::after-request)
             if ($request->header('HX-Request') === 'true') {
@@ -175,6 +174,69 @@ class FileUploadController extends Controller
             // For non-HTMX requests, return JSON as before
             return response()->json([
                 'message' => 'Error processing file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function fetchStudents(Request $request)
+    {
+        try {
+            // Get the year from the request query parameter
+            $year = $request->query('year', 2025); // Default to 2025 if not provided
+
+            // Fetch students filtered by the year of created_at
+            $students = Student::whereYear('created_at', $year)
+                ->get()
+                ->map(function ($student) {
+                    return [
+                        'id' => $student->id,
+                        'name' => $student->first_name . ' ' . ($student->middle_initial ? $student->middle_initial . ' ' : '') . $student->last_name,
+                        'email' => $student->email,
+                        'program' => $student->program,
+                        'year_level' => $student->year_level, // Using accessor
+                        'contact_number' => $student->contact_number,
+                        'date_of_birth' => $student->date_of_birth ? $student->date_of_birth : '',
+                    ];
+                })->toArray();
+
+            // Check if the request is from HTMX
+            if ($request->header('HX-Request') === 'true') {
+                // Return HTML for HTMX to update the table
+                $html = '';
+                if (empty($students)) {
+                    $html = '<tr><td colspan="7" class="text-center">No students found for the selected year.</td></tr>';
+                } else {
+                    foreach ($students as $student) {
+                        $html .= '<tr>';
+                        $html .= '<td>' . htmlspecialchars($student['id']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['name']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['email']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['program']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['year_level']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['contact_number']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['date_of_birth'] ?? '') . '</td>';
+                        $html .= '</tr>';
+                    }
+                }
+                return response($html);
+            }
+
+            // For non-HTMX requests, return JSON
+            return response()->json([
+                'message' => 'Students fetched successfully.',
+                'students' => $students,
+            ]);
+        } catch (\Exception $e) {
+            // For HTMX requests, return the error as JSON
+            if ($request->header('HX-Request') === 'true') {
+                return response()->json([
+                    'message' => 'Error fetching students: ' . $e->getMessage()
+                ], 500);
+            }
+
+            // For non-HTMX requests, return JSON
+            return response()->json([
+                'message' => 'Error fetching students: ' . $e->getMessage()
             ], 500);
         }
     }

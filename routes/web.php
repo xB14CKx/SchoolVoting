@@ -67,6 +67,8 @@ Route::middleware('auth')->group(function () {
             return view('votings.file-upload');
         })->name('file-upload');
 
+        Route::get('/fetch-students', [App\Http\Controllers\FileUploadController::class, 'fetchStudents'])->name('fetch.students');
+
         // File Upload Routes
         Route::get('/upload', [FileUploadController::class, 'index'])->name('upload.index');
         Route::post('/upload', [FileUploadController::class, 'upload'])->name('upload.store');
