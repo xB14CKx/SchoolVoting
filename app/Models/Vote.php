@@ -2,27 +2,53 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Vote extends Model
 {
-    protected $fillable = ['election_id', 'candidate_id', 'user_id'];
+    use HasFactory;
 
-    // A vote belongs to an election
-    public function election()
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<string>
+     */
+    protected $fillable = [
+        'user_id',
+        'candidate_id',
+        'election_id',
+        'position',
+    ];
+
+    /**
+     * Get the user who cast the vote.
+     *
+     * @return BelongsTo
+     */
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(Election::class, 'election_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    // A vote belongs to a candidate
-    public function candidate()
+    /**
+     * Get the candidate who received the vote.
+     *
+     * @return BelongsTo
+     */
+    public function candidate(): BelongsTo
     {
         return $this->belongsTo(Candidate::class, 'candidate_id');
     }
 
-    // A vote belongs to a user
-    public function user()
+    /**
+     * Get the election the vote belongs to.
+     *
+     * @return BelongsTo
+     */
+    public function election(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Election::class, 'election_id');
     }
 }

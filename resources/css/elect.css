@@ -2,41 +2,46 @@
 .page-container {
     width: 100%;
     min-height: 100vh;
-    position: relative; /* do this */
+    position: relative;
+    /* do this */
     align-items: center;
     background-color: #f7bd03;
     top: 0;
     left: 0;
-    z-index: 0; /* turn to zero para dili niya ma cover ang function sa buttons */
-  }
-  
-  .content-wrapper {
-    display: flex; /*do this*/
+    z-index: 0;
+    /* turn to zero para dili niya ma cover ang function sa buttons */
+}
+
+.content-wrapper {
+    display: flex;
+    /*do this*/
     flex-direction: column;
     position: relative;
     min-height: 831px;
     width: 100%;
     padding: 56px 80px;
     align-items: flex-start;
-    z-index: 1; /* add ni para ma apply gihapon siya tas above siya sa background nato */
-  }
+    z-index: 1;
+    /* add ni para ma apply gihapon siya tas above siya sa background nato */
+}
 
-  @media (max-width: 991px) {
+@media (max-width: 991px) {
     .content-wrapper {
-      max-width: 100%;
-      padding: 56px 20px;
+        max-width: 100%;
+        padding: 56px 20px;
     }
-  }
+}
 
-  /* Background logo */
-  .background-logo {
-    position: fixed; /* do this */
+/* Background logo */
+.background-logo {
+    position: fixed;
+    /* do this */
     width: 100%;
     height: 100%;
     object-fit: cover;
     opacity: 0.5;
     mix-blend-mode: luminosity;
-  }
+}
 
 /* Header Title and Divider */
 body {
@@ -134,7 +139,7 @@ body {
 .admin-actions {
     display: flex;
     align-items: center;
-    gap: 20px; 
+    gap: 20px;
 }
 
 @media (max-width: 991px) {
@@ -142,6 +147,7 @@ body {
         width: 90%;
         padding-top: 40px;
     }
+
     .elect-title {
         font-size: 32px;
     }
@@ -154,9 +160,11 @@ body {
         flex-direction: column;
         align-items: flex-start;
     }
+
     .elect-title {
         font-size: 28px;
     }
+
     .school-year-wrapper {
         margin-top: 8px;
     }
@@ -170,8 +178,8 @@ body {
 
 .dropdown-menu {
     position: absolute;
-    top: -65px; 
-    left: calc(12px - 5px); 
+    top: -65px;
+    left: calc(12px - 5px);
     background: white;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -200,7 +208,7 @@ body {
 /* Role Container */
 .candidate-card {
     display: flex;
-    gap: 20px;   
+    gap: 20px;
     position: relative;
     border-radius: 10px;
     background-color: rgba(30, 30, 30, 0.71);
@@ -213,11 +221,11 @@ body {
     font-weight: 600;
     width: 200px;
     height: 295px;
-    margin-left: 70px; 
+    margin-left: 70px;
     margin-top: 20px;
-  }
-  
-  .role-label {
+}
+
+.role-label {
     position: absolute;
     top: 0;
     left: 5px;
@@ -231,10 +239,10 @@ body {
     height: 32px;
     margin-top: -40px;
     margin-bottom: 40px;
-  }
-  
-  
-  .profile-image {
+}
+
+
+.profile-image {
     aspect-ratio: 1;
     object-position: center;
     width: 150px;
@@ -243,9 +251,9 @@ body {
     max-width: 100%;
     padding-right: 5px;
     margin-left: -13px;
-  }
-  
-  .candidate-details {
+}
+
+.candidate-details {
     color: #fff;
     text-align: center;
     font-family: "Inter", sans-serif;
@@ -255,9 +263,9 @@ body {
     line-height: 1.4;
     margin-left: -32px;
 
-  }
-  
-  .vote-button {
+}
+
+.vote-button {
     width: 93px;
     height: 26px;
     border-radius: 4px;
@@ -273,9 +281,9 @@ body {
     margin-left: 5px;
     margin-top: 10px;
 
-  }
+}
 
-  .vote-button:hover {
+.vote-button:hover {
     background-color: #1B1F3B !important;
 }
 
@@ -297,26 +305,26 @@ body {
     text-align: center;
     margin-top: 610px;
     margin-left: 1200px;
-    transition: background-color 0.3s ease-in-out; 
+    transition: background-color 0.3s ease-in-out;
 }
 
 .submit-voteButton:hover {
-    background-color: #1B1F3B !important; 
+    background-color: #1B1F3B !important;
 }
-  
-  @media (max-width: 991px) {
+
+@media (max-width: 991px) {
     .submit-vote-button {
-      width: 160px;
-      height: 38px;
-      font-size: 15px;
+        width: 160px;
+        height: 38px;
+        font-size: 15px;
     }
-  }
-  
-  @media (max-width: 640px) {
+}
+
+@media (max-width: 640px) {
     .submit-vote-button {
-      width: 140px;
-      height: 36px;
-      font-size: 14px;
-      padding: 10px;
+        width: 140px;
+        height: 36px;
+        font-size: 14px;
+        padding: 10px;
     }
-  }
+}

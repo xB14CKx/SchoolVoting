@@ -14,7 +14,38 @@ class Candidate extends Model
      *
      * @var array<string>
      */
-    protected $fillable = ['position_id', 'first_name', 'last_name', 'year_level', 'program', 'image'];
+    protected $fillable = [
+        'first_name',
+        'middle_name',
+        'last_name',
+        'year_level',
+        'program_id',
+        'partylist_id',
+        'position_id',
+        'image',
+        'platform',
+        'program',
+    ];
+
+    /**
+     * Get the program that the candidate belongs to.
+     *
+     * @return BelongsTo
+     */
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class, 'program_id', 'program_id');
+    }
+
+    /**
+     * Get the partylist that the candidate is affiliated with.
+     *
+     * @return BelongsTo
+     */
+    public function partylist(): BelongsTo
+    {
+        return $this->belongsTo(Partylist::class, 'partylist_id', 'partylist_id');
+    }
 
     /**
      * Get the position that the candidate is running for.
@@ -23,7 +54,7 @@ class Candidate extends Model
      */
     public function position(): BelongsTo
     {
-        return $this->belongsTo(Position::class);
+        return $this->belongsTo(Position::class, 'position_id', 'position_id');
     }
 
     /**
@@ -34,7 +65,7 @@ class Candidate extends Model
     public function elections(): BelongsToMany
     {
         return $this->belongsToMany(Election::class, 'election_candidates', 'candidate_id', 'election_id')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**

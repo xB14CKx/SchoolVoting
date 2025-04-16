@@ -2,156 +2,156 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Candidate;
-use App\Models\Position;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Models\Candidate;
 
 class CandidateController extends Controller
 {
-    /**
-     * Display a listing of the candidates.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function index()
-    {
-        $candidates = Candidate::with('position')->get(); // Include position for display
-        return view('candidates.index', compact('candidates'));
-    }
-
-    /**
-     * Show the form for creating a new candidate.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function create()
-    {
-        $positions = Position::all(); // Get all positions for the dropdown
-        return view('candidates.create', compact('positions'));
-    }
-
-    /**
-     * Store a newly created candidate in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Create a new candidate
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'position_id' => 'required|exists:positions,id',
-            'first_name' => 'required|string|max:20',
-            'last_name' => 'required|string|max:20',
-            'year_level' => 'required|in:1st,2nd,3rd,4th',
-            'program' => 'required|string|max:30',
-            'image' => 'nullable|image|max:2048', // Max 2MB
+        // Debug logging
+        \Log::info('Received candidate data:', $request->all());
+
+        $validatedData = $request->validate([
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'middle_name' => 'nullable',
+            'year_level' => 'required',
+            'platform' => 'nullable|string', // Make sure this validation rule exists
+            'position_id' => 'required',
+            'program_id' => 'required',
+            'partylist_id' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         try {
-            $candidate = new Candidate($validated);
+            // Debug logging
+            \Log::info('Validated data:', $validatedData);
+
+            $candidate = Candidate::create([
+                'first_name' => $validatedData['first_name'],
+                'last_name' => $validatedData['last_name'],
+                'middle_name' => $validatedData['middle_name'],
+                'year_level' => $validatedData['year_level'],
+                'platform' => $request->platform, // Explicitly set platform
+                'position_id' => $validatedData['position_id'],
+                'program_id' => $validatedData['program_id'],
+                'partylist_id' => $validatedData['partylist_id']
+            ]);
 
             if ($request->hasFile('image')) {
-                // Store the image in the 'public/candidates' directory and save the path
-                $path = $request->file('image')->store('candidates', 'public');
-                $candidate->image = $path;
+                $imagePath = $request->file('image')->store('candidates', 'public');
+                $candidate->image = $imagePath;
+                $candidate->save();
             }
 
-            $candidate->save();
+            // Debug logging
+            \Log::info('Created candidate:', $candidate->toArray());
 
-            return redirect()->route('candidates.index')
-                ->with('success', 'Candidate created successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Candidate added successfully',
+                'data' => $candidate // Include the created candidate in response
+            ]);
         } catch (\Exception $e) {
-            return redirect()->route('candidates.create')
-                ->with('error', 'Failed to create candidate: ' . $e->getMessage());
+            \Log::error('Error creating candidate: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error adding candidate: ' . $e->getMessage()
+            ], 500);
         }
     }
 
-    /**
-     * Display the specified candidate.
-     *
-     * @param \App\Models\Candidate $candidate
-     * @return \Illuminate\View\View
-     */
+    // Return candidate details for editing
     public function show(Candidate $candidate)
     {
-        $candidate->load('position'); // Load the position for display
-        return view('candidates.show', compact('candidate'));
+        return response()->json([
+            'id' => $candidate->id,
+            'first_name' => $candidate->first_name,
+            'last_name' => $candidate->last_name,
+            'middle_name' => $candidate->middle_name,
+            'year_level' => $candidate->year_level,
+            'platform' => $candidate->platform,
+            'image' => $candidate->image,
+            'position' => [
+                'name' => $candidate->position->name
+            ],
+            'program' => [
+                'program_name' => $candidate->program->program_name
+            ],
+            'partylist' => [
+                'partylist_name' => $candidate->partylist->partylist_name
+            ]
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified candidate.
-     *
-     * @param \App\Models\Candidate $candidate
-     * @return \Illuminate\View\View
-     */
-    public function edit(Candidate $candidate)
-    {
-        $positions = Position::all(); // Get all positions for the dropdown
-        return view('candidates.edit', compact('candidate', 'positions'));
-    }
-
-    /**
-     * Update the specified candidate in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \App\Models\Candidate $candidate
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Update an existing candidate
     public function update(Request $request, Candidate $candidate)
     {
-        $validated = $request->validate([
-            'position_id' => 'required|exists:positions,id',
-            'first_name' => 'required|string|max:20',
-            'last_name' => 'required|string|max:20',
-            'year_level' => 'required|in:1st,2nd,3rd,4th',
-            'program' => 'required|string|max:30',
-            'image' => 'nullable|image|max:2048',
-        ]);
-
         try {
-            $candidate->fill($validated);
+            $validated = $request->validate([
+                'first_name' => 'required',
+                'last_name' => 'required',
+                'middle_name' => 'nullable',
+                'year_level' => 'required|in:1st,2nd,3rd,4th',
+                'program_id' => 'required|integer',
+                'partylist_id' => 'required|integer',
+                'image' => 'nullable|image|max:2048'
+            ]);
 
             if ($request->hasFile('image')) {
-                // Delete the old image if it exists
+                // Delete old image if it exists
                 if ($candidate->image) {
-                    Storage::disk('public')->delete($candidate->image);
+                    \Storage::disk('public')->delete($candidate->image);
                 }
-                // Store the new image
-                $path = $request->file('image')->store('candidates', 'public');
-                $candidate->image = $path;
+                $validated['image'] = $request->file('image')->store('candidates', 'public');
             }
 
-            $candidate->save();
+            $candidate->update($validated);
 
-            return redirect()->route('candidates.index')
-                ->with('success', 'Candidate updated successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Candidate updated successfully'
+            ]);
         } catch (\Exception $e) {
-            return redirect()->route('candidates.edit', ['candidate' => $candidate->id])
-                ->with('error', 'Failed to update candidate: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update candidate: ' . $e->getMessage()
+            ], 500);
         }
     }
 
-    /**
-     * Remove the specified candidate from storage.
-     *
-     * @param \App\Models\Candidate $candidate
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Delete a candidate
     public function destroy(Candidate $candidate)
     {
         try {
-            // Delete the image from storage if it exists
+            // Delete the candidate's image if it exists
             if ($candidate->image) {
-                Storage::disk('public')->delete($candidate->image);
+                \Storage::disk('public')->delete($candidate->image);
             }
 
             $candidate->delete();
-            return redirect()->route('candidates.index')
-                ->with('success', 'Candidate deleted successfully.');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Candidate deleted successfully'
+            ]);
         } catch (\Exception $e) {
-            return redirect()->route('candidates.index')
-                ->with('error', 'Failed to delete candidate: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete candidate: ' . $e->getMessage()
+            ], 500);
         }
+    }
+
+    // Add this method to your existing CandidateController
+    public function index()
+    {
+        $candidates = Candidate::with(['position', 'program', 'partylist'])
+            ->orderBy('position_id')
+            ->get();
+
+        return view('elect', compact('candidates'));
     }
 }
