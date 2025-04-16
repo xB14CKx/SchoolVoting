@@ -1,16 +1,17 @@
 <x-guest-layout>
     <x-slot name="title">CSG Login</x-slot>
 
-    <!-- Include login.css for this page -->
-        @vite(['resources/css/login.css', 'resources/js/app.js'])
+    <!-- Include login.css, SweetAlert2, and app.js -->
+    @vite(['resources/css/login.css', 'resources/js/app.js'])
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <!-- Background Image -->
+    <!-- Background Container -->
     <div class="content-container">
         <figure class="image-container">
             <img
                 src="{{ asset('images/csg_logo.png') }}"
                 class="responsive-image"
-                alt="CSG Background"
+                alt="CSG Logo"
             />
         </figure>
     </div>
@@ -30,24 +31,14 @@
             @csrf
             <div class="input-field">
                 <input type="email" name="email" placeholder="Email" aria-label="Email" value="{{ old('email') }}" required />
-                @error('email')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
             </div>
             <div class="input-field">
                 <input type="password" name="password" placeholder="Password" aria-label="Password" required />
-                @error('password')
-                    <span class="error-message">{{ $message }}</span>
-                @enderror
             </div>
 
             <section class="form-actions">
                 <button type="submit" class="sign-in-button">Sign In</button>
-                <div class="remember-section">
-                    <label class="remember-wrapper">
-                        <input type="checkbox" name="remember" class="checkbox" aria-label="Remember me" />
-                        <span>Remember me</span>
-                    </label>
+                <div class="forgot-password-section">
                     <a href="{{ route('password.request') }}"
                        hx-get="{{ route('password.request') }}"
                        hx-target="main"
@@ -72,4 +63,24 @@
             </a>
         </footer>
     </div>
+
+    <!-- JavaScript for SweetAlert2 Error Handling -->
+    @push('scripts')
+        <script>
+            document.addEventListener('htmx:afterRequest', function (event) {
+                if (event.detail.xhr.status === 422 && event.detail.xhr.response) {
+                    const response = JSON.parse(event.detail.xhr.response);
+                    if (response.error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Login Failed',
+                            text: response.error,
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#f7c603',
+                        });
+                    }
+                }
+            });
+        </script>
+    @endpush
 </x-guest-layout>

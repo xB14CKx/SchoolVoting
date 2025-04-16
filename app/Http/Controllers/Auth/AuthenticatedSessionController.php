@@ -29,12 +29,12 @@ class AuthenticatedSessionController extends Controller
             }
             return redirect()->intended(route('dashboard', absolute: false));
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // For HTMX SPA: Return the login view with errors
+            // For HTMX SPA: Return JSON with error message for SweetAlert2
             if ($request->header('HX-Request')) {
-                return response()->view('auth.login', [
-                    'email' => $request->input('email'),
-                    'errors' => $e->errors(),
-                ], 422);
+                $errorMessage = collect($e->errors())->flatten()->first() ?? 'Invalid email or password.';
+                return response()->json([
+                    'error' => $errorMessage,
+                ], 422)->header('HX-Trigger', 'showError');
             }
             throw $e; // Fallback for non-HTMX
         }
