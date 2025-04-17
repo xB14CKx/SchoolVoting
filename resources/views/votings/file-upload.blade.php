@@ -97,6 +97,7 @@
                 const dropdownButton = document.getElementById("yearDropdownButton");
                 const dropdownMenu = document.getElementById("yearDropdown");
 
+                // Populate dropdown with years
                 for (let year = 2025; year <= 2035; year++) {
                     let listItem = document.createElement("li");
                     listItem.textContent = `School Year ${year}`;
@@ -110,19 +111,25 @@
                     dropdownMenu.appendChild(listItem);
                 }
 
+                // Toggle dropdown visibility
                 dropdownButton.addEventListener("click", function (event) {
                     event.stopPropagation();
                     dropdownMenu.classList.toggle("show");
                 });
 
+                // Close dropdown when clicking outside
                 document.addEventListener("click", function (event) {
                     if (!dropdownButton.contains(event.target)) {
                         dropdownMenu.classList.remove("show");
                     }
                 });
 
-                // Trigger fetch for default year (2025) on page load
-                htmx.trigger(dropdownMenu.querySelector(`[hx-get='/fetch-students?year=2025']`), "click");
+                // Automatically fetch data for the default year on page load
+                const defaultYear = dropdownButton.querySelector(".button-text").textContent.match(/\d+/)[0];
+                htmx.ajax('GET', `/fetch-students?year=${defaultYear}`, {
+                    target: '#studentTableBody',
+                    swap: 'innerHTML'
+                });
 
                 // File input handling
                 const fileInput = document.getElementById('fileInput');
