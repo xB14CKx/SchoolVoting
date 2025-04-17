@@ -96,6 +96,32 @@
     color: #ffd700;
 }
 
+.reports-icon {
+    font-size: 25px;
+    color: white;
+    margin-right: 20px;
+    margin-top: 50px;
+    margin-bottom: -10px;
+    transition: color 0.2s ease;
+}
+
+.reports-icon:hover {
+    color: #ffd700;
+}
+
+.upload-icon {
+    font-size: 25px;
+    color: white;
+    margin-right: 20px;
+    margin-top: 50px;
+    margin-bottom: -10px;
+    transition: color 0.2s ease;
+}
+
+.upload-icon:hover {
+    color: #ffd700;
+}
+
 .user-icon {
     font-size: 25px;
     color: white;
@@ -113,5 +139,5 @@
     color: white;
     font-size: 25px;
     margin-right: 25px;
-    margin-top: 200px;
+    margin-top: 150px;
 }
