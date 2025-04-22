@@ -152,6 +152,6 @@ class CandidateController extends Controller
             ->orderBy('position_id')
             ->get();
 
-        return view('elect', compact('candidates'));
+        return view('votings.elect', compact('candidates'));
     }
 }
