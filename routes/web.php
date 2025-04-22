@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\ElectionController;
@@ -10,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FileUploadController;
+use App\Http\Controllers\Auth\TestEmailController; // Add this
 use Illuminate\Support\Facades\Route;
 use App\Models\Program;
 use App\Models\Partylist;
@@ -34,6 +34,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', function () {
             return view('votings.dashboard');
         })->name('dashboard');
+
+        Route::post('/send-test-email', [TestEmailController::class, 'send'])->name('send.test.email'); // Add this
 
         Route::get('/elect', [CandidateController::class, 'index'])->name('elect');
 
