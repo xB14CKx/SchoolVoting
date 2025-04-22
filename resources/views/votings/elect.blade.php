@@ -44,7 +44,7 @@
             'Secretary',
             'Treasurer',
             'Auditor',
-            'Student PIO',
+            'PIO',
             'Business Manager'
         ];
 
