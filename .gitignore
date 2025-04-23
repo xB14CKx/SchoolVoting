@@ -5,8 +5,6 @@
 /public/storage
 /storage/*.key
 /storage/pail
-/storage/app/*
-!/storage/app/excel/
 /vendor
 .env
 .env.backup
@@ -23,3 +21,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/storage/app/*
+!/storage/app/excel/
+
