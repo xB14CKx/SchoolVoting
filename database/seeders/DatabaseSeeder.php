@@ -22,5 +22,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ProgramSeeder::class,
         ]);
+
+        $this->call([
+            PartylistSeeder::class,
+        ]);
     }
 }
