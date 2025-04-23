@@ -1,0 +1,15 @@
+# Ignore temporary Excel files (e.g., files created while editing)
+~$*.xlsx
+
+# Ignore backup files (if your system creates them)
+*.bak
+
+# Ignore other temporary or cache files
+*.tmp
+*.temp
+
+# Ensure the .gitignore file itself is tracked
+!.gitignore
+
+# Ensure your main Excel files are tracked (optional, since they're not ignored by default)
+!*.xlsx
