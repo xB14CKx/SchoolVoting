@@ -7,8 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+
 class Candidate extends Model
 {
+
+    protected $primaryKey = 'candidate_id'; // <-- Add this line if your PK is not 'id'
+
     /**
      * The attributes that are mass assignable.
      *

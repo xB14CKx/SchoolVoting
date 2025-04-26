@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Candidate;
 
 class CandidateController extends Controller
@@ -11,7 +11,7 @@ class CandidateController extends Controller
     public function store(Request $request)
     {
         // Debug logging
-        \Log::info('Received candidate data:', $request->all());
+        Log::info('Received candidate data:', $request->all());
 
         $validatedData = $request->validate([
             'first_name' => 'required',
@@ -27,7 +27,7 @@ class CandidateController extends Controller
 
         try {
             // Debug logging
-            \Log::info('Validated data:', $validatedData);
+            Log::info('Validated data:', $validatedData);
 
             $candidate = Candidate::create([
                 'first_name' => $validatedData['first_name'],
@@ -47,7 +47,7 @@ class CandidateController extends Controller
             }
 
             // Debug logging
-            \Log::info('Created candidate:', $candidate->toArray());
+            Log::info('Created candidate:', $candidate->toArray());
 
             return response()->json([
                 'success' => true,
@@ -55,7 +55,7 @@ class CandidateController extends Controller
                 'data' => $candidate // Include the created candidate in response
             ]);
         } catch (\Exception $e) {
-            \Log::error('Error creating candidate: ' . $e->getMessage());
+            Log::error('Error creating candidate: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error adding candidate: ' . $e->getMessage()
@@ -63,11 +63,17 @@ class CandidateController extends Controller
         }
     }
 
+    public function admin()
+        {
+            $candidates = Candidate::with(['program', 'partylist', 'position'])->get();
+            return view('votings.admin', compact('candidates'));
+        }
+
     // Return candidate details for editing
     public function show(Candidate $candidate)
     {
         return response()->json([
-            'id' => $candidate->id,
+            'candidate_id' => $candidate->candidate_id, 
             'first_name' => $candidate->first_name,
             'last_name' => $candidate->last_name,
             'middle_name' => $candidate->middle_name,
@@ -75,7 +81,7 @@ class CandidateController extends Controller
             'platform' => $candidate->platform,
             'image' => $candidate->image,
             'position' => [
-                'name' => $candidate->position->name
+                'position_name' => $candidate->position->position_name 
             ],
             'program' => [
                 'program_name' => $candidate->program->program_name
@@ -103,7 +109,7 @@ class CandidateController extends Controller
             if ($request->hasFile('image')) {
                 // Delete old image if it exists
                 if ($candidate->image) {
-                    \Storage::disk('public')->delete($candidate->image);
+                    Storage::disk('public')->delete($candidate->image);
                 }
                 $validated['image'] = $request->file('image')->store('candidates', 'public');
             }
@@ -128,7 +134,7 @@ class CandidateController extends Controller
         try {
             // Delete the candidate's image if it exists
             if ($candidate->image) {
-                \Storage::disk('public')->delete($candidate->image);
+                Storage::disk('public')->delete($candidate->image);
             }
 
             $candidate->delete();

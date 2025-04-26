@@ -17,9 +17,11 @@ class PartylistSeeder extends Seeder
             'TechnoPreneurs'
         ];
 
+
         foreach ($partylist as $partylist) {
             DB::table('partylists')->insert([
-                'name' => $partylist,
+                'partylist_name' => $partylist,
+                'election_year' => '2025',
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

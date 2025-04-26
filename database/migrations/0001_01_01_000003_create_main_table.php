@@ -9,22 +9,23 @@ return new class extends Migration {
     {
         // Programs table
         Schema::create('programs', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 100)->unique();
+            $table->bigIncrements('program_id');
+            $table->string('program_name', 100)->unique();
             $table->timestamps();
         });
 
         // Partylists table
         Schema::create('partylists', function (Blueprint $table) {
-            $table->id();
-            $table->string('name', 100)->unique();
+            $table->bigIncrements('partylist_id');
+            $table->string('partylist_name', 100)->unique();
+            $table->string('election_year', 9);
             $table->timestamps();
         });
 
         // Positions table
         Schema::create('positions', function (Blueprint $table) {
-            $table->id();
-            $table->enum('name', [
+            $table->bigIncrements('position_id');
+            $table->enum('position_name', [
                 'President',
                 'Vice President',
                 'Secretary',
@@ -38,10 +39,10 @@ return new class extends Migration {
 
         // Candidates table
         Schema::create('candidates', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('position_id')->constrained()->onDelete('restrict');
-            $table->foreignId('program_id')->constrained()->onDelete('restrict');
-            $table->foreignId('partylist_id')->nullable()->constrained()->onDelete('set null');
+            $table->bigIncrements('candidate_id');
+            $table->foreignId('position_id')->constrained('positions', 'position_id')->onDelete('restrict');
+            $table->foreignId('program_id')->constrained('programs', 'program_id')->onDelete('restrict');
+            $table->foreignId('partylist_id')->nullable()->constrained('partylists', 'partylist_id')->onDelete('set null');
             $table->string('first_name', 50);
             $table->string('middle_name', 50)->nullable();
             $table->string('last_name', 50);
@@ -60,7 +61,7 @@ return new class extends Migration {
 
         // Elections table
         Schema::create('elections', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('election_id');
             $table->year('year');
             $table->enum('status', ['pending', 'open', 'closed'])->default('pending');
             $table->timestamps();
@@ -69,16 +70,16 @@ return new class extends Migration {
 
         // Election Candidates pivot table
         Schema::create('election_candidates', function (Blueprint $table) {
-            $table->foreignId('election_id')->constrained()->onDelete('cascade');
-            $table->foreignId('candidate_id')->constrained()->onDelete('cascade');
+            $table->foreignId('election_id')->constrained('elections', 'election_id')->onDelete('cascade');
+            $table->foreignId('candidate_id')->constrained('candidates', 'candidate_id')->onDelete('cascade');
             $table->primary(['election_id', 'candidate_id']);
             $table->timestamps();
         });
 
         // Election Results table
         Schema::create('election_results', function (Blueprint $table) {
-            $table->foreignId('election_id')->constrained()->onDelete('cascade');
-            $table->foreignId('candidate_id')->constrained()->onDelete('cascade');
+            $table->foreignId('election_id')->constrained('elections', 'election_id')->onDelete('cascade');
+            $table->foreignId('candidate_id')->constrained('candidates', 'candidate_id')->onDelete('cascade');
             $table->unsignedInteger('votes')->default(0);
             $table->primary(['election_id', 'candidate_id']);
             $table->timestamps();
@@ -87,14 +88,14 @@ return new class extends Migration {
 
         // Votes table
         Schema::create('votes', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('election_id')->constrained()->onDelete('cascade');
-            $table->foreignId('candidate_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('position', 50)->nullable();
+            $table->bigIncrements('vote_id');
+            $table->foreignId('election_id')->constrained('elections', 'election_id')->onDelete('cascade');
+            $table->foreignId('candidate_id')->constrained('candidates', 'candidate_id')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade');
+            $table->foreignId('position_id')->constrained('positions', 'position_id')->onDelete('cascade');
             $table->timestamps();
 
-            $table->unique(['election_id', 'user_id', 'position'], 'votes_election_user_position_unique');
+            $table->unique(['election_id', 'user_id', 'position_id'], 'votes_election_user_position_unique');
             $table->index(['election_id', 'candidate_id'], 'votes_election_candidate_index');
         });
     }

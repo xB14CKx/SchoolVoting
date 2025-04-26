@@ -345,7 +345,7 @@
             <select class="form-select" id="editCandidatePartylist">
               <option disabled selected>Choose a partylist</option>
               @foreach ($partylists as $party)
-                <option value="{{ $party->partylist_id }}">{{ $party->partylist_name }}</option>
+                <option value="{{ $party->id }}">{{ $party->name }}</option>
               @endforeach
             </select>
           </div>
@@ -556,7 +556,7 @@
             }
 
   const cardHTML = `
-                <article class="candidate-card" data-candidate-id="${candidateData.id}">
+                <article class="candidate-card" data-candidate-id="${candidateData.candidate_id}">
                     <button class="more-options-button" aria-label="More options">
         <svg class="more-icon" width="20" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M9.70312 12.9345C9.2584 12.9345 8.87769 12.8078 8.56099 12.5545C8.24429 12.3012 8.08594 11.9967 8.08594 11.641C8.08594 11.2853 8.24429 10.9808 8.56099 10.7275C8.87769 10.4742 9.2584 10.3476 9.70312 10.3476C10.1479 10.3476 10.5286 10.4742 10.8453 10.7275C11.162 10.9808 11.3203 11.2853 11.3203 11.641C11.3203 11.9967 11.162 12.3012 10.8453 12.5545C10.5286 12.8078 10.1479 12.9345 9.70312 12.9345ZM9.70312 9.05415C9.2584 9.05415 8.87769 8.9275 8.56099 8.6742C8.24429 8.4209 8.08594 8.1164 8.08594 7.7607C8.08594 7.40501 8.24429 7.10051 8.56099 6.84721C8.87769 6.59391 9.2584 6.46726 9.70312 6.46726C10.1479 6.46726 10.5286 6.59391 10.8453 6.84721C11.162 7.10051 11.3203 7.40501 11.3203 7.7607C11.3203 8.1164 11.162 8.4209 10.8453 8.6742C10.5286 8.9275 10.1479 9.05415 9.70312 9.05415ZM9.70312 5.17381C9.2584 5.17381 8.87769 5.04716 8.56099 4.79386C8.24429 4.54056 8.08594 4.23606 8.08594 3.88036C8.08594 3.52466 8.24429 3.22016 8.56099 2.96686C8.87769 2.71356 9.2584 2.58691 9.70312 2.58691C10.1479 2.58691 10.5286 2.71356 10.8453 2.96686C11.162 3.22016 11.3203 3.52466 11.3203 3.88036C11.3203 4.23606 11.162 4.54056 10.8453 4.79386C10.5286 5.04716 10.1479 5.17381 9.70312 5.17381Z" fill="#1D1B20"></path>
@@ -758,12 +758,12 @@ function checkCardLimit(containerId) {
                     if (candidate) {
                         // Populate the edit modal with candidate data
                         document.getElementById("editCandidatePosition").value = candidate.position.name;
-                        document.getElementById("editCandidatePartylist").value = candidate.partylist_id;
+                        document.getElementById("editCandidatePartylist").value = candidate.id;
                         document.getElementById("editCandidateFirstName").value = candidate.first_name;
                         document.getElementById("editCandidateLastName").value = candidate.last_name;
                         document.getElementById("editCandidateMiddleName").value = candidate.middle_name;
                         document.getElementById("editCandidateYearLevel").value = candidate.year_level;
-                        document.getElementById("editCandidateProgram").value = candidate.program_id;
+                        document.getElementById("editCandidateProgram").value = candidate.id;
                         document.getElementById("editCandidatePlatform").value = candidate.platform || '';
 
                         // Set the current image preview
