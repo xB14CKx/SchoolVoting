@@ -64,10 +64,11 @@ class CandidateController extends Controller
     }
 
     public function admin()
-        {
-            $candidates = Candidate::with(['program', 'partylist', 'position'])->get();
-            return view('votings.admin', compact('candidates'));
-        }
+    {
+        $candidates = Candidate::with(['program', 'partylist', 'position'])->get();
+        Log::debug('Candidates retrieved:', $candidates->toArray());
+        return view('votings.admin', compact('candidates'));
+    }
 
     // Return candidate details for editing
     public function show(Candidate $candidate)

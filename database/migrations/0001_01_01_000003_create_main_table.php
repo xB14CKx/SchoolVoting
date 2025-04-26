@@ -49,7 +49,6 @@ return new class extends Migration {
             $table->enum('year_level', ['1st', '2nd', '3rd', '4th']);
             $table->string('image')->nullable();
             $table->text('platform')->nullable();
-            $table->string('program', 100)->nullable();
             $table->timestamps();
 
             $table->unique(['first_name', 'last_name', 'position_id'], 'candidates_name_position_unique');

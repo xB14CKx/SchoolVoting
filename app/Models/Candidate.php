@@ -28,7 +28,6 @@ class Candidate extends Model
         'position_id',
         'image',
         'platform',
-        'program',
     ];
 
     /**

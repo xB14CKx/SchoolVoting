@@ -1,5 +1,5 @@
 @push('styles')
-
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
@@ -10,13 +10,13 @@
 @endpush
 
 <x-app-layout>
-
+    
     <div class="page-container">
       <!-- Background Image -->
-      <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/fe992e701c7edc01644f69af503f11ed319f8132"
-          alt="CSG Logo"
+      <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/fe992e701c7edc01644f69af503f11ed319f8132" 
+          alt="CSG Logo" 
           class="background-logo" />
-
+      
       <!-- Header Title and Divider -->
       <div class="content-wrapper">
       <section class="admin-container">
@@ -36,7 +36,7 @@
   </ul>
   </div>
 
-  </div>
+  </div>   
   <hr class="admin-divider" />
   </section>
 
@@ -45,8 +45,8 @@
   <article class="candidate-card">
     <!-- The three-dot button -->
     <button class="more-options-button" aria-label="More options">
-      <svg class="more-icon" width="20" height="16" ...>
-        <!-- same three-dot path as before -->
+      <svg class="more-icon" width="20" height="16" ...> 
+        <!-- same three-dot path as before --> 
       </svg>
     </button>
 
@@ -57,7 +57,7 @@
     </div>
 
     <figure class="candidate-figure">
-      <img
+      <img 
         src="https://cdn.builder.io/api/v1/image/...someImage..."
         class="candidate-image"
         alt="Candidate"
@@ -81,11 +81,11 @@
 
     <div class="position-wrapper">
       <h2 class="position-title">President</h2>
-
+      
       <div class="candidate-grid" id="presidentCandidates">
 
-            <button
-          class="add-candidate-button"
+            <button 
+          class="add-candidate-button" 
           data-position="presidentCandidates"
         >
           <img
@@ -105,8 +105,8 @@
 
   <div class="candidate-grid" id="vicePresidentCandidates">
 
-  <button
-    class="add-candidate-button"
+  <button 
+    class="add-candidate-button" 
     data-position="vicePresidentCandidates"
   >
     <img
@@ -121,11 +121,11 @@
   <!-- Secretary -->
   <div class="position-wrapper">
     <h2 class="position-title">Secretary</h2>
-
+  
     <div class="candidate-grid" id="secretaryCandidates">
-
-    <button
-      class="add-candidate-button"
+  
+    <button 
+      class="add-candidate-button" 
       data-position="secretaryCandidates"
     >
       <img
@@ -140,11 +140,11 @@
     <!-- Treasurer -->
     <div class="position-wrapper">
       <h2 class="position-title">Treasurer</h2>
-
+    
       <div class="candidate-grid" id="treasurerCandidates">
-
-      <button
-        class="add-candidate-button"
+    
+      <button 
+        class="add-candidate-button" 
         data-position="treasurerCandidates"
       >
         <img
@@ -159,11 +159,11 @@
       <!-- Auditor -->
     <div class="position-wrapper">
       <h2 class="position-title">Auditor</h2>
-
+    
       <div class="candidate-grid" id="auditorCandidates">
-
-      <button
-        class="add-candidate-button"
+    
+      <button 
+        class="add-candidate-button" 
         data-position="auditorCandidates"
       >
         <img
@@ -177,12 +177,12 @@
 
       <!-- Public Information Officer -->
     <div class="position-wrapper">
-      <h2 class="position-title">Student PIO</h2>
-
+      <h2 class="position-title">PIO</h2>
+    
       <div class="candidate-grid" id="PIOCandidates">
-
-      <button
-        class="add-candidate-button"
+    
+      <button 
+        class="add-candidate-button" 
         data-position="PIOCandidates"
       >
         <img
@@ -197,11 +197,11 @@
       <!-- Business Manager -->
     <div class="position-wrapper">
       <h2 class="position-title">Business Manager</h2>
-
+    
       <div class="candidate-grid" id="businessManagerCandidates">
-
-      <button
-        class="add-candidate-button"
+    
+      <button 
+        class="add-candidate-button" 
         data-position="businessManagerCandidates"
       >
         <img
@@ -239,7 +239,7 @@
           </div>
           <hr />
 
-
+  
           <!-- Position + Partylist -->
         <div class="row mb-3">
           <div class="col-md-6">
@@ -291,11 +291,11 @@
                 <option value="{{ $program->program_id }}">{{ $program->program_name }}</option>
               @endforeach
             </select>
-
+            
           </div>
         </div>
         <br>
-
+        
         <!-- Add this before the modal-footer in the Add Candidate Modal -->
         <div class="row mb-3">
             <div class="col-12">
@@ -303,7 +303,7 @@
                 <textarea class="form-control" id="candidatePlatform" rows="4" placeholder="Enter candidate's platform"></textarea>
             </div>
         </div>
-
+        
         <div class="modal-footer">
           <br>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -345,7 +345,7 @@
             <select class="form-select" id="editCandidatePartylist">
               <option disabled selected>Choose a partylist</option>
               @foreach ($partylists as $party)
-                <option value="{{ $party->id }}">{{ $party->name }}</option>
+                <option value="{{ $party->partylist_id }}">{{ $party->partylist_name }}</option>
               @endforeach
             </select>
           </div>
@@ -415,7 +415,7 @@
   document.addEventListener("DOMContentLoaded", function () {
         // Initialize existing candidates
         candidates.forEach(candidate => {
-            const container = document.getElementById(getPositionContainerId(candidate.position.name));
+            const container = document.getElementById(getPositionContainerId(candidate.position.position_name));
             if (container) {
                 const card = createCandidateCard(candidate);
                 container.insertBefore(card, container.querySelector('.add-candidate-button'));
@@ -439,7 +439,7 @@
             button.addEventListener('click', function() {
                 const card = this.closest('.candidate-card');
                 const candidateId = card.dataset.candidateId;
-
+                
                 if (this.textContent === 'Delete') {
                     if (confirm('Are you sure you want to delete this candidate?')) {
                         fetch(`/candidates/${candidateId}`, {
@@ -504,7 +504,7 @@
 
     document.querySelectorAll('.more-options-button').forEach(button => {
     button.addEventListener('click', function (event) {
-          event.stopPropagation();
+          event.stopPropagation(); 
       const card = button.closest(".candidate-card");
       const menu = card.querySelector(".options-menu");
       document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
@@ -522,17 +522,17 @@
         function createCandidateCard(candidateData) {
             // Format program name to show initials
             let programName = candidateData.program.program_name;
-
+            
             if (programName.includes('BS in ')) {
                 // Handle BS programs
                 const words = programName.split(' ');
-
+                
                 // Check if it's a program with a major/specialization
                 if (programName.includes('–')) {
                     const [mainProgram, major] = programName.split('–').map(part => part.trim());
                     const mainWords = mainProgram.split(' ').filter(word => word.toLowerCase() !== 'and');
                     const initials = mainWords.slice(2).map(word => word.charAt(0)).join('');
-
+                    
                     // Special handling for BSEMC
                     if (mainProgram.includes('Entertainment and Multimedia Computing')) {
                         programName = 'BSEMC - ' + major;
@@ -567,7 +567,7 @@
         <button class="option-button">Delete</button>
       </div>
       <figure class="candidate-figure">
-        <img
+        <img 
                             src="${candidateData.image ? '{{ asset('storage/') }}/' + candidateData.image : 'https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/567fdf519eb08658d3207d7508f0b1db1ca7b3a2'}"
           class="candidate-image"
           alt="Candidate">
@@ -580,6 +580,7 @@
       </figure>
     </article>
   `;
+  
   const wrapper = document.createElement('div');
   wrapper.innerHTML = cardHTML.trim();
   return wrapper.firstElementChild;
@@ -592,7 +593,7 @@
                 "Secretary": "secretaryCandidates",
                 "Treasurer": "treasurerCandidates",
                 "Auditor": "auditorCandidates",
-                "Student PIO": "PIOCandidates",
+                "PIO": "PIOCandidates",
                 "Business Manager": "businessManagerCandidates"
             };
             return map[positionName] || null;
@@ -606,7 +607,7 @@ addButtons.forEach(btn => {
     console.log("Add button clicked"); // <-- Add this
     const targetId = btn.getAttribute('data-position');
     const container = document.getElementById(targetId);
-
+    
 
     const currentCards = container.querySelectorAll('.candidate-card').length;
     if (currentCards >= 2) {
@@ -662,7 +663,7 @@ function checkCardLimit(containerId) {
                 secretaryCandidates: "Secretary",
                 treasurerCandidates: "Treasurer",
                 auditorCandidates: "Auditor",
-                PIOCandidates: "Student PIO",
+                PIOCandidates: "PIO",
                 businessManagerCandidates: "Business Manager"
             };
             return map[id] || "Position";
@@ -675,7 +676,7 @@ function checkCardLimit(containerId) {
       "Secretary": 3,
       "Treasurer": 4,
       "Auditor": 5,
-      "Student PIO": 6,
+      "PIO": 6,
       "Business Manager": 7
     };
     return map[positionName] || null;
@@ -750,22 +751,22 @@ function checkCardLimit(containerId) {
             button.addEventListener('click', function() {
                 const card = this.closest('.candidate-card');
                 const candidateId = card.dataset.candidateId;
-
+                
                 if (this.textContent === 'Edit') {
                     currentEditingCandidateId = candidateId;
                     const candidate = candidates.find(c => c.id == candidateId);
-
+                    
                     if (candidate) {
                         // Populate the edit modal with candidate data
-                        document.getElementById("editCandidatePosition").value = candidate.position.name;
-                        document.getElementById("editCandidatePartylist").value = candidate.id;
+                        document.getElementById("editCandidatePosition").value = candidate.position.position_name;
+                        document.getElementById("editCandidatePartylist").value = candidate.partylist_id;
                         document.getElementById("editCandidateFirstName").value = candidate.first_name;
                         document.getElementById("editCandidateLastName").value = candidate.last_name;
                         document.getElementById("editCandidateMiddleName").value = candidate.middle_name;
                         document.getElementById("editCandidateYearLevel").value = candidate.year_level;
-                        document.getElementById("editCandidateProgram").value = candidate.id;
+                        document.getElementById("editCandidateProgram").value = candidate.program_id;
                         document.getElementById("editCandidatePlatform").value = candidate.platform || '';
-
+                        
                         // Set the current image preview
                         const previewImg = document.getElementById("editPreviewImg");
                         if (candidate.image) {
@@ -802,7 +803,7 @@ function checkCardLimit(containerId) {
         document.getElementById('updateCandidateBtn').addEventListener('click', function () {
             const formData = new FormData();
             const imageFile = document.getElementById("editCandidateImage").files[0];
-
+            
             if (imageFile) {
                 formData.append('image', imageFile);
             }
