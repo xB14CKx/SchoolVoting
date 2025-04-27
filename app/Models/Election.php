@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Election extends Model
 {
-    protected $fillable = ['year'];
+    protected $fillable = ['year', 'status'];
 
     // An election can have many candidates
     public function candidates()
@@ -33,6 +33,6 @@ class Election extends Model
                 ->withTimestamps()
                 ->using(ElectionCandidate::class);
 }
-    
+
 }
 

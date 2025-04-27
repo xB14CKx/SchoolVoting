@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\ElectionController;
@@ -9,11 +10,12 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PagesController;
 use App\Http\Controllers\StudentController;
 use App\Http\Controllers\FileUploadController;
-use App\Http\Controllers\Auth\TestEmailController; // Add this
+use App\Http\Controllers\Auth\TestEmailController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Program;
 use App\Models\Partylist;
 use App\Models\Candidate;
+use App\Models\User;
 
 // Guest Routes (unauthenticated users)
 Route::middleware('guest')->group(function () {
@@ -31,17 +33,25 @@ Route::middleware('guest')->group(function () {
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::middleware('verified')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('votings.dashboard');
-        })->name('dashboard');
 
-        Route::post('/send-test-email', [TestEmailController::class, 'send'])->name('send.test.email'); // Add this
+    Route::get('/dashboard', function () {
+        if (auth()->user()->isAdmin()) {
+            return redirect()->route('admin');
+        } elseif (auth()->user()->isStudent()) {
+            return redirect()->route('elect');
+        } else {
+            abort(403, 'Unauthorized action.');
+        }
+    })->name('dashboard');
 
-        Route::get('/elect', [CandidateController::class, 'index'])->name('elect');
+        Route::post('/send-test-email', [TestEmailController::class, 'send'])->name('send.test.email');
 
-        // Student-only route for votings.elect
+        // Updated route for /elect to use VoteController::elect
+        Route::get('/elect', [VoteController::class, 'elect'])->name('elect');
+
+        // Student-only route for votings.elect, also updated to use VoteController::elect
         Route::middleware('can:is-student')->group(function () {
-            Route::get('/votings/elect', [CandidateController::class, 'index'])->name('votings.elect');
+            Route::get('/votings/elect', [VoteController::class, 'elect'])->name('votings.elect');
         });
 
         Route::get('/result', function () {

@@ -5,22 +5,28 @@ namespace App\Http\Controllers;
 use App\Models\Election;
 use App\Models\Candidate;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ElectionController;
 
 class ElectionCandidateController extends Controller
 {
-    public function create(Election $election)
+    public function create(Request $request)
     {
+        // Find or create the current year's election
+        $election = ElectionController::getOrCreateCurrentElection();
         $candidates = Candidate::all();
         return view('election_candidates.create', compact('election', 'candidates'));
     }
 
-    public function store(Request $request, Election $election)
+    public function store(Request $request)
     {
         $validated = $request->validate([
-            'candidate_id' => 'required|exists:candidates,id',
+            'election_id' => 'required|exists:elections,id',
+            'candidate_id' => 'required|exists:candidates,candidate_id',
         ]);
 
         try {
+            $election = Election::findOrFail($validated['election_id']);
+
             // Check if the candidate is already attached to the election
             if ($election->candidates()->where('candidate_id', $validated['candidate_id'])->exists()) {
                 return redirect()->route('elections.show', $election)
@@ -33,7 +39,7 @@ class ElectionCandidateController extends Controller
             return redirect()->route('elections.show', $election)
                 ->with('success', 'Candidate added to election.');
         } catch (\Exception $e) {
-            return redirect()->route('election_candidates.create', $election)
+            return redirect()->route('election_candidates.create')
                 ->with('error', 'Failed to add candidate to election: ' . $e->getMessage());
         }
     }
@@ -42,7 +48,7 @@ class ElectionCandidateController extends Controller
     {
         try {
             // Detach the candidate from the election
-            $election->candidates()->detach($candidate->id);
+            $election->candidates()->detach($candidate->candidate_id);
 
             return redirect()->route('elections.show', $election)
                 ->with('success', 'Candidate removed from election.');

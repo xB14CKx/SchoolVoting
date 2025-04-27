@@ -7,11 +7,15 @@ use Illuminate\Http\Request;
 
 class ElectionController extends Controller
 {
-    // No need for constructor since middleware is applied in web.php
-    // public function __construct()
-    // {
-    //     $this->middleware('auth');
-    // }
+    // Helper method to find or create an election for the current year
+    public static function getOrCreateCurrentElection()
+    {
+        $currentYear = date('Y');
+        return Election::firstOrCreate(
+            ['year' => $currentYear],
+            ['year' => $currentYear]
+        );
+    }
 
     public function index()
     {
@@ -42,7 +46,7 @@ class ElectionController extends Controller
 
     public function show(Election $election)
     {
-        $election->load('candidates'); // Load candidates for this election
+        $election->load('candidates');
         return view('elections.show', compact('election'));
     }
 
@@ -70,9 +74,7 @@ class ElectionController extends Controller
     public function destroy(Election $election)
     {
         try {
-            // Detach all candidates from the election before deleting
             $election->candidates()->detach();
-
             $election->delete();
             return redirect()->route('elections.index')->with('success', 'Election deleted successfully.');
         } catch (\Exception $e) {
