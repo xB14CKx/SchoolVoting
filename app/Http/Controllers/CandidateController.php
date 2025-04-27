@@ -74,7 +74,7 @@ class CandidateController extends Controller
     public function show(Candidate $candidate)
     {
         return response()->json([
-            'candidate_id' => $candidate->candidate_id, 
+            'candidate_id' => $candidate->candidate_id,
             'first_name' => $candidate->first_name,
             'last_name' => $candidate->last_name,
             'middle_name' => $candidate->middle_name,
@@ -82,7 +82,7 @@ class CandidateController extends Controller
             'platform' => $candidate->platform,
             'image' => $candidate->image,
             'position' => [
-                'position_name' => $candidate->position->position_name 
+                'position_name' => $candidate->position->position_name
             ],
             'program' => [
                 'program_name' => $candidate->program->program_name
@@ -94,40 +94,37 @@ class CandidateController extends Controller
     }
 
     // Update an existing candidate
-    public function update(Request $request, Candidate $candidate)
-    {
-        try {
-            $validated = $request->validate([
-                'first_name' => 'required',
-                'last_name' => 'required',
-                'middle_name' => 'nullable',
-                'year_level' => 'required|in:1st,2nd,3rd,4th',
-                'program_id' => 'required|integer',
-                'partylist_id' => 'required|integer',
-                'image' => 'nullable|image|max:2048'
-            ]);
+public function update(Request $request, $id)
+{
+    $candidate = Candidate::findOrFail($id);
 
-            if ($request->hasFile('image')) {
-                // Delete old image if it exists
-                if ($candidate->image) {
-                    Storage::disk('public')->delete($candidate->image);
-                }
-                $validated['image'] = $request->file('image')->store('candidates', 'public');
-            }
+    // Validate request data
+    $validated = $request->validate([
+        'partylist_id' => 'required|exists:partylists,partylist_id',
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'middle_name' => 'nullable|string|max:255',
+        'year_level' => 'required|in:1st,2nd,3rd,4th',
+        'program_id' => 'required|exists:programs,program_id',
+        'platform' => 'nullable|string',
+        'image' => 'nullable|image|max:2048', // Adjust max file size as needed
+    ]);
 
-            $candidate->update($validated);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Candidate updated successfully'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update candidate: ' . $e->getMessage()
-            ], 500);
+    // Handle image upload if present
+    if ($request->hasFile('image')) {
+        // Delete old image if necessary
+        if ($candidate->image) {
+            Storage::delete('public/' . $candidate->image);
         }
+        $path = $request->file('image')->store('candidates', 'public');
+        $validated['image'] = $path;
     }
+
+    // Update candidate
+    $candidate->update($validated);
+
+    return response()->json(['success' => true, 'message' => 'Candidate updated successfully']);
+}
 
     // Delete a candidate
     public function destroy(Candidate $candidate)
