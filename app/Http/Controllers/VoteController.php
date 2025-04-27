@@ -6,6 +6,7 @@ use App\Events\VoteCast;
 use App\Models\Election;
 use App\Models\Candidate;
 use App\Models\Vote;
+use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,10 @@ class VoteController extends Controller
 {
     public function elect()
     {
+
+        $positions = Position::with('candidates')->get();
+        return view('votings.elect', compact('positions'));
+
         $currentYear = date('Y');
 
         // Find or create an election for the current year with status 'open'

@@ -11,8 +11,11 @@ use App\Http\Controllers\ElectionController;
 class CandidateController extends Controller
 {
     // Create a new candidate
-public function store(Request $request)
+    public function store(Request $request)
     {
+        // Debug logging
+        Log::info('Received candidate data:', $request->all());
+
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -26,25 +29,34 @@ public function store(Request $request)
         ]);
 
         try {
+            // Create the candidate
             $candidate = Candidate::create([
                 'first_name' => $validatedData['first_name'],
                 'last_name' => $validatedData['last_name'],
                 'middle_name' => $validatedData['middle_name'],
                 'year_level' => $validatedData['year_level'],
-                'platform' => $validatedData['platform'],
+                'platform' => $validatedData['platform'], // Use validated data instead of $request->platform
                 'position_id' => $validatedData['position_id'],
                 'program_id' => $validatedData['program_id'],
                 'partylist_id' => $validatedData['partylist_id']
             ]);
 
+            // Handle image upload if present
             if ($request->hasFile('image')) {
                 $imagePath = $request->file('image')->store('candidates', 'public');
                 $candidate->image = $imagePath;
                 $candidate->save();
             }
 
+            // Find or create the current year's election and attach the candidate
             $election = ElectionController::getOrCreateCurrentElection();
-            $election->candidates()->attach($candidate->candidate_id);
+            $election->candidates()->syncWithoutDetaching($candidate->candidate_id);
+
+            // Debug logging
+            Log::info('Created candidate and attached to election:', [
+                'candidate' => $candidate->toArray(),
+                'election_id' => $election->id
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -52,12 +64,14 @@ public function store(Request $request)
                 'data' => $candidate
             ]);
         } catch (\Exception $e) {
+            Log::error('Error creating candidate: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Error adding candidate: ' . $e->getMessage()
             ], 500);
         }
     }
+
     public function admin()
     {
         $candidates = Candidate::with(['program', 'partylist', 'position'])->get();
