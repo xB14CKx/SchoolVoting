@@ -26,5 +26,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PartylistSeeder::class,
         ]);
+
+        $this->call([
+            PositionSeeder::class,
+        ]);
     }
 }

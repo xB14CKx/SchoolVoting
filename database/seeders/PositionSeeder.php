@@ -4,26 +4,28 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class PositionSeeder extends Seeder
 {
     public function run(): void
     {
         $positions = [
-            'President',
-            'Vice President',
-            'Secretary',
-            'Treasurer',
-            'Auditor',
-            'PIO',
-            'Business Manager',
+            1 => 'President',
+            2 => 'Vice President',
+            3 => 'Secretary',
+            4 => 'Treasurer',
+            5 => 'Auditor',
+            6 => 'PIO',
+            7 => 'Business Manager',
         ];
 
-        foreach ($positions as $position) {
+        foreach ($positions as $id => $name) {
             DB::table('positions')->insert([
-                'name' => $position,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'position_id' => $id,
+                'position_name' => $name,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]);
         }
     }
