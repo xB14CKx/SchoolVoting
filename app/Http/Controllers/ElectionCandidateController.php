@@ -57,4 +57,17 @@ class ElectionCandidateController extends Controller
                 ->with('error', 'Failed to remove candidate from election: ' . $e->getMessage());
         }
     }
+
+    public function elect()
+    {
+        $currentElection = \App\Models\Election::where('status', 'open')->latest()->first();
+    
+        $positions = \App\Models\Position::with(['candidates' => function ($query) use ($currentElection) {
+            $query->whereHas('elections', function ($q) use ($currentElection) {
+                $q->where('election_id', $currentElection->election_id);
+            })->with(['program', 'partylist']);
+        }])->get();
+    
+        return view('votings.elect', compact('positions'));
+    }
 }

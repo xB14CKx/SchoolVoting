@@ -9,7 +9,7 @@ use App\Models\Vote;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\DB;  
 
 class VoteController extends Controller
 {
@@ -62,9 +62,8 @@ class VoteController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'voter') {
-            return $this->respondWithError('You are not eligible to vote.', $election);
-        }
+        if ($user->role !== 'admin') {
+            return $this->respondWithError('You are not eligible to vote.', $election);        }
 
         if ($election && Vote::where('user_id', $user->id)->where('election_id', $election->id)->exists()) {
             return $this->respondWithError('You have already voted in this election.', $election);

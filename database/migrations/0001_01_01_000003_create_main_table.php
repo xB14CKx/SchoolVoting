@@ -51,7 +51,6 @@ return new class extends Migration {
             $table->text('platform')->nullable();
             $table->timestamps();
 
-            $table->unique(['first_name', 'last_name', 'position_id'], 'candidates_name_position_unique');
             $table->index('program_id');
             $table->index('partylist_id');
             $table->index('year_level');

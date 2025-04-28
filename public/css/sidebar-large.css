@@ -135,7 +135,7 @@
   
   .logout-button {
     display: inline-block;
-    margin-top: 140px;
+    margin-top: -15px;
     padding: 10px 24px;
     background-color: white;
     color: black;

@@ -58,7 +58,7 @@ class ElectionController extends Controller
     public function update(Request $request, Election $election)
     {
         $validated = $request->validate([
-            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1) . '|unique:elections,year,' . $election->id,
+            'year' => 'required|integer|min:1900|max:' . (date('Y') + 1) . '|unique:elections,year,' . $election->election_id,
         ]);
 
         try {

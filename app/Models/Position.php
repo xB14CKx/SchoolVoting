@@ -21,6 +21,6 @@ class Position extends Model
      */
     public function candidates(): HasMany
     {
-        return $this->hasMany(Candidate::class);
+        return $this->hasMany(Candidate::class, 'position_id', 'position_id');
     }
 }

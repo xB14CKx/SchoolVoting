@@ -38,7 +38,7 @@
                 <i class="fa-solid fa-file-arrow-up upload-icon" aria-hidden="true"></i>
             </a>
 
-            <form action="{{ route('logout') }}" method="post" style="display: inline;">
+            <form action="{{ route('logout') }}" method="post" style="display: inline; margin-top: -50px;">
                 @csrf
                 <button type="submit" class="logout-icon" style="border: none; background: none; padding: 0; cursor: pointer;">
                     <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>

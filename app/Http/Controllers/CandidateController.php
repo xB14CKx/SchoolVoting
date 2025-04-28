@@ -55,7 +55,7 @@ class CandidateController extends Controller
             // Debug logging
             Log::info('Created candidate and attached to election:', [
                 'candidate' => $candidate->toArray(),
-                'election_id' => $election->id
+                'election_id' => $election->election_id
             ]);
 
             return response()->json([

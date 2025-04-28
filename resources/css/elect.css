@@ -1,4 +1,7 @@
-/* Page container */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
 .page-container {
     width: 100%;
     min-height: 100vh;
@@ -8,8 +11,6 @@
     background-color: #f7bd03;
     top: 0;
     left: 0;
-    z-index: 0;
-    /* turn to zero para dili niya ma cover ang function sa buttons */
 }
 
 .content-wrapper {
@@ -21,9 +22,9 @@
     width: 100%;
     padding: 56px 80px;
     align-items: flex-start;
-    z-index: 1;
-    /* add ni para ma apply gihapon siya tas above siya sa background nato */
+
 }
+
 
 @media (max-width: 991px) {
     .content-wrapper {
@@ -35,7 +36,6 @@
 /* Background logo */
 .background-logo {
     position: fixed;
-    /* do this */
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -205,52 +205,50 @@ body {
     display: block;
 }
 
-/* Role Container */
-.candidate-card {
-    display: flex;
-    gap: 20px;
-    position: relative;
-    border-radius: 10px;
-    background-color: rgba(30, 30, 30, 0.71);
-    align-items: center;
-    margin-top: 13px;
-    padding: 10px 10px 20px 35px;
-    flex-direction: column;
-    font-size: 14px;
-    color: #fff;
-    font-weight: 600;
-    width: 200px;
-    height: 295px;
-    margin-left: 70px;
-    margin-top: 20px;
-}
-
-.role-label {
-    position: absolute;
-    top: 0;
-    left: 5px;
-    font-family: "Inter", sans-serif;
-    font-size: 25px;
-    font-style: bold;
-    font-weight: 900;
-    color: #000;
-    text-align: center;
-    width: 78px;
-    height: 32px;
-    margin-top: -40px;
+/* Position section styling */
+.position-section {
     margin-bottom: 40px;
+    margin-top: -30px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    display: block;
+
 }
 
+.position-wrapper {
+    margin-bottom: 2.5rem;
+    display: block;
+}
+
+.candidate-figure {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(30, 30, 30, 0.71);
+    border-radius: 10px;
+    padding: 20px;
+    width: 245px;
+    height: 380px;
+    margin-left: 70px;
+    margin-top: 10px;
+
+}
+.candidate-grid {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
 
 .profile-image {
-    aspect-ratio: 1;
-    object-position: center;
-    width: 150px;
+    width: 170px;
+    height: 170px;
+    object-fit: cover;
     border-radius: 10px;
-    margin-top: 17px;
-    max-width: 100%;
-    padding-right: 5px;
-    margin-left: -13px;
+    margin-bottom: 15px;
+    margin-left: -7px;
 }
 
 .candidate-details {
@@ -258,36 +256,84 @@ body {
     text-align: center;
     font-family: "Inter", sans-serif;
     font-size: 14px;
-    font-weight: 700;
-    margin-top: 9px;
+    font-weight: 600;
     line-height: 1.4;
-    margin-left: -32px;
+    margin: 10px 0;
+}
 
+.candidate-name,
+.candidate-partylist {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    margin-top:-5px;
+}
+
+.modal {
+    z-index: 2000 !important;
+}
+
+.modal-backdrop {
+    z-index: 1990 !important;
+}
+
+.role-label {
+    width: 100%;
+    color: #000;
+    font-family: "Inter", sans-serif;
+    font-size: 25px;
+    font-weight: 900;
+    margin-left: 70px;
+    margin-bottom: 20px;
+    margin-top: 10px;
 }
 
 .vote-button {
-    width: 93px;
-    height: 26px;
-    border-radius: 4px;
+    background-color: #f7bd03;
     color: #f5f5f5;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 18px;
     font-family: "Inter", sans-serif;
     font-size: 16px;
     font-weight: 700;
-    margin-top: 10px;
     cursor: pointer;
-    background-color: #f7bd03;
-    border: black;
     transition: background-color 0.3s ease-in-out;
-    margin-left: 5px;
-    margin-top: 10px;
+    margin-top: 7px;
 
 }
 
 .vote-button:hover {
-    background-color: #1B1F3B !important;
+    background-color: #1B1F3B;
 }
 
-/* Submit Vote Button */
+.vote-button.btn-disabled,
+.vote-button:disabled {
+    background-color: #cccccc !important;
+    color: #888888 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+    border: none;
+    opacity: 0.7;
+}
+.vote-button.btn-disabled:hover,
+.vote-button:disabled:hover {
+    background-color: #cccccc !important;
+    color: #888888 !important;
+}
+
+/* Cancel button: black background, gold on hover */
+.vote-button.btn-cancel,
+.vote-button.btn-cancel:active {
+    background-color: #000 !important;
+    color: #fff !important;
+    border: none;
+}
+.vote-button.btn-cancel:hover {
+    background-color: #f7bd03 !important;
+    color: #000 !important;
+}
+
 .submit-voteButton {
     position: fixed;
     width: 130px;
@@ -328,3 +374,129 @@ body {
         padding: 10px;
     }
 }
+
+#voteReviewModal .modal-dialog {
+    max-width: 700px;
+}
+
+#finalSubmitVoteBtn.btn {
+    background-color: #f7bd03;
+    color: #000;
+    border: none;
+    font-weight: bold;
+}
+
+#finalSubmitVoteBtn.btn:hover,
+#finalSubmitVoteBtn.btn:focus {
+    background-color: #000;
+    color: #f7bd03;
+}
+
+.vote-review-list {
+    padding: 0 10px;
+}
+
+.vote-review-item {
+    padding: 5px 0;
+}
+
+.vote-review-position {
+    color: #f7bd03;
+    letter-spacing: 0.5px;
+    font-size: 20px !important;
+}
+
+.vote-review-candidate {
+    font-size: 18px;
+    color: #333;
+}
+
+.vote-review-divider {
+    border-top: 1.5px solid grey;
+    opacity: 1;
+}
+
+.position-row {
+    margin-bottom: 40px;
+}
+
+.candidates-wrapper {
+    display: flex;
+    margin-top: 20px;
+}
+
+
+.info-button {
+    position: absolute;
+    top: 13px;
+    right: 7px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.3s ease;
+    z-index: 2;
+}
+
+.info-button:hover {
+    color: gold;
+}
+
+.candidate-modal-image-container {
+    width: 100%;
+    max-height: 400px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.candidate-modal-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.candidate-modal-info {
+    padding: 30px;
+}
+
+.info-group {
+    margin-bottom: 20px;
+}
+
+.info-group p {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.platform-section {
+    border-top: 1px solid #dee2e6;
+    padding-top: 20px;
+}
+
+.platform-section h4 {
+    color: #f7bd03;
+    margin-bottom: 15px;
+}
+
+/* Update Modal Styling */
+.modal {
+    z-index: 1050;
+    /* Ensure modal is above other content */
+}
+
+.modal-content {
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+.modal-body {
+    background-color: #fff;
+}
+

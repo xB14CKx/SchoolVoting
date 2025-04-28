@@ -33,10 +33,10 @@
         <a href="{{ url('/result') }}" class="results-button"><i class="fa-solid fa-check-to-slot" aria-hidden="true"></i> &nbsp;Results</a>
         <a href="{{ url('/reports') }}" class="reports-button"><i class="fa-solid fa-chart-pie"></i> &nbsp;Reports</a>
         <a href="{{ url('/file-upload') }}" class="upload-button"><i class="fa-solid fa-file-arrow-up"></i> &nbsp;File Upload</a>
-        <form action="{{ route('logout') }}" method="post" style="display: inline;">
+        <form action="{{ route('logout') }}" method="post" style="display: inline;  margin-top: -70px;">
             @csrf
             <button type="submit" class="logout-button">
-                <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> log out
+                <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i> Log out
             </button>
         </form>
     </nav>
