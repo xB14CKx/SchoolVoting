@@ -62,7 +62,7 @@ class VoteController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'admin') {
+        if ($user->role !== 'student') {
             return $this->respondWithError('You are not eligible to vote.', $election);        }
 
         if ($election && Vote::where('user_id', $user->id)->where('election_id', $election->id)->exists()) {
