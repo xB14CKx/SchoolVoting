@@ -4,18 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\Election;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ElectionController extends Controller
 {
     // Helper method to find or create an election for the current year
-    public static function getOrCreateCurrentElection()
-    {
-        $currentYear = date('Y');
-        return Election::firstOrCreate(
-            ['year' => $currentYear],
-            ['year' => $currentYear]
-        );
-    }
+public static function getOrCreateCurrentElection()
+{
+    $currentYear = date('Y');
+
+    return DB::transaction(function () use ($currentYear) {
+        // Lock the table to prevent race conditions
+        $election = Election::where('year', $currentYear)
+            ->lockForUpdate()
+            ->first();
+
+        if (!$election) {
+            $election = Election::create(['year' => $currentYear]);
+        }
+
+        return $election;
+    });
+}
 
     public function index()
     {
