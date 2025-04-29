@@ -407,75 +407,38 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   const candidateStoreUrl = "{{ route('candidates.store') }}";
-    const candidates = @json($candidates);
-    let currentEditingCandidateId = null;
+  const candidates = @json($candidates);
+  let currentEditingCandidateId = null;
 
   document.addEventListener("DOMContentLoaded", function () {
-        // Initialize existing candidates
-        candidates.forEach(candidate => {
-            const container = document.getElementById(getPositionContainerId(candidate.position.position_name));
-            if (container) {
-                const card = createCandidateCard(candidate);
-                container.insertBefore(card, container.querySelector('.add-candidate-button'));
-            }
-        });
+    console.log("DOM fully loaded"); // Debug: Confirm DOM is loaded
+    console.log("Candidates:", candidates); // Debug: Verify candidates data
 
-        // Check card limits for all positions after initialization
-        const positionIds = [
-            'presidentCandidates',
-            'vicePresidentCandidates',
-            'secretaryCandidates',
-            'treasurerCandidates',
-            'auditorCandidates',
-            'PIOCandidates',
-            'businessManagerCandidates'
-        ];
-        positionIds.forEach(id => checkCardLimit(id));
+    // Initialize existing candidates
+    candidates.forEach(candidate => {
+      const container = document.getElementById(getPositionContainerId(candidate.position.position_name));
+      if (container) {
+        const card = createCandidateCard(candidate);
+        container.insertBefore(card, container.querySelector('.add-candidate-button'));
+        attachOptionButtonListeners(card);
+      } else {
+        console.error(`Container not found for position: ${candidate.position.position_name}`);
+      }
+    });
 
-        // Add event listeners for delete buttons
-        document.querySelectorAll('.option-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const card = this.closest('.candidate-card');
-                const candidateId = card.dataset.candidateId;
+    // Check card limits for all positions
+    const positionIds = [
+      'presidentCandidates',
+      'vicePresidentCandidates',
+      'secretaryCandidates',
+      'treasurerCandidates',
+      'auditorCandidates',
+      'PIOCandidates',
+      'businessManagerCandidates'
+    ];
+    positionIds.forEach(id => checkCardLimit(id));
 
-                if (this.textContent === 'Delete') {
-                    if (confirm('Are you sure you want to delete this candidate?')) {
-                        fetch(`/candidates/${candidateId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Accept': 'application/json',
-                                'Content-Type': 'application/json'
-                            }
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.text().then(text => {
-                                    try {
-                                        return Promise.reject(JSON.parse(text));
-                                    } catch (e) {
-                                        return Promise.reject(new Error(text));
-                                    }
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            if (data.success) {
-                                card.remove();
-                                // Update the card count and enable/disable add button
-                                const container = card.closest('.candidate-grid');
-                                checkCardLimit(container.id);
-                            } else {
-                                alert(data.message || 'Failed to delete candidate');
-                            }
-                        })
-
-                    }
-                }
-            });
-        });
-
+    // Year dropdown logic
     const dropdownButton = document.getElementById("yearDropdownButton");
     const dropdownMenu = document.getElementById("yearDropdown");
 
@@ -500,146 +463,71 @@
       }
     });
 
+    // More options button logic
     document.querySelectorAll('.more-options-button').forEach(button => {
-    button.addEventListener('click', function (event) {
-          event.stopPropagation();
-      const card = button.closest(".candidate-card");
-      const menu = card.querySelector(".options-menu");
-      document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
-      if (menu) {
-        menu.classList.toggle("hidden");
-      }
+      button.addEventListener('click', function (event) {
+        event.stopPropagation();
+        const card = button.closest(".candidate-card");
+        const menu = card.querySelector(".options-menu");
+        document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
+        if (menu) {
+          menu.classList.toggle("hidden");
+        }
+      });
     });
-  });
 
-  document.addEventListener("click", function () {
-    document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
-  });
+    document.addEventListener("click", function () {
+      document.querySelectorAll(".options-menu").forEach(menu => menu.classList.add("hidden"));
+    });
 
-
-        function createCandidateCard(candidateData) {
-            // Format program name to show initials
-            let programName = candidateData.program.program_name;
-
-            if (programName.includes('BS in ')) {
-                // Handle BS programs
-                const words = programName.split(' ');
-
-                // Check if it's a program with a major/specialization
-                if (programName.includes('–')) {
-                    const [mainProgram, major] = programName.split('–').map(part => part.trim());
-                    const mainWords = mainProgram.split(' ').filter(word => word.toLowerCase() !== 'and');
-                    const initials = mainWords.slice(2).map(word => word.charAt(0)).join('');
-
-                    // Special handling for BSEMC
-                    if (mainProgram.includes('Entertainment and Multimedia Computing')) {
-                        programName = 'BSEMC - ' + major;
-                    } else {
-                        programName = 'BS' + initials + ' - ' + major;
-                    }
-                } else {
-                    // Regular BS program without major
-                    const filteredWords = words.filter(word => word.toLowerCase() !== 'and');
-                    const initials = filteredWords.slice(2).map(word => word.charAt(0)).join('');
-                    programName = 'BS' + initials;
-                }
-            } else if (programName.includes('Bachelor of Multimedia Arts')) {
-                programName = 'BMA';
-            } else if (programName.includes('Bachelor of ')) {
-                // Handle other Bachelor programs
-                programName = programName.replace('Bachelor of ', 'B');
-                const words = programName.split(' ').filter(word => word.toLowerCase() !== 'and');
-                const initials = words.map(word => word.charAt(0)).join('');
-                programName = initials;
-            }
-
-  const cardHTML = `
-                <article class="candidate-card" data-candidate-id="${candidateData.candidate_id}">
-                    <button class="more-options-button" aria-label="More options">
-        <svg class="more-icon" width="20" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9.70312 12.9345C9.2584 12.9345 8.87769 12.8078 8.56099 12.5545C8.24429 12.3012 8.08594 11.9967 8.08594 11.641C8.08594 11.2853 8.24429 10.9808 8.56099 10.7275C8.87769 10.4742 9.2584 10.3476 9.70312 10.3476C10.1479 10.3476 10.5286 10.4742 10.8453 10.7275C11.162 10.9808 11.3203 11.2853 11.3203 11.641C11.3203 11.9967 11.162 12.3012 10.8453 12.5545C10.5286 12.8078 10.1479 12.9345 9.70312 12.9345ZM9.70312 9.05415C9.2584 9.05415 8.87769 8.9275 8.56099 8.6742C8.24429 8.4209 8.08594 8.1164 8.08594 7.7607C8.08594 7.40501 8.24429 7.10051 8.56099 6.84721C8.87769 6.59391 9.2584 6.46726 9.70312 6.46726C10.1479 6.46726 10.5286 6.59391 10.8453 6.84721C11.162 7.10051 11.3203 7.40501 11.3203 7.7607C11.3203 8.1164 11.162 8.4209 10.8453 8.6742C10.5286 8.9275 10.1479 9.05415 9.70312 9.05415ZM9.70312 5.17381C9.2584 5.17381 8.87769 5.04716 8.56099 4.79386C8.24429 4.54056 8.08594 4.23606 8.08594 3.88036C8.08594 3.52466 8.24429 3.22016 8.56099 2.96686C8.87769 2.71356 9.2584 2.58691 9.70312 2.58691C10.1479 2.58691 10.5286 2.71356 10.8453 2.96686C11.162 3.22016 11.3203 3.52466 11.3203 3.88036C11.3203 4.23606 11.162 4.54056 10.8453 4.79386C10.5286 5.04716 10.1479 5.17381 9.70312 5.17381Z" fill="#1D1B20"></path>
-        </svg>
-      </button>
-      <div class="options-menu hidden">
-        <button class="option-button">Edit</button>
-        <button class="option-button">Delete</button>
-      </div>
-      <figure class="candidate-figure">
-        <img
-                            src="${candidateData.image ? '{{ asset('storage/') }}/' + candidateData.image : 'https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/567fdf519eb08658d3207d7508f0b1db1ca7b3a2'}"
-          class="candidate-image"
-          alt="Candidate">
-        <figcaption class="candidate-details">
-                            <div class="candidate-name">${candidateData.last_name}, ${candidateData.first_name} ${candidateData.middle_name ? candidateData.middle_name.charAt(0) + '.' : ''}</div>
-                            <div class="candidate-partylist">${candidateData.partylist.partylist_name}</div>
-                            <div>${candidateData.year_level} Year</div>
-                            <div>${programName}</div>
-        </figcaption>
-      </figure>
-    </article>
-  `;
-
-  const wrapper = document.createElement('div');
-  wrapper.innerHTML = cardHTML.trim();
-  return wrapper.firstElementChild;
-}
-
-        function getPositionContainerId(positionName) {
-  const map = {
-                "President": "presidentCandidates",
-                "Vice President": "vicePresidentCandidates",
-                "Secretary": "secretaryCandidates",
-                "Treasurer": "treasurerCandidates",
-                "Auditor": "auditorCandidates",
-                "PIO": "PIOCandidates",
-                "Business Manager": "businessManagerCandidates"
-            };
-            return map[positionName] || null;
-}
-
-    // ========== Modal Trigger ==========
+    // Add candidate button logic
     const addButtons = document.querySelectorAll('.add-candidate-button');
+    console.log("Add buttons found:", addButtons.length); // Debug: Verify buttons are found
+    addButtons.forEach(btn => {
+      btn.addEventListener('click', function () {
+        console.log("Add button clicked for position:", btn.getAttribute('data-position')); // Debug
+        const targetId = btn.getAttribute('data-position');
+        const container = document.getElementById(targetId);
 
-addButtons.forEach(btn => {
-  btn.addEventListener('click', function () {
-    console.log("Add button clicked"); // <-- Add this
-    const targetId = btn.getAttribute('data-position');
-    const container = document.getElementById(targetId);
+        if (!container) {
+          console.error(`Container not found for ID: ${targetId}`);
+          return;
+        }
 
+        const currentCards = container.querySelectorAll('.candidate-card').length;
+        console.log(`Current cards for ${targetId}: ${currentCards}`); // Debug
+        if (currentCards >= 2) {
+          alert('You can only add up to 2 candidates for this position.');
+          return;
+        }
 
-    const currentCards = container.querySelectorAll('.candidate-card').length;
-    if (currentCards >= 2) {
-      alert('You can only add up to 2 candidates for this position.');
-      return;
-    }
+        const positionName = getPositionTitle(targetId);
+        console.log("Opening modal for position:", positionName); // Debug
 
-    const positionName = getPositionTitle(targetId);
+        // Update modal fields
+        document.getElementById("candidatePosition").value = positionName;
+        document.getElementById("addCandidateLabel").textContent = `Add Candidate for ${positionName}`;
+        document.getElementById("candidateImage").value = '';
+        document.getElementById("previewImg").classList.add("d-none");
 
-    // Update modal fields
-    document.getElementById("candidatePosition").value = positionName;
-    document.getElementById("addCandidateLabel").textContent = `Add Candidate for ${positionName}`;
-    document.getElementById("candidateImage").value = '';
-    document.getElementById("previewImg").classList.add("d-none");
+        // Initialize and show modal
+        try {
+          const modalElement = document.getElementById("addCandidateModal");
+          if (!modalElement) {
+            console.error("Modal element not found: #addCandidateModal");
+            return;
+          }
+          const modal = new bootstrap.Modal(modalElement, { backdrop: 'static' });
+          modal.show();
+          console.log("Add modal shown successfully"); // Debug
+        } catch (error) {
+          console.error("Error showing add modal:", error);
+          alert("Failed to open add modal. Check console for details.");
+        }
+      });
+    });
 
-    const modal = new bootstrap.Modal(document.getElementById("addCandidateModal"));
-    modal.show();
-  });
-});
-
-function checkCardLimit(containerId) {
-  const container = document.getElementById(containerId);
-  const addBtn = container.querySelector('.add-candidate-button');
-  const cardCount = container.querySelectorAll('.candidate-card').length;
-
-  if (cardCount >= 2) {
-                addBtn.style.visibility = 'hidden';
-    addBtn.style.pointerEvents = 'none';
-  } else {
-                addBtn.style.visibility = 'visible';
-    addBtn.style.pointerEvents = 'auto';
-  }
-}
-
+    // Image preview for add modal
     document.getElementById("candidateImage").addEventListener("change", function () {
       const file = this.files[0];
       const preview = document.getElementById("previewImg");
@@ -654,36 +542,10 @@ function checkCardLimit(containerId) {
       }
     });
 
-        function getPositionTitle(id) {
-            const map = {
-                presidentCandidates: "President",
-                vicePresidentCandidates: "Vice President",
-                secretaryCandidates: "Secretary",
-                treasurerCandidates: "Treasurer",
-                auditorCandidates: "Auditor",
-                PIOCandidates: "PIO",
-                businessManagerCandidates: "Business Manager"
-            };
-            return map[id] || "Position";
-        }
-
-    function getPositionId(positionName) {
-    const map = {
-      "President": 1,
-      "Vice President": 2,
-      "Secretary": 3,
-      "Treasurer": 4,
-      "Auditor": 5,
-      "PIO": 6,
-      "Business Manager": 7
-    };
-    return map[positionName] || null;
-  }
-
-    // ========== Modal Submission ==========
+    // Save candidate logic
     document.getElementById('saveCandidateBtn').addEventListener('click', function () {
       const platform = document.getElementById("candidatePlatform").value;
-      console.log("Platform before sending:", platform);
+      console.log("Platform before sending:", platform); // Debug
 
       const formData = new FormData();
       const imageFile = document.getElementById("candidateImage").files[0];
@@ -701,9 +563,8 @@ function checkCardLimit(containerId) {
       formData.append('platform', platform);
       formData.append('_token', '{{ csrf_token() }}');
 
-      // Debug: Log all form data
       for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
+        console.log(pair[0] + ': ' + pair[1]); // Debug
       }
 
       fetch(candidateStoreUrl, {
@@ -718,7 +579,7 @@ function checkCardLimit(containerId) {
       .then(response => {
         if (!response.ok) {
           return response.text().then(text => {
-            console.log("Error response:", text);
+            console.log("Error response:", text); // Debug
             try {
               return Promise.reject(JSON.parse(text));
             } catch (e) {
@@ -729,7 +590,7 @@ function checkCardLimit(containerId) {
         return response.json();
       })
       .then(data => {
-        console.log("Success response:", data);
+        console.log("Success response:", data); // Debug
         if (data.success) {
           const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
           modal.hide();
@@ -744,108 +605,288 @@ function checkCardLimit(containerId) {
       });
     });
 
-        // Add event listeners for edit buttons
-document.querySelectorAll('.option-button').forEach(button => {
-    button.addEventListener('click', function() {
-        const card = this.closest('.candidate-card');
-        const candidateId = card.dataset.candidateId;
+    // Image preview for edit modal
+    document.getElementById("editCandidateImage").addEventListener("change", function () {
+      const file = this.files[0];
+      const preview = document.getElementById("editPreviewImg");
 
-        if (this.textContent === 'Edit') {
-            currentEditingCandidateId = candidateId;
-            const candidate = candidates.find(c => c.candidate_id == candidateId);
-
-            if (candidate) {
-                document.getElementById("editCandidatePosition").value = candidate.position.position_name;
-                document.getElementById("editCandidatePartylist").value = candidate.partylist_id;
-                document.getElementById("editCandidateFirstName").value = candidate.first_name;
-                document.getElementById("editCandidateLastName").value = candidate.last_name;
-                document.getElementById("editCandidateMiddleName").value = candidate.middle_name;
-                document.getElementById("editCandidateYearLevel").value = candidate.year_level;
-                document.getElementById("editCandidateProgram").value = candidate.program_id;
-                document.getElementById("editCandidatePlatform").value = candidate.platform || '';
-
-                const previewImg = document.getElementById("editPreviewImg");
-                if (candidate.image) {
-                    previewImg.src = '{{ asset('storage/') }}/' + candidate.image;
-                    previewImg.classList.remove("d-none");
-                } else {
-                    previewImg.classList.add("d-none");
-                }
-
-                const editModal = new bootstrap.Modal(document.getElementById("editCandidateModal"));
-                editModal.show();
-            }
-        }
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.classList.remove("d-none");
+        };
+        reader.readAsDataURL(file);
+      }
     });
-});
 
-        // Handle image preview in edit modal
-        document.getElementById("editCandidateImage").addEventListener("change", function () {
-            const file = this.files[0];
-            const preview = document.getElementById("editPreviewImg");
+    // Update candidate logic
+    document.getElementById('updateCandidateBtn').addEventListener('click', function () {
+      const formData = new FormData();
+      const imageFile = document.getElementById("editCandidateImage").files[0];
 
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    preview.src = e.target.result;
-                    preview.classList.remove("d-none");
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Handle update candidate
-        // Handle update candidate
-document.getElementById('updateCandidateBtn').addEventListener('click', function () {
-    const formData = new FormData();
-    const imageFile = document.getElementById("editCandidateImage").files[0];
-
-    if (imageFile) {
+      if (imageFile) {
         formData.append('image', imageFile);
-    }
+      }
 
-    formData.append('partylist_id', document.getElementById("editCandidatePartylist").value);
-    formData.append('first_name', document.getElementById("editCandidateFirstName").value);
-    formData.append('last_name', document.getElementById("editCandidateLastName").value);
-    formData.append('middle_name', document.getElementById("editCandidateMiddleName").value);
-    formData.append('year_level', document.getElementById("editCandidateYearLevel").value);
-    formData.append('program_id', document.getElementById("editCandidateProgram").value);
-    formData.append('platform', document.getElementById("editCandidatePlatform").value);
-    formData.append('_method', 'PUT'); // Spoof the PUT method
-    formData.append('_token', '{{ csrf_token() }}'); // CSRF token
+      const positionInput = document.getElementById("editCandidatePosition").value;
+      const positionId = getPositionId(positionInput);
+      console.log("Position input:", positionInput, "Position ID:", positionId); // Debug
 
-    fetch(`/candidates/${currentEditingCandidateId}`, {
-        method: 'POST', // Use POST with _method=PUT for file uploads
+      if (!positionId) {
+        alert("Error: Invalid position. Please ensure the position is correctly set.");
+        return;
+      }
+
+      formData.append('position_id', positionId);
+      formData.append('partylist_id', document.getElementById("editCandidatePartylist").value);
+      formData.append('first_name', document.getElementById("editCandidateFirstName").value);
+      formData.append('last_name', document.getElementById("editCandidateLastName").value);
+      formData.append('middle_name', document.getElementById("editCandidateMiddleName").value);
+      formData.append('year_level', document.getElementById("editCandidateYearLevel").value);
+      formData.append('program_id', document.getElementById("editCandidateProgram").value);
+      formData.append('platform', document.getElementById("editCandidatePlatform").value);
+      formData.append('_method', 'PUT');
+      formData.append('_token', '{{ csrf_token() }}');
+
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]); // Debug
+      }
+
+      fetch(`/candidates/${currentEditingCandidateId}`, {
+        method: 'POST',
         body: formData,
         headers: {
-            'Accept': 'application/json' // No Content-Type; browser sets it automatically
+          'Accept': 'application/json'
         }
-    })
-    .then(response => {
+      })
+      .then(response => {
         if (!response.ok) {
-            return response.text().then(text => {
-                try {
-                    return Promise.reject(JSON.parse(text));
-                } catch (e) {
-                    return Promise.reject(new Error(text));
-                }
-            });
+          return response.text().then(text => {
+            try {
+              return Promise.reject(JSON.parse(text));
+            } catch (e) {
+              return Promise.reject(new Error(text));
+            }
+          });
         }
         return response.json();
-    })
-    .then(data => {
+      })
+      .then(data => {
         if (data.success) {
-            const modal = bootstrap.Modal.getInstance(document.getElementById("editCandidateModal"));
-            modal.hide();
-            location.reload();
+          const modal = bootstrap.Modal.getInstance(document.getElementById("editCandidateModal"));
+          modal.hide();
+          location.reload();
         } else {
-            alert("Failed to update candidate: " + (data.message || "Unknown error"));
+          let errorMessage = data.message || "Unknown error";
+          if (data.errors) {
+            errorMessage += "\n" + Object.values(data.errors).flat().join("\n");
+          }
+          alert("Failed to update candidate: " + errorMessage);
         }
-    })
-    .catch(error => {
+      })
+      .catch(error => {
         console.error("Error updating candidate:", error);
         alert("Error updating candidate: " + (error.message || "Unknown error"));
+      });
     });
-});  });
+
+    function createCandidateCard(candidateData) {
+      let programName = candidateData.program.program_name;
+
+      if (programName.includes('BS in ')) {
+        const words = programName.split(' ');
+        if (programName.includes('–')) {
+          const [mainProgram, major] = programName.split('–').map(part => part.trim());
+          const mainWords = mainProgram.split(' ').filter(word => word.toLowerCase() !== 'and');
+          const initials = mainWords.slice(2).map(word => word.charAt(0)).join('');
+          if (mainProgram.includes('Entertainment and Multimedia Computing')) {
+            programName = 'BSEMC - ' + major;
+          } else {
+            programName = 'BS' + initials + ' - ' + major;
+          }
+        } else {
+          const filteredWords = words.filter(word => word.toLowerCase() !== 'and');
+          const initials = filteredWords.slice(2).map(word => word.charAt(0)).join('');
+          programName = 'BS' + initials;
+        }
+      } else if (programName.includes('Bachelor of Multimedia Arts')) {
+        programName = 'BMA';
+      } else if (programName.includes('Bachelor of ')) {
+        programName = programName.replace('Bachelor of ', 'B');
+        const words = programName.split(' ').filter(word => word.toLowerCase() !== 'and');
+        const initials = words.map(word => word.charAt(0)).join('');
+        programName = initials;
+      }
+
+      const cardHTML = `
+        <article class="candidate-card" data-candidate-id="${candidateData.candidate_id}">
+          <button class="more-options-button" aria-label="More options">
+            <svg class="more-icon" width="20" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9.70312 12.9345C9.2584 12.9345 8.87769 12.8078 8.56099 12.5545C8.24429 12.3012 8.08594 11.9967 8.08594 11.641C8.08594 11.2853 8.24429 10.9808 8.56099 10.7275C8.87769 10.4742 9.2584 10.3476 9.70312 10.3476C10.1479 10.3476 10.5286 10.4742 10.8453 10.7275C11.162 10.9808 11.3203 11.2853 11.3203 11.641C11.3203 11.9967 11.162 12.3012 10.8453 12.5545C10.5286 12.8078 10.1479 12.9345 9.70312 12.9345ZM9.70312 9.05415C9.2584 9.05415 8.87769 8.9275 8.56099 8.6742C8.24429 8.4209 8.08594 8.1164 8.08594 7.7607C8.08594 7.40501 8.24429 7.10051 8.56099 6.84721C8.87769 6.59391 9.2584 6.46726 9.70312 6.46726C10.1479 6.46726 10.5286 6.59391 10.8453 6.84721C11.162 7.10051 11.3203 7.40501 11.3203 7.7607C11.3203 8.1164 11.162 8.4209 10.8453 8.6742C10.5286 8.9275 10.1479 9.05415 9.70312 9.05415ZM9.70312 5.17381C9.2584 5.17381 8.87769 5.04716 8.56099 4.79386C8.24429 4.54056 8.08594 4.23606 8.08594 3.88036C8.08594 3.52466 8.24429 3.22016 8.56099 2.96686C8.87769 2.71356 9.2584 2.58691 9.70312 2.58691C10.1479 2.58691 10.5286 2.71356 10.8453 2.96686C11.162 3.22016 11.3203 3.52466 11.3203 3.88036C11.3203 4.23606 11.162 4.54056 10.8453 4.79386C10.5286 5.04716 10.1479 5.17381 9.70312 5.17381Z" fill="#1D1B20"></path>
+            </svg>
+          </button>
+          <div class="options-menu hidden">
+            <button class="option-button">Edit</button>
+            <button class="option-button">Delete</button>
+          </div>
+          <figure class="candidate-figure">
+            <img
+              src="${candidateData.image ? '{{ asset('storage/') }}/' + candidateData.image : 'https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/567fdf519eb08658d3207d7508f0b1db1ca7b3a2'}"
+              class="candidate-image"
+              alt="Candidate">
+            <figcaption class="candidate-details">
+              <div class="candidate-name">${candidateData.last_name}, ${candidateData.first_name} ${candidateData.middle_name ? candidateData.middle_name.charAt(0) + '.' : ''}</div>
+              <div class="candidate-partylist">${candidateData.partylist.partylist_name}</div>
+              <div>${candidateData.year_level} Year</div>
+              <div>${programName}</div>
+            </figcaption>
+          </figure>
+        </article>
+      `;
+
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = cardHTML.trim();
+      return wrapper.firstElementChild;
+    }
+
+    function attachOptionButtonListeners(card) {
+      const optionButtons = card.querySelectorAll('.option-button');
+      optionButtons.forEach(button => {
+        button.addEventListener('click', function () {
+          const candidateId = card.dataset.candidateId;
+          if (this.textContent === 'Edit') {
+            currentEditingCandidateId = candidateId;
+            const candidate = candidates.find(c => c.candidate_id == candidateId);
+            if (candidate) {
+              document.getElementById("editCandidatePosition").value = candidate.position.position_name;
+              document.getElementById("editCandidatePartylist").value = candidate.partylist_id;
+              document.getElementById("editCandidateFirstName").value = candidate.first_name;
+              document.getElementById("editCandidateLastName").value = candidate.last_name;
+              document.getElementById("editCandidateMiddleName").value = candidate.middle_name;
+              document.getElementById("editCandidateYearLevel").value = candidate.year_level;
+              document.getElementById("editCandidateProgram").value = candidate.program_id;
+              document.getElementById("editCandidatePlatform").value = candidate.platform || '';
+
+              const previewImg = document.getElementById("editPreviewImg");
+              if (candidate.image) {
+                previewImg.src = '{{ asset('storage/') }}/' + candidate.image;
+                previewImg.classList.remove("d-none");
+              } else {
+                previewImg.classList.add("d-none");
+              }
+
+              try {
+                const modalElement = document.getElementById("editCandidateModal");
+                if (!modalElement) {
+                  console.error("Edit modal element not found: #editCandidateModal");
+                  return;
+                }
+                const editModal = new bootstrap.Modal(modalElement, { backdrop: 'static' });
+                editModal.show();
+                console.log("Edit modal shown successfully"); // Debug
+              } catch (error) {
+                console.error("Error showing edit modal:", error);
+                alert("Failed to open edit modal. Check console for details.");
+              }
+            }
+          } else if (this.textContent === 'Delete') {
+            if (confirm('Are you sure you want to delete this candidate?')) {
+              fetch(`/candidates/${candidateId}`, {
+                method: 'DELETE',
+                headers: {
+                  'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                }
+              })
+              .then(response => {
+                if (!response.ok) {
+                  return response.text().then(text => {
+                    try {
+                      return Promise.reject(JSON.parse(text));
+                    } catch (e) {
+                      return Promise.reject(new Error(text));
+                    }
+                  });
+                }
+                return response.json();
+              })
+              .then(data => {
+                if (data.success) {
+                  card.remove();
+                  const container = card.closest('.candidate-grid');
+                  checkCardLimit(container.id);
+                } else {
+                  alert(data.message || 'Failed to delete candidate');
+                }
+              })
+              .catch(error => {
+                console.error("Error deleting candidate:", error);
+                alert("Error deleting candidate: " + (error.message || "Unknown error"));
+              });
+            }
+          }
+        });
+      });
+    }
+
+    function getPositionContainerId(positionName) {
+      const map = {
+        "President": "presidentCandidates",
+        "Vice President": "vicePresidentCandidates",
+        "Secretary": "secretaryCandidates",
+        "Treasurer": "treasurerCandidates",
+        "Auditor": "auditorCandidates",
+        "PIO": "PIOCandidates",
+        "Business Manager": "businessManagerCandidates"
+      };
+      return map[positionName] || null;
+    }
+
+    function getPositionTitle(id) {
+      const map = {
+        presidentCandidates: "President",
+        vicePresidentCandidates: "Vice President",
+        secretaryCandidates: "Secretary",
+        treasurerCandidates: "Treasurer",
+        auditorCandidates: "Auditor",
+        PIOCandidates: "PIO",
+        businessManagerCandidates: "Business Manager"
+      };
+      return map[id] || "Position";
+    }
+
+    function getPositionId(positionName) {
+      const map = {
+        "President": 1,
+        "Vice President": 2,
+        "Secretary": 3,
+        "Treasurer": 4,
+        "Auditor": 5,
+        "PIO": 6,
+        "Business Manager": 7
+      };
+      const positionId = map[positionName];
+      if (!positionId) {
+        console.error(`No position ID found for position name: ${positionName}`);
+      }
+      return positionId || null;
+    }
+
+    function checkCardLimit(containerId) {
+      const container = document.getElementById(containerId);
+      const addBtn = container.querySelector('.add-candidate-button');
+      const cardCount = container.querySelectorAll('.candidate-card').length;
+
+      if (cardCount >= 2) {
+        addBtn.style.visibility = 'hidden';
+        addBtn.style.pointerEvents = 'none';
+      } else {
+        addBtn.style.visibility = 'visible';
+        addBtn.style.pointerEvents = 'auto';
+      }
+    }
+  });
 </script>
 </x-app-layout>
