@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Election extends Model
 {
+    protected $primaryKey = 'election_id';
     protected $fillable = ['year', 'status'];
 
     // An election can have many candidates
@@ -26,13 +27,4 @@ class Election extends Model
     {
         return $this->hasMany(ElectionResult::class, 'election_id');
     }
-
-    public function elections()
-{
-    return $this->belongsToMany(Election::class, 'election_candidates', 'candidate_id', 'election_id')
-                ->withTimestamps()
-                ->using(ElectionCandidate::class);
 }
-
-}
-

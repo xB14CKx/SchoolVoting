@@ -10,22 +10,22 @@ class ElectionController extends Controller
 {
     // Helper method to find or create an election for the current year
 public static function getOrCreateCurrentElection()
-    {
-        $currentYear = date('Y');
+{
+    $currentYear = date('Y');
 
-        return DB::transaction(function () use ($currentYear) {
-            // Lock the table to prevent race conditions
-            $election = Election::where('year', $currentYear)
-                ->lockForUpdate()
-                ->first();
+    return DB::transaction(function () use ($currentYear) {
+        // Lock the table to prevent race conditions
+        $election = Election::where('year', $currentYear)
+            ->lockForUpdate()
+            ->first();
 
-            if (!$election) {
-                $election = Election::create(['year' => $currentYear]);
-            }
+        if (!$election) {
+            $election = Election::create(['year' => $currentYear]);
+        }
 
-            return $election;
-        });
-    }
+        return $election;
+    });
+}
 
     public function index()
     {

@@ -73,7 +73,10 @@ public function store(Request $request)
 
         // Check if candidate is already attached to the election
         if (!$election->candidates()->where('election_candidates.candidate_id', $candidate->candidate_id)->exists()) {
-            $election->candidates()->syncWithoutDetaching($candidate->candidate_id);
+            $election->candidates()->attach($candidate->candidate_id, [
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
 
         Log::info('Created candidate and attached to election:', [
@@ -99,7 +102,9 @@ public function store(Request $request)
             'message' => 'Error adding candidate: ' . $e->getMessage()
         ], 500);
     }
-}    // Display the admin page with candidates
+}
+
+    // Display the admin page with candidates
     public function admin()
     {
         $candidates = Candidate::with(['program', 'partylist', 'position'])->get();
