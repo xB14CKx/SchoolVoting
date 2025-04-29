@@ -9,43 +9,35 @@ use App\Models\Vote;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;  
+use Illuminate\Support\Facades\DB;
 
 class VoteController extends Controller
 {
-    public function elect()
-    {
+public function elect()
+{
+    $currentYear = date('Y');
 
-        $positions = Position::with('candidates')->get();
-        return view('votings.elect', compact('positions'));
+    // Find or create an election for the current year with status 'open'
+    $election = Election::firstOrCreate(
+        ['year' => $currentYear],
+        ['year' => $currentYear, 'status' => 'open']
+    );
 
-        $currentYear = date('Y');
-
-        // Find or create an election for the current year with status 'open'
-        $election = Election::firstOrCreate(
-            ['year' => $currentYear],
-            ['year' => $currentYear, 'status' => 'open']
-        );
-
-        // Ensure the election status is 'open'
-        if ($election->status !== 'open') {
-            $election->status = 'open';
-            $election->save();
-        }
-
-        if (!$election->exists) {
-            return redirect()->route('elections.index')->with('error', 'Unable to create or find an election for the current year.');
-        }
-
-        // Fetch candidates for this election
-        $candidates = Candidate::select('candidates.*')
-            ->join('election_candidates', 'candidates.candidate_id', '=', 'election_candidates.candidate_id')
-            ->where('election_candidates.election_id', $election->id)
-            ->with(['position', 'program', 'partylist'])
-            ->get();
-
-        return view('votings.elect', compact('candidates', 'election'));
+    // Ensure the election status is 'open'
+    if ($election->status !== 'open') {
+        $election->status = 'open';
+        $election->save();
     }
+
+    if (!$election->exists) {
+        return redirect()->route('elections.index')->with('error', 'Unable to create or find an election for the current year.');
+    }
+
+    // Fetch positions with their candidates
+    $positions = Position::with('candidates')->get();
+
+    return view('votings.elect', compact('positions', 'election'));
+}
 
     public function create(Election $election)
     {
@@ -118,41 +110,43 @@ class VoteController extends Controller
     }
 
     protected function storeMultipleVotes(Request $request, $user)
-    {
-        $validated = $request->validate([
-            'election_id' => 'required|exists:elections,id',
-            'votes' => 'required|array',
-            'votes.*' => 'required|exists:candidates,candidate_id',
-        ]);
+{
+    $validated = $request->validate([
+        'election_id' => 'required|exists:elections,id',
+        'votes' => 'required|array',
+        'votes.*' => 'required|exists:candidates,candidate_id',
+    ]);
 
-        $election = Election::findOrFail($validated['election_id']);
-        if (!$this->isElectionOpen($election)) {
-            return $this->respondWithError('This election is not open.');
-        }
-
-        if (Vote::where('user_id', $user->id)->where('election_id', $election->id)->exists()) {
-            return $this->respondWithError('You have already voted in this election.');
-        }
-
-        try {
-            foreach ($validated['votes'] as $position => $candidateId) {
-                $candidate = Candidate::findOrFail($candidateId);
-                if (!$candidate->elections()->where('elections.id', $validated['election_id'])->exists()) {
-                    throw new \Exception('Candidate does not belong to this election.');
-                }
-                Vote::create([
-                    'user_id' => $user->id,
-                    'candidate_id' => $candidateId,
-                    'position' => $position,
-                    'election_id' => $validated['election_id'],
-                ]);
-            }
-            return response()->json(['success' => true, 'message' => 'Votes submitted successfully']);
-        } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Failed to submit votes: ' . $e->getMessage()], 500);
-        }
+    $election = Election::findOrFail($validated['election_id']);
+    if (!$this->isElectionOpen($election)) {
+        return $this->respondWithError('This election is not open.');
     }
 
+    if (Vote::where('user_id', $user->id)->where('election_id', $election->id)->exists()) {
+        return $this->respondWithError('You have already voted in this election.');
+    }
+
+    try {
+        DB::beginTransaction(); // Start a transaction for consistency
+        foreach ($validated['votes'] as $position => $candidateId) {
+            $candidate = Candidate::findOrFail($candidateId);
+            if (!$candidate->elections()->where('elections.id', $validated['election_id'])->exists()) {
+                throw new \Exception('Candidate does not belong to this election.');
+            }
+            Vote::create([
+                'user_id' => $user->id,
+                'candidate_id' => $candidateId,
+                'position' => $position,
+                'election_id' => $election->id, // Explicitly set election_id
+            ]);
+        }
+        DB::commit(); // Commit the transaction
+        return response()->json(['success' => true, 'message' => 'Votes submitted successfully']);
+    } catch (\Exception $e) {
+        DB::rollBack(); // Roll back on error
+        return response()->json(['success' => false, 'message' => 'Failed to submit votes: ' . $e->getMessage()], 500);
+    }
+}
     protected function isElectionOpen(Election $election)
     {
         return $election->year == date('Y') && $election->status === 'open';

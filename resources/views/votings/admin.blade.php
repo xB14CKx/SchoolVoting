@@ -795,6 +795,7 @@ document.querySelectorAll('.option-button').forEach(button => {
         });
 
         // Handle update candidate
+        // Handle update candidate
 document.getElementById('updateCandidateBtn').addEventListener('click', function () {
     const formData = new FormData();
     const imageFile = document.getElementById("editCandidateImage").files[0];

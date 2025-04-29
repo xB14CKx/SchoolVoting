@@ -34,7 +34,7 @@
             </div>
             <hr class="elect-divider" />
         </section>
-        
+
         <!-- Candidate Section -->
 
 @php
@@ -119,15 +119,15 @@ function formatProgram($programName) {
     @endforeach
 </section>
 
-        <!-- Submit Vote Button -->
-        <button class="submit-voteButton"><strong>Submit Vote</strong></button>
+<!-- Submit Vote Button -->
+<button class="submit-voteButton" data-election-id="{{ $election->id }}"><strong>Submit Vote</strong></button>
 
 </div>
 </div>
 
 <!-- Vote Review Modal -->
 <div class="modal fade" id="voteReviewModal" tabindex="-1" aria-labelledby="voteReviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg"> 
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title fw-bold" id="voteReviewModalLabel">Review Your Votes</h4>
@@ -176,7 +176,7 @@ function formatProgram($programName) {
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </div>
@@ -298,11 +298,14 @@ Object.values(votes).forEach((vote, idx, arr) => {
 
 // Final Submit
 document.getElementById('finalSubmitVoteBtn').addEventListener('click', function () {
+    // Get election_id from the submit button
+    const electionId = document.querySelector('.submit-voteButton').dataset.electionId;
+
     // Prepare data for backend
-    const voteData = Object.values(votes).map(vote => ({
-        candidate_id: vote.candidate_id,
-        position_id: Object.keys(votes).find(pid => votes[pid].candidate_id === vote.candidate_id)
-    }));
+    const voteData = {};
+    Object.entries(votes).forEach(([positionId, vote]) => {
+        voteData[positionId] = vote.candidate_id;
+    });
 
     fetch('{{ route("votes.store") }}', {
         method: 'POST',
@@ -310,7 +313,10 @@ document.getElementById('finalSubmitVoteBtn').addEventListener('click', function
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': '{{ csrf_token() }}'
         },
-        body: JSON.stringify({ votes: voteData })
+        body: JSON.stringify({
+            election_id: electionId, // Include election_id
+            votes: voteData // Structure votes as an object with position_id as keys
+        })
     })
     .then(res => res.json())
     .then(data => {
@@ -340,61 +346,4 @@ document.getElementById('finalSubmitVoteBtn').addEventListener('click', function
         });
     </script>
 @endpush
-
-
-<!-- Vote Review Modal -->
-<div class="modal fade" id="voteReviewModal" tabindex="-1" aria-labelledby="voteReviewModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="voteReviewModalLabel">Review Your Votes</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <ul id="voteReviewList" class="list-group mb-3"></ul>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" id="finalSubmitVoteBtn">Submit</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<!-- Candidate Modal -->
-<div class="modal fade" id="candidateModal" tabindex="-1" aria-labelledby="candidateModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="candidateModalLabel">Candidate Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-5">
-                        <div class="candidate-modal-image-container">
-                            <img id="modalCandidateImage" src="" alt="Candidate" class="img-fluid rounded">
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <div class="candidate-modal-info">
-                            <h3 id="modalCandidateName" class="mb-3"></h3>
-                            <div class="info-group">
-                                <p><strong>Position:</strong> <span id="modalPosition"></span></p>
-                                <p><strong>Partylist:</strong> <span id="modalPartylist"></span></p>
-                                <p><strong>Year Level:</strong> <span id="modalYearLevel"></span></p>
-                                <p><strong>Program:</strong> <span id="modalProgram"></span></p>
-                            </div>
-                            <div class="platform-section mt-4">
-                                <h4>Platform:</h4>
-                                <p id="modalPlatform"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-</div>
 </x-app-layout>
