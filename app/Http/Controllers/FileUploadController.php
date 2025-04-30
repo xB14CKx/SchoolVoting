@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use App\Models\Program;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -12,8 +13,19 @@ class FileUploadController extends Controller
 {
     public function index()
     {
-        return view('file-upload');
+        return view('votings.file-upload');
     }
+
+    // Define a mapping of abbreviations to full program names
+    private $programAbbreviations = [
+        'BSIT' => 'BS in Information Technology',
+        'BSCS' => 'BS in Computer Science',
+        'BSIS' => 'BS in Information Systems',
+        'BLIS' => 'Bachelor of Library and Information Science',
+        'BSEMC-Dig' => 'BS in Entertainment and Multimedia Computing – Digital Animation',
+        'BSEMC-Gam' => 'BS in Entertainment and Multimedia Computing – Game Development',
+        'BMA' => 'Bachelor of Multimedia Arts',
+    ];
 
     public function upload(Request $request)
     {
@@ -41,13 +53,13 @@ class FileUploadController extends Controller
             foreach (array_slice($rows, 1) as $row) {
                 // Map the row data to the database fields
                 $studentData = [
-                    'id' => $row[0] ?? null, // ID is provided in the spreadsheet (non-auto-incrementing)
+                    'id' => $row[0] ?? null,
                     'first_name' => $row[1] ?? '',
-                    'middle_initial' => !empty($row[2]) ? $row[2] : null,
+                    'middle_name' => !empty($row[2]) ? $row[2] : null,
                     'last_name' => $row[3] ?? '',
                     'email' => $row[4] ?? '',
                     'program' => $row[5] ?? '',
-                    'year' => $row[6] ?? 0,
+                    'year_level' => $row[6] ?? '',
                     'contact_number' => $row[7] ?? '',
                     'date_of_birth' => $row[8] ?? null,
                 ];
@@ -68,41 +80,48 @@ class FileUploadController extends Controller
                 $formattedDate = null;
                 if (!empty($studentData['date_of_birth'])) {
                     try {
-                        // Attempt to parse the date from the spreadsheet
                         $date = new \DateTime($studentData['date_of_birth']);
-                        // Format the date to MySQL-compatible format (YYYY-MM-DD)
                         $formattedDate = $date->format('Y-m-d');
-
-                        // Validate that the date is within a reasonable range (e.g., not in the future and not too old)
                         $currentDate = new \DateTime();
-                        $minDate = new \DateTime('1900-01-01'); // Arbitrary minimum date
+                        $minDate = new \DateTime('1900-01-01');
                         if ($date > $currentDate || $date < $minDate) {
                             $skipped++;
                             continue;
                         }
                     } catch (\Exception $e) {
-                        // If date parsing fails, skip the record
                         $skipped++;
                         continue;
                     }
                 } else {
-                    // If date_of_birth is empty, set to null (since the field is not nullable in the schema)
                     $skipped++;
                     continue;
                 }
+
+                // Check for program abbreviation and map to full name
+                $programName = $studentData['program'];
+                if (array_key_exists($studentData['program'], $this->programAbbreviations)) {
+                    $programName = $this->programAbbreviations[$studentData['program']];
+                }
+
+                // Map program to program_id
+                $program = Program::where('program_name', $programName)->first();
+                if (!$program) {
+                    $skipped++;
+                    continue; // Skip if program not found
+                }
+                $studentData['program_id'] = $program->program_id;
 
                 // Check if student already exists by email
                 $existingStudent = Student::where('email', $studentData['email'])->first();
 
                 if ($existingStudent) {
                     $skipped++;
-                    // Add to response array even if skipped
                     $students[] = [
                         'id' => $existingStudent->id,
-                        'name' => $existingStudent->first_name . ' ' . ($existingStudent->middle_initial ? $existingStudent->middle_initial . ' ' : '') . $existingStudent->last_name,
+                        'name' => $existingStudent->first_name . ' ' . ($existingStudent->middle_name ? $existingStudent->middle_name . ' ' : '') . $existingStudent->last_name,
                         'email' => $existingStudent->email,
-                        'program' => $existingStudent->program,
-                        'year_level' => $existingStudent->year_level, // Using accessor
+                        'program_id' => $existingStudent->program_id,
+                        'year_level' => $existingStudent->year_level,
                         'contact_number' => $existingStudent->contact_number,
                         'date_of_birth' => $existingStudent->date_of_birth,
                     ];
@@ -111,15 +130,15 @@ class FileUploadController extends Controller
 
                 // Create new student record
                 $student = Student::create([
-                    'id' => $studentData['id'], // Explicitly set the ID
+                    'id' => $studentData['id'],
                     'first_name' => $studentData['first_name'],
-                    'middle_initial' => $studentData['middle_initial'],
+                    'middle_name' => $studentData['middle_name'],
                     'last_name' => $studentData['last_name'],
                     'email' => $studentData['email'],
-                    'program' => $studentData['program'],
-                    'year' => $studentData['year'],
+                    'program_id' => $studentData['program_id'],
+                    'year_level' => $studentData['year_level'],
                     'contact_number' => $studentData['contact_number'],
-                    'date_of_birth' => $formattedDate, // Use the formatted date
+                    'date_of_birth' => $formattedDate,
                 ]);
 
                 $added++;
@@ -127,10 +146,10 @@ class FileUploadController extends Controller
                 // Add to response array
                 $students[] = [
                     'id' => $student->id,
-                    'name' => $student->first_name . ' ' . ($student->middle_initial ? $student->middle_initial . ' ' : '') . $student->last_name,
+                    'name' => $student->first_name . ' ' . ($student->middle_name ? $student->middle_name . ' ' : '') . $student->last_name,
                     'email' => $student->email,
-                    'program' => $student->program,
-                    'year_level' => $student->year_level, // Using accessor
+                    'program_name' => $program->program_name, // Use the resolved program name
+                    'year_level' => $student->year_level,
                     'contact_number' => $student->contact_number,
                     'date_of_birth' => $student->date_of_birth ? $student->date_of_birth : '',
                 ];
@@ -141,14 +160,13 @@ class FileUploadController extends Controller
 
             // Check if the request is from HTMX
             if ($request->header('HX-Request') === 'true') {
-                // Return HTML for HTMX to update the table
                 $html = '';
                 foreach ($students as $student) {
                     $html .= '<tr>';
                     $html .= '<td>' . htmlspecialchars($student['id']) . '</td>';
                     $html .= '<td>' . htmlspecialchars($student['name']) . '</td>';
                     $html .= '<td>' . htmlspecialchars($student['email']) . '</td>';
-                    $html .= '<td>' . htmlspecialchars($student['program']) . '</td>';
+                    $html .= '<td>' . htmlspecialchars($student['program_name']) . '</td>';
                     $html .= '<td>' . htmlspecialchars($student['year_level']) . '</td>';
                     $html .= '<td>' . htmlspecialchars($student['contact_number']) . '</td>';
                     $html .= '<td>' . htmlspecialchars($student['date_of_birth'] ?? '') . '</td>';
@@ -157,21 +175,17 @@ class FileUploadController extends Controller
                 return response($html)->header('HX-Trigger', 'uploadSuccess');
             }
 
-            // For non-HTMX requests, return JSON
             return response()->json([
                 'message' => "File uploaded successfully. Added $added new students, skipped $skipped duplicates or invalid records.",
                 'students' => $students,
                 'file_path' => $path,
             ]);
         } catch (\Exception $e) {
-            // For HTMX requests, return the error as JSON (will be handled by hx-on::after-request)
             if ($request->header('HX-Request') === 'true') {
                 return response()->json([
                     'message' => 'Error processing file: ' . $e->getMessage()
                 ], 500);
             }
-
-            // For non-HTMX requests, return JSON as before
             return response()->json([
                 'message' => 'Error processing file: ' . $e->getMessage()
             ], 500);
@@ -181,27 +195,23 @@ class FileUploadController extends Controller
     public function fetchStudents(Request $request)
     {
         try {
-            // Get the year from the request query parameter
-            $year = $request->query('year', 2025); // Default to 2025 if not provided
-
-            // Fetch students filtered by the year of created_at
+            $year = $request->query('year', 2025);
             $students = Student::whereYear('created_at', $year)
+                ->with('program')
                 ->get()
                 ->map(function ($student) {
                     return [
                         'id' => $student->id,
-                        'name' => $student->first_name . ' ' . ($student->middle_initial ? $student->middle_initial . ' ' : '') . $student->last_name,
+                        'name' => $student->first_name . ' ' . ($student->middle_name ? $student->middle_name . ' ' : '') . $student->last_name,
                         'email' => $student->email,
-                        'program' => $student->program,
-                        'year_level' => $student->year_level, // Using accessor
+                        'program_name' => $student->program ? $student->program->program_name : 'Unknown',
+                        'year_level' => $student->year_level,
                         'contact_number' => $student->contact_number,
                         'date_of_birth' => $student->date_of_birth ? $student->date_of_birth : '',
                     ];
                 })->toArray();
 
-            // Check if the request is from HTMX
             if ($request->header('HX-Request') === 'true') {
-                // Return HTML for HTMX to update the table
                 $html = '';
                 if (empty($students)) {
                     $html = '<tr><td colspan="7" class="text-center">No students found for the selected year.</td></tr>';
@@ -211,7 +221,7 @@ class FileUploadController extends Controller
                         $html .= '<td>' . htmlspecialchars($student['id']) . '</td>';
                         $html .= '<td>' . htmlspecialchars($student['name']) . '</td>';
                         $html .= '<td>' . htmlspecialchars($student['email']) . '</td>';
-                        $html .= '<td>' . htmlspecialchars($student['program']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['program_name']) . '</td>';
                         $html .= '<td>' . htmlspecialchars($student['year_level']) . '</td>';
                         $html .= '<td>' . htmlspecialchars($student['contact_number']) . '</td>';
                         $html .= '<td>' . htmlspecialchars($student['date_of_birth'] ?? '') . '</td>';
@@ -221,20 +231,16 @@ class FileUploadController extends Controller
                 return response($html);
             }
 
-            // For non-HTMX requests, return JSON
             return response()->json([
                 'message' => 'Students fetched successfully.',
                 'students' => $students,
             ]);
         } catch (\Exception $e) {
-            // For HTMX requests, return the error as JSON
             if ($request->header('HX-Request') === 'true') {
                 return response()->json([
                     'message' => 'Error fetching students: ' . $e->getMessage()
                 ], 500);
             }
-
-            // For non-HTMX requests, return JSON
             return response()->json([
                 'message' => 'Error fetching students: ' . $e->getMessage()
             ], 500);

@@ -24,6 +24,7 @@ class EligibilityController extends Controller
         ]);
 
         $isHtmxRequest = $request->header('HX-Request') === 'true';
+
         Log::debug('HTMX Request Check', [
             'HX-Request' => $request->header('HX-Request'),
             'isHtmxRequest' => $isHtmxRequest,
@@ -31,57 +32,45 @@ class EligibilityController extends Controller
         ]);
 
         try {
-            $student = Student::where('id', $request->student_id)->first();
+            // Check using the actual "id" column from the students table
+            $student = Student::find((int) $request->student_id);
 
             if (!$student) {
                 Log::info('Student not found during eligibility check', [
-                    'student_id' => $request->student_id,
+                    'student_id_input' => $request->student_id,
                 ]);
                 $errorMessage = 'Student ID not found. Please contact the administrator.';
-                if ($isHtmxRequest) {
-                    return response()->view('auth.eligibility', [
-                        'error' => $errorMessage,
-                        'student_id' => $request->student_id,
-                    ])->header(self::HX_PUSH_URL, 'false');
-                }
-                return redirect()->route('register.eligibility')->with('error', $errorMessage);
+                return $this->respondWithError($errorMessage, $request->student_id, $isHtmxRequest);
             }
 
+            // Check if this student already has a user account
             $existingUser = User::where('email', $student->email)->first();
             if ($existingUser) {
-                Log::info('Student is already registered', [
+                Log::info('Student already registered', [
                     'student_id' => $student->id,
                     'email' => $student->email,
                     'user_id' => $existingUser->id,
                 ]);
                 $errorMessage = 'This student is already registered. Please log in or contact the administrator.';
-                if ($isHtmxRequest) {
-                    return response()->view('auth.eligibility', [
-                        'error' => $errorMessage,
-                        'student_id' => $request->student_id,
-                    ])->header(self::HX_PUSH_URL, 'false');
-                }
-                return redirect()->route('register.eligibility')->with('error', $errorMessage);
+                return $this->respondWithError($errorMessage, $request->student_id, $isHtmxRequest);
             }
 
-            if ($student->year < 1 || $student->year > 5 || !$student->email) {
+            // Eligibility check — adjust logic as needed
+
+            if (!in_array($student->year_level, ['1st', '2nd', '3rd', '4th']) || !$student->email)
+            {
                 Log::info('Student not eligible', [
-                    'student_id' => $request->student_id,
+                    'student_id' => $student->id,
                     'year' => $student->year,
                     'email' => $student->email,
                 ]);
                 $errorMessage = 'You are not eligible to register. Please contact the administrator.';
-                if ($isHtmxRequest) {
-                    return response()->view('auth.eligibility', [
-                        'error' => $errorMessage,
-                        'student_id' => $request->student_id,
-                    ])->header(self::HX_PUSH_URL, 'false');
-                }
-                return redirect()->route('register.eligibility')->with('error', $errorMessage);
+                return $this->respondWithError($errorMessage, $request->student_id, $isHtmxRequest);
             }
 
+            // Passed all checks
             session(['eligible_student_id' => $student->id]);
-            Log::info('Student eligible, proceeding to registration', [
+            Log::info('Student eligible for registration', [
                 'student_id' => $student->id,
             ]);
 
@@ -91,19 +80,31 @@ class EligibilityController extends Controller
             }
 
             return redirect()->route('register.form');
+
         } catch (\Exception $e) {
-            Log::error('Eligibility check failed: ' . $e->getMessage(), [
-                'exception' => $e,
-                'stack_trace' => $e->getTraceAsString(),
+            Log::error('Eligibility check failed', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
             $errorMessage = 'Failed to check eligibility. Please try again.';
-            if ($isHtmxRequest) {
-                return response()->view('auth.eligibility', [
-                    'error' => $errorMessage,
-                    'student_id' => $request->student_id,
-                ])->header(self::HX_PUSH_URL, 'false');
-            }
-            return redirect()->route('register.eligibility')->with('error', $errorMessage);
+            return $this->respondWithError($errorMessage, $request->student_id, $isHtmxRequest);
         }
+    }
+
+    /**
+     * Handles both normal and HTMX error responses.
+     */
+    private function respondWithError(string $errorMessage, $student_id, bool $isHtmxRequest)
+    {
+        if ($isHtmxRequest) {
+            return response()->view('auth.eligibility', [
+                'error' => $errorMessage,
+                'student_id' => $student_id,
+            ])->header(self::HX_PUSH_URL, 'false');
+        }
+
+        return redirect()->route('register.eligibility')
+            ->with('error', $errorMessage)
+            ->withInput(['student_id' => $student_id]);
     }
 }
