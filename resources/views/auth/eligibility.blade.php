@@ -6,6 +6,54 @@
     <!-- Inject the eligibility check URL as a global variable -->
     <script>
         window.eligibilityCheckUrl = '{{ route("register.eligibility.check") }}';
+
+        // Re-initialize SweetAlert2 listeners after HTMX swaps content
+        document.body.addEventListener('htmx:afterSwap', function(event) {
+            const requestUrl = event.detail.xhr.responseURL;
+            const eligibilityCheckUrl = window.eligibilityCheckUrl;
+
+            // Only process responses from the eligibility check endpoint
+            if (!requestUrl.includes(eligibilityCheckUrl)) {
+                console.log('Skipping SweetAlert2 for non-eligibility request:', requestUrl);
+                return;
+            }
+
+            const response = event.detail.xhr.response;
+            console.log('Raw HTMX Response:', response);
+
+            // Check if the response contains an error message (indicating an error case)
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = response;
+            const errorElement = tempDiv.querySelector('#error-message-data');
+
+            if (errorElement) {
+                // Error case: Show error SweetAlert2 popup
+                console.log('Error detected in response:', errorElement.dataset.error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorElement.dataset.error,
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    const form = document.querySelector('.eligibility-form');
+                    if (form) {
+                        form.reset();
+                    }
+                });
+            } else {
+                // Success case: Show success SweetAlert2 popup
+                console.log('Success case, showing success popup');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'You are eligible! Loading registration form...',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    // Perform additional actions if needed (e.g., navigate or load new content)
+                });
+            }
+        });
     </script>
 
     <!-- Hidden element to store the error message for JavaScript -->
