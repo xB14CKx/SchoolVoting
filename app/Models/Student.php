@@ -32,4 +32,9 @@ class Student extends Model
     {
         return $this->hasOne(User::class, 'email', 'email');
     }
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class, 'program_id', 'program_id');
+    }
 }

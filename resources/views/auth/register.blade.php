@@ -10,7 +10,7 @@
     <!-- CSG LOGO -->
     <div class="content-wrapper">
         <figure class="image-container">
-            <img src="{{ asset('images/csglogo_nobg.png') }}" alt="My Logo" class="csg-logo" />
+            <img src="{{ asset('images/csglogo_nobg.png') }}" alt="CSG Logo" class="csg-logo" />
         </figure>
 
         <!-- REGISTRATION CONTAINER -->
@@ -52,13 +52,13 @@
 
                             <input
                                 type="text"
-                                name="middle_initial"
-                                placeholder="M.I"
+                                name="middle_name"
+                                placeholder="Middle Name"
                                 class="form-input"
-                                value="{{ old('middle_initial', $student->middle_initial ?? '') }}"
+                                value="{{ old('middle_name', $student->middle_name ?? '') }}"
                                 readonly
                             />
-                            @error('middle_initial')
+                            @error('middle_name')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
@@ -107,7 +107,7 @@
                             name="program"
                             placeholder="Program"
                             class="form-input"
-                            value="{{ old('program', $student->program ?? '') }}"
+                            value="{{ old('program', $student->program->name ?? '') }}"
                             required
                             readonly
                         />
@@ -123,7 +123,7 @@
                             name="year_level"
                             placeholder="Year Level"
                             class="form-input"
-                            value="{{ old('year_level', $student->year ?? '') }}"
+                            value="{{ old('year_level', $student->year_level ?? '') }}"
                             required
                             readonly
                         />
@@ -131,7 +131,6 @@
                         <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
-
                 </div>
 
                 <!-- Contact Number and Date of Birth -->

@@ -57,8 +57,8 @@ class EligibilityController extends Controller
 
             // Eligibility check — adjust logic as needed
 
-            if (!in_array($student->year_level, ['1st', '2nd', '3rd', '4th']) || !$student->email)
-            {
+if (!in_array($student->year_level, ['1st', '2nd', '3rd', '4th']) || !$student->email)
+{
                 Log::info('Student not eligible', [
                     'student_id' => $student->id,
                     'year' => $student->year,
@@ -104,7 +104,7 @@ class EligibilityController extends Controller
         }
 
         return redirect()->route('register.eligibility')
-            ->with('error', $errorMessage)
-            ->withInput(['student_id' => $student_id]);
+                         ->with('error', $errorMessage)
+                         ->withInput(['student_id' => $student_id]);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Student;
 use App\Models\User;
+use App\Models\Program; // Import Program model for reference
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,38 +21,41 @@ class RegisteredUserController extends Controller
      *
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function create()
-    {
-        try {
-            $studentId = session('eligible_student_id');
+public function create()
+{
+    try {
+        $programs = Program::all();
+        $studentId = session('eligible_student_id');
 
-            Log::info('Checking eligibility for registration', [
-                'student_id' => $studentId,
-                'eligible_student_id' => $studentId,
-            ]);
+        Log::info('Checking eligibility for registration', [
+            'id' => $studentId,
+            'eligible_student_id' => $studentId,
+        ]);
 
-            if (!$studentId) {
-                Log::info('Redirecting to eligibility due to session mismatch');
-                return redirect()->route('register.eligibility')
-                    ->with('error', 'Please check your eligibility before registering.');
-            }
-
-            $student = Student::find($studentId);
-
-            if (!$student) {
-                Log::info('Redirecting to eligibility due to student not found');
-                return redirect()->route('register.eligibility')
-                    ->with('error', 'Student ID not found. Please contact the administrator.');
-            }
-
-            return view('auth.register', compact('student'));
-        } catch (\Exception $e) {
-            Log::error('Failed to load registration form: ' . $e->getMessage());
-
+        if (!$studentId) {
             return redirect()->route('register.eligibility')
-                ->with('error', 'Failed to load registration form. Please try again.');
+                ->with('error', 'Please check your eligibility before registering.');
         }
+
+        // Fetch student with program relationship
+        $student = Student::with('program')->find($studentId);
+
+        if (!$student) {
+            return redirect()->route('register.eligibility')
+                ->with('error', 'Student ID not found. Please contact the administrator.');
+        }
+
+        // Safely get the program name
+        $programName = optional($student->program)->name ?? 'Unknown Program';
+
+        return view('auth.register', compact('student', 'programs', 'programName'));
+    } catch (\Exception $e) {
+        Log::error('Failed to load registration form: ' . $e->getMessage());
+
+        return redirect()->route('register.eligibility')
+            ->with('error', 'Failed to load registration form. Please try again.');
     }
+}
 
     /**
      * Handle an incoming registration request.
@@ -70,11 +74,11 @@ class RegisteredUserController extends Controller
             $validated = $request->validate([
                 'student_id' => 'required|string|max:255',
                 'first_name' => 'required|string|max:255',
-                'middle_initial' => 'nullable|string|max:10',
+                'middle_name' => 'nullable|string|max:10',
                 'last_name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email|max:255',
-                'program' => 'required|string|max:255',
-                'year_level' => 'required|integer|min:1|max:5',
+                'program_id' => 'required|exists:programs,id', // Ensure program_id exists in programs table
+                'year_level' => 'required|in:1st,2nd,3rd,4th', // ENUM values for year_level
                 'contact_number' => 'required|string|max:20',
                 'date_of_birth' => 'required|date|before:today',
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -89,7 +93,7 @@ class RegisteredUserController extends Controller
 
         try {
             // Combine the name fields
-            $fullName = trim($validated['first_name'] . ' ' . ($validated['middle_initial'] ? $validated['middle_initial'] . ' ' : '') . $validated['last_name']);
+            $fullName = trim($validated['first_name'] . ' ' . ($validated['middle_name'] ? $validated['middle_name'] . ' ' : '') . $validated['last_name']);
 
             // Prepare user data
             $userData = [
@@ -107,8 +111,30 @@ class RegisteredUserController extends Controller
             // Log the successful registration
             Log::info('User registered successfully', [
                 'user_id' => $user->id,
-                'student_id' => $validated['student_id'],
+                'id' => $validated['student_id'],
             ]);
+
+            // Fetch the program name by program_id
+            $program = Program::find($validated['program_id']);
+            $programName = $program ? $program->name : 'Unknown Program'; // Default to 'Unknown Program' if program not found
+
+            // Create the student record and associate it with the correct program_id
+            $studentData = [
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'],
+                'last_name' => $validated['last_name'],
+                'email' => $validated['email'],
+                'program_id' => $validated['program_id'],
+                'program_name' => $programName, // Add program name to student data
+                'year_level' => $validated['year_level'],
+                'contact_number' => $validated['contact_number'],
+                'date_of_birth' => $validated['date_of_birth'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            // Insert student data
+            $student = Student::create($studentData);
 
             // Clear the eligible_student_id from the session
             session()->forget('eligible_student_id');
