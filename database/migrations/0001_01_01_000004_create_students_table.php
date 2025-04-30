@@ -14,16 +14,20 @@ class CreateStudentsTable extends Migration
     public function up()
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->integer('id')->primary(); // Non-auto-incrementing primary key
-            $table->string('first_name'); // FIRST NAME
-            $table->string('middle_initial')->nullable(); // M.I. (nullable since it might not always be provided)
-            $table->string('last_name'); // LAST NAME
-            $table->string('email')->unique(); // EMAIL (assuming emails should be unique)
-            $table->string('program'); // PROGRAM
-            $table->integer('year'); // YEAR
-            $table->string('contact_number'); // CONTACT #
+            $table->bigInteger('id')->primary(); // Non-auto-incrementing primary key
+            $table->string('first_name', 50); // FIRST NAME
+            $table->string('middle_name', 50)->nullable(); // MIDDLE NAME (nullable)
+            $table->string('last_name', 50); // LAST NAME
+            $table->string('email', 255)->unique(); // EMAIL (unique)
+            $table->foreignId('program_id')->constrained('programs', 'program_id')->onDelete('set null'); // PROGRAM (foreign key to programs table)
+            $table->enum('year_level', ['1st', '2nd', '3rd', '4th']); // YEAR LEVEL (ENUM)
+            $table->string('contact_number', 255); // CONTACT NUMBER
             $table->date('date_of_birth'); // DATE OF BIRTH
-            $table->timestamps(); // Adds created_at and updated_at columns
+            $table->timestamps(); // created_at and updated_at
+
+            // Adding foreign key constraint index
+            $table->index('program_id'); // Index for program_id
+            $table->index('year_level'); // Index for year_level
         });
     }
 

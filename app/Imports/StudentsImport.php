@@ -25,7 +25,7 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 [
                     'id' => $row['id'],
                     'first_name' => $row['first_name'],
-                    'middle_initial' => $row['mi'] ?? null, // M.I. might be empty
+                    'middle_name' => $row['mi'] ?? null, // M.I. might be empty
                     'last_name' => $row['last_name'],
                     'email' => $row['email'],
                     'program' => $row['program'],
@@ -110,9 +110,9 @@ class StudentsImport implements ToCollection, WithHeadingRow
         }
 
         return [
-            'student_id' => (string) ($studentRow['id'] ?? ''),
+            'id' => (string) ($studentRow['id'] ?? ''),
             'first_name' => $studentRow['first_name'] ?? '',
-            'middle_initial' => $studentRow['mi'] ?? '',
+            'middle_name' => $studentRow['mn'] ?? '',
             'last_name' => $studentRow['last_name'] ?? '',
             'email' => $studentRow['email'] ?? '',
             'program' => $studentRow['program'] ?? '',

@@ -52,13 +52,13 @@
 
                             <input 
                                 type="text" 
-                                name="middle_initial" 
-                                placeholder="M.I" 
+                                name="middle_name" 
+                                placeholder="Middle Name" 
                                 class="form-input" 
-                                value="{{ old('middle_initial', $student->middle_initial ?? '') }}" 
+                                value="{{ old('middle_name', $student->middle_name ?? '') }}" 
                                 readonly 
                             />
-                            @error('middle_initial')
+                            @error('middle_name')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
@@ -102,32 +102,32 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Program</label>
-                        <input 
-                            type="text" 
-                            name="program" 
-                            placeholder="Program" 
-                            class="form-input" 
-                            value="{{ old('program', $student->program ?? '') }}" 
-                            required 
-                            readonly 
-                        />
-                        @error('program')
+                        <select name="program_id" class="form-input" required>
+                            @foreach($programs as $program)
+                                <option value="{{ $program->program_id }}"
+                                    {{ old('program_id', $student->program_id ?? '') == $program->program_id ? 'selected' : '' }}>
+                                    {{ $program->program_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        
+                        @error('program_id')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="form-group">
                         <label class="form-label">Year Level</label>
-                        <input 
-                            type="number" 
+                        <select 
                             name="year_level" 
-                            placeholder="Year Level" 
                             class="form-input" 
-                            min="1" 
-                            max="5" 
-                            value="{{ old('year_level', $student->year_level ?? '') }}" 
                             required 
-                            readonly 
-                        />
+                            readonly
+                        >
+                            <option value="1st" {{ old('year_level', $student->year_level) == '1st' ? 'selected' : '' }}>1st</option>
+                            <option value="2nd" {{ old('year_level', $student->year_level) == '2nd' ? 'selected' : '' }}>2nd</option>
+                            <option value="3rd" {{ old('year_level', $student->year_level) == '3rd' ? 'selected' : '' }}>3rd</option>
+                            <option value="4th" {{ old('year_level', $student->year_level) == '4th' ? 'selected' : '' }}>4th</option>
+                        </select>
                         @error('year_level')
                             <span class="text-danger">{{ $message }}</span>
                         @enderror

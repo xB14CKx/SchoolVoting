@@ -45,12 +45,12 @@
                     <label for="student-id" class="form-label">ID Number</label>
                     <div class="input-wrapper">
                         <input type="number"
-                               id="student-id"
-                               name="student_id"
-                               placeholder="Student Number"
-                               class="student-input"
-                               value="{{ $student_id ?? old('student_id') }}"
-                               required>
+                        id="student_id"
+                        name="student_id"
+                        placeholder="Student Number"
+                        class="student-input"
+                        value="{{ $student_id ?? old('student_id') }}"
+                        required>
                         @error('student_id')
                             <div class="message error">
                                 {{ $message }}
