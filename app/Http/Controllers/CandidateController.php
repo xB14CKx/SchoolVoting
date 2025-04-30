@@ -14,95 +14,95 @@ use App\Http\Controllers\ElectionController;
 class CandidateController extends Controller
 {
     // Create a new candidate
-public function store(Request $request)
-{
-    Log::info('Received candidate data:', $request->all());
+    public function store(Request $request)
+    {
+        Log::info('Received candidate data:', $request->all());
 
-    $validatedData = $request->validate([
-        'first_name' => 'required|string|max:255',
-        'last_name' => 'required|string|max:255',
-        'middle_name' => 'nullable|string|max:255',
-        'year_level' => 'required|in:1st,2nd,3rd,4th',
-        'platform' => 'nullable|string',
-        'position_id' => 'required|exists:positions,position_id',
-        'program_id' => 'required|exists:programs,program_id',
-        'partylist_id' => 'required|exists:partylists,partylist_id',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
-    ]);
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'middle_name' => 'nullable|string|max:255',
+            'year_level' => 'required|in:1st,2nd,3rd,4th',
+            'platform' => 'nullable|string',
+            'position_id' => 'required|exists:positions,position_id',
+            'program_id' => 'required|exists:programs,program_id',
+            'partylist_id' => 'required|exists:partylists,partylist_id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+        ]);
 
-    try {
-        DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
-        // Check for duplicate candidate
-        $existingCandidate = Candidate::where('first_name', $validatedData['first_name'])
-            ->where('last_name', $validatedData['last_name'])
-            ->where('position_id', $validatedData['position_id'])
-            ->lockForUpdate()
-            ->first();
+            // Check for duplicate candidate
+            $existingCandidate = Candidate::where('first_name', $validatedData['first_name'])
+                ->where('last_name', $validatedData['last_name'])
+                ->where('position_id', $validatedData['position_id'])
+                ->lockForUpdate()
+                ->first();
 
-        if ($existingCandidate) {
+            if ($existingCandidate) {
+                DB::rollBack();
+                Log::warning('Duplicate candidate detected:', $validatedData);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A candidate with this name is already running for this position.'
+                ], 422);
+            }
+
+            // Create the candidate
+            $candidate = Candidate::create([
+                'first_name' => $validatedData['first_name'],
+                'last_name' => $validatedData['last_name'],
+                'middle_name' => $validatedData['middle_name'],
+                'year_level' => $validatedData['year_level'],
+                'platform' => $validatedData['platform'],
+                'position_id' => $validatedData['position_id'],
+                'program_id' => $validatedData['program_id'],
+                'partylist_id' => $validatedData['partylist_id']
+            ]);
+
+            // Handle image upload if present
+            if ($request->hasFile('image')) {
+                $imagePath = $request->file('image')->store('candidates', 'public');
+                $candidate->image = $imagePath;
+                $candidate->save();
+            }
+
+            // Find or create the current year's election
+            $election = ElectionController::getOrCreateCurrentElection();
+
+            // Check if candidate is already attached to the election
+            if (!$election->candidates()->where('election_candidates.candidate_id', $candidate->candidate_id)->exists()) {
+                $election->candidates()->attach($candidate->candidate_id, [
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            Log::info('Created candidate and attached to election:', [
+                'candidate' => $candidate->toArray(),
+                'election_id' => $election->election_id
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Candidate added successfully and attached to election',
+                'data' => $candidate
+            ]);
+        } catch (\Exception $e) {
             DB::rollBack();
-            Log::warning('Duplicate candidate detected:', $validatedData);
+            Log::error('Error creating candidate: ' . $e->getMessage(), [
+                'exception' => $e->getTraceAsString(),
+                'request_data' => $request->all()
+            ]);
             return response()->json([
                 'success' => false,
-                'message' => 'A candidate with this name is already running for this position.'
-            ], 422);
+                'message' => 'Error adding candidate: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Create the candidate
-        $candidate = Candidate::create([
-            'first_name' => $validatedData['first_name'],
-            'last_name' => $validatedData['last_name'],
-            'middle_name' => $validatedData['middle_name'],
-            'year_level' => $validatedData['year_level'],
-            'platform' => $validatedData['platform'],
-            'position_id' => $validatedData['position_id'],
-            'program_id' => $validatedData['program_id'],
-            'partylist_id' => $validatedData['partylist_id']
-        ]);
-
-        // Handle image upload if present
-        if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('candidates', 'public');
-            $candidate->image = $imagePath;
-            $candidate->save();
-        }
-
-        // Find or create the current year's election
-        $election = ElectionController::getOrCreateCurrentElection();
-
-        // Check if candidate is already attached to the election
-        if (!$election->candidates()->where('election_candidates.candidate_id', $candidate->candidate_id)->exists()) {
-            $election->candidates()->attach($candidate->candidate_id, [
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-
-        Log::info('Created candidate and attached to election:', [
-            'candidate' => $candidate->toArray(),
-            'election_id' => $election->election_id
-        ]);
-
-        DB::commit();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Candidate added successfully and attached to election',
-            'data' => $candidate
-        ]);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Error creating candidate: ' . $e->getMessage(), [
-            'exception' => $e->getTraceAsString(),
-            'request_data' => $request->all()
-        ]);
-        return response()->json([
-            'success' => false,
-            'message' => 'Error adding candidate: ' . $e->getMessage()
-        ], 500);
     }
-}
 
     // Display the admin page with candidates
     public function admin()
@@ -146,7 +146,7 @@ public function store(Request $request)
     {
         $candidate = Candidate::findOrFail($id);
 
-        // Validate request data
+        // Validate request data (excluding position_id since we won't update it)
         $validated = $request->validate([
             'partylist_id' => 'required|exists:partylists,partylist_id',
             'first_name' => 'required|string|max:255',
@@ -155,7 +155,6 @@ public function store(Request $request)
             'year_level' => 'required|in:1st,2nd,3rd,4th',
             'program_id' => 'required|exists:programs,program_id',
             'platform' => 'nullable|string',
-            'position_id' => 'required|exists:positions,position_id', // Ensure position_id is included
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -163,10 +162,13 @@ public function store(Request $request)
             // Start a transaction to ensure atomicity
             DB::beginTransaction();
 
+            // Use the candidate's existing position_id for the duplicate check
+            $positionId = $candidate->position_id;
+
             // Check for duplicate candidate (same first_name, last_name, and position_id)
             $existingCandidate = Candidate::where('first_name', $validated['first_name'])
                 ->where('last_name', $validated['last_name'])
-                ->where('position_id', $validated['position_id'])
+                ->where('position_id', $positionId) // Use the candidate's existing position_id
                 ->where('candidate_id', '!=', $id) // Exclude the current candidate
                 ->lockForUpdate() // Lock the rows to prevent race conditions
                 ->first();
@@ -193,7 +195,10 @@ public function store(Request $request)
                 $validated['image'] = $candidate->image;
             }
 
-            // Update candidate
+            // Ensure position_id is not updated by excluding it from the validated data
+            unset($validated['position_id']);
+
+            // Update candidate with the validated data
             $candidate->update($validated);
 
             // Commit the transaction

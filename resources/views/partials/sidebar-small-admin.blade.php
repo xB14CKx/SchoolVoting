@@ -48,10 +48,10 @@
     </aside>
 
     <script>
-        document.getElementById('openLargeSidebar').addEventListener('click', function () {
-            document.getElementById('sidebarSmall').style.display = 'none';
-            document.getElementById('sidebarLarge').style.display = 'flex';
-            document.getElementById('mainContent').style.marginLeft = '300px'; // match large sidebar width
-        });
+    document.getElementById('openLargeSidebar').addEventListener('click', function () {
+        document.getElementById('sidebarSmall').style.display = 'none';
+        document.getElementById('sidebarLarge').style.display = 'flex';
+        document.getElementById('mainContent').style.marginLeft = '300px'; // match large sidebar width
+    });
     </script>
 </body>
