@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Program extends Model
 {
-    protected $table = 'programs'; // Explicitly set the table name
-    protected $primaryKey = 'program_id'; // Match the column name from the database
-    public $incrementing = true; // Auto-incrementing by default
+    protected $table = 'programs';
+    protected $primaryKey = 'program_id';
+    public $incrementing = true;
     protected $keyType = 'int';
 
     protected $fillable = [
@@ -17,6 +17,16 @@ class Program extends Model
         'created_at',
         'updated_at',
     ];
+
+    /**
+     * Accessor for the program name.
+     *
+     * @return string
+     */
+    public function getNameAttribute()
+    {
+        return $this->attributes['program_name'];
+    }
 
     /**
      * Get the students associated with this program.
