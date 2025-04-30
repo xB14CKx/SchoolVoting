@@ -4,6 +4,9 @@
     {{-- Include Vite assets (CSS and JS) --}}
     @vite(['resources/css/registration.css', 'resources/js/app.js'])
 
+    <!-- Include SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- BACKGROUND COLOR -->
     <div class="registration"></div>
 
@@ -107,11 +110,20 @@
                             name="program"
                             placeholder="Program"
                             class="form-input"
-                            value="{{ old('program', $student->program->name ?? '') }}"
+                            value="{{ old('program', $programName ?? ($student->program->name ?? '')) }}"
                             required
                             readonly
                         />
+                        <!-- Add hidden program_id field -->
+                        <input
+                            type="hidden"
+                            name="program_id"
+                            value="{{ $programId ?? ($student->program_id ?? '') }}"
+                        />
                         @error('program')
+                        <span class="text-danger">{{ $message }}</span>
+                        @enderror
+                        @error('program_id')
                         <span class="text-danger">{{ $message }}</span>
                         @enderror
                     </div>
@@ -206,6 +218,20 @@
             </form>
         </main>
     </div>
+
+    <!-- SweetAlert2 Script for Errors -->
+    @if (session('sweetalert_error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Registration Error',
+                text: '{{ session('sweetalert_error') }}',
+                confirmButtonText: 'OK'
+            });
+        });
+    </script>
+    @endif
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </x-guest-layout>
