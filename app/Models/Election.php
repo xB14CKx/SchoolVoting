@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Election extends Model
 {
-    protected $primaryKey = 'election_id';
     protected $fillable = ['year', 'status'];
 
     // An election can have many candidates
