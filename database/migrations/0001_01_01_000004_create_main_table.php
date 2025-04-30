@@ -4,16 +4,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+Class CreateMainTable extends Migration {
     public function up()
     {
-        // Programs table
-        Schema::create('programs', function (Blueprint $table) {
-            $table->bigIncrements('program_id');
-            $table->string('program_name', 100)->unique();
-            $table->timestamps();
-        });
-
         // Partylists table
         Schema::create('partylists', function (Blueprint $table) {
             $table->bigIncrements('partylist_id');
@@ -107,6 +100,5 @@ return new class extends Migration {
         Schema::dropIfExists('candidates');
         Schema::dropIfExists('positions');
         Schema::dropIfExists('partylists');
-        Schema::dropIfExists('programs');
     }
 };
