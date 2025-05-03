@@ -2,7 +2,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@200;400;700&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-@vite(['resources/css/elect.css'])
+@vite(['resources/css/elect.css', 'resources/js/app.js'])
 @endpush
 
 <x-app-layout>
@@ -36,7 +36,6 @@
         </section>
 
         <!-- Candidate Section -->
-
 @php
 function formatProgram($programName) {
     if (str_contains($programName, 'BS in ')) {
@@ -77,7 +76,7 @@ function formatProgram($programName) {
                             <button class="info-button"
                                     data-bs-toggle="modal"
                                     data-bs-target="#candidateModal"
-                                    data-candidate-id="{{ $candidate->id }}"
+                                    data-candidate-id="{{ $candidate->candidate_id }}"
                                     data-candidate-name="{{ $candidate->last_name }}, {{ $candidate->first_name }}{{ $candidate->middle_name ? ' '.substr($candidate->middle_name,0,1).'.' : '' }}"
                                     data-position="{{ $position->position_name }}"
                                     data-partylist="{{ $candidate->partylist->partylist_name ?? '' }}"
@@ -120,7 +119,7 @@ function formatProgram($programName) {
 </section>
 
 <!-- Submit Vote Button -->
-<button class="submit-voteButton" data-election-id="{{ $election->id }}"><strong>Submit Vote</strong></button>
+<button class="submit-voteButton" data-election-id="{{ $election->election_id }}"><strong>Submit Vote</strong></button>
 
 </div>
 </div>
@@ -176,10 +175,13 @@ function formatProgram($programName) {
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
+
+<!-- CSRF Token -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <!-- JS -->
 @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -217,132 +219,163 @@ function formatProgram($programName) {
 
             const votes = {}; // { position_id: { candidate_id, candidate_name, partylist, position_name } }
 
-document.querySelectorAll('.vote-button').forEach(btn => {
-    btn.addEventListener('click', function () {
-        const positionId = this.dataset.positionId;
-        const candidateId = this.dataset.candidateId;
-        const candidateName = this.dataset.candidateName;
-        const partylist = this.dataset.partylist;
-        const positionName = this.dataset.positionName;
+            document.querySelectorAll('.vote-button').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const positionId = this.dataset.positionId;
+                    const candidateId = this.dataset.candidateId;
+                    const candidateName = `${this.dataset.candidateFirstName} ${this.dataset.candidateMiddleName ? this.dataset.candidateMiddleName.charAt(0) + '.' : ''} ${this.dataset.candidateLastName}`;
+                    const partylist = this.dataset.partylist;
+                    const positionName = this.dataset.positionName;
 
-        // If already voted, cancel
-        if (this.classList.contains('btn-cancel')) {
-            delete votes[positionId];
-            this.textContent = 'Vote';
-            this.classList.remove('btn-cancel', 'btn-danger');
-            this.classList.add('btn-primary');
-            // Enable other vote buttons for this position
-            document.querySelectorAll(`.vote-button[data-position-id="${positionId}"]`).forEach(b => {
-                b.disabled = false;
-                if (b !== this) b.classList.remove('btn-disabled');
+                    // If already voted, cancel
+                    if (this.classList.contains('btn-cancel')) {
+                        delete votes[positionId];
+                        this.textContent = 'Vote';
+                        this.classList.remove('btn-cancel', 'btn-danger');
+                        this.classList.add('btn-primary');
+                        // Enable other vote buttons for this position
+                        document.querySelectorAll(`.vote-button[data-position-id="${positionId}"]`).forEach(b => {
+                            b.disabled = false;
+                            b.classList.remove('btn-disabled');
+                        });
+                        return;
+                    }
+
+                    // Vote for this candidate
+                    votes[positionId] = {
+                        candidate_id: candidateId,
+                        candidate_first_name: this.dataset.candidateFirstName,
+                        candidate_middle_name: this.dataset.candidateMiddleName,
+                        candidate_last_name: this.dataset.candidateLastName,
+                        partylist: partylist,
+                        position_name: positionName
+                    };
+                    // Set this button to Cancel, disable others
+                    document.querySelectorAll(`.vote-button[data-position-id="${positionId}"]`).forEach(b => {
+                        if (b === this) {
+                            b.textContent = 'Cancel';
+                            b.classList.add('btn-cancel', 'btn-danger');
+                            b.classList.remove('btn-primary');
+                        } else {
+                            b.disabled = true;
+                            b.classList.add('btn-disabled');
+                        }
+                    });
+                });
             });
-            return;
-        }
 
-        // Vote for this candidate
-        votes[positionId] = {
-            candidate_id: candidateId,
-            candidate_first_name: this.dataset.candidateFirstName,
-            candidate_middle_name: this.dataset.candidateMiddleName,
-            candidate_last_name: this.dataset.candidateLastName,
-            partylist: partylist,
-            position_name: positionName
-        };
-        // Set this button to Cancel, disable others
-        document.querySelectorAll(`.vote-button[data-position-id="${positionId}"]`).forEach(b => {
-            if (b === this) {
-                b.textContent = 'Cancel';
-                b.classList.add('btn-cancel', 'btn-danger');
-                b.classList.remove('btn-primary');
-            } else {
-                b.disabled = true;
-                b.classList.add('btn-disabled');
-            }
-        });
-    });
-});
+            // Submit Vote Button
+            document.querySelector('.submit-voteButton').addEventListener('click', function () {
+                if (Object.keys(votes).length === 0) {
+                    document.dispatchEvent(new CustomEvent('vote:noVotes'));
+                    return;
+                }
 
-// Submit Vote Button
-document.querySelector('.submit-voteButton').addEventListener('click', function () {
-    // Build review list
-    // Replace the review list population code with this:
-    const reviewList = document.getElementById('voteReviewList');
-reviewList.innerHTML = '';
-Object.values(votes).forEach((vote, idx, arr) => {
-    // Format: FirstName MiddleInitial. LastName
-    let middleInitial = vote.candidate_middle_name ? ` ${vote.candidate_middle_name.charAt(0)}.` : '';
-    let formattedName = `${vote.candidate_first_name}${middleInitial} ${vote.candidate_last_name}`;
+                // Build review list
+                const reviewList = document.getElementById('voteReviewList');
+                reviewList.innerHTML = '';
+                Object.values(votes).forEach((vote, idx, arr) => {
+                    let middleInitial = vote.candidate_middle_name ? ` ${vote.candidate_middle_name.charAt(0)}.` : '';
+                    let formattedName = `${vote.candidate_first_name}${middleInitial} ${vote.candidate_last_name}`;
 
-    const div = document.createElement('div');
-    div.className = 'vote-review-item py-3';
-    div.innerHTML = `
-        <div class="vote-review-position mb-1">
-            <span class="fw-bold fs-5">${vote.position_name}</span>
-        </div>
-        <div class="vote-review-candidate">
-            <span class="fw-bold">${formattedName}</span>
-            ${vote.partylist ? `<span> of <span class="fw-bold">${vote.partylist}</span></span>` : ''}
-        </div>
-    `;
-    reviewList.appendChild(div);
-    if (idx < arr.length - 1) {
-        const hr = document.createElement('hr');
-        hr.className = 'my-2 vote-review-divider';
-        reviewList.appendChild(hr);
-    }
-});
-    // Show modal
-    const modal = new bootstrap.Modal(document.getElementById('voteReviewModal'));
-    modal.show();
-});
+                    const div = document.createElement('div');
+                    div.className = 'vote-review-item py-3';
+                    div.innerHTML = `
+                        <div class="vote-review-position mb-1">
+                            <span class="fw-bold fs-5">${vote.position_name}</span>
+                        </div>
+                        <div class="vote-review-candidate">
+                            <span class="fw-bold">${formattedName}</span>
+                            ${vote.partylist ? `<span> of <span class="fw-bold">${vote.partylist}</span></span>` : ''}
+                        </div>
+                    `;
+                    reviewList.appendChild(div);
+                    if (idx < arr.length - 1) {
+                        const hr = document.createElement('hr');
+                        hr.className = 'my-2 vote-review-divider';
+                        reviewList.appendChild(hr);
+                    }
+                });
 
-// Final Submit
-document.getElementById('finalSubmitVoteBtn').addEventListener('click', function () {
-    // Get election_id from the submit button
-    const electionId = document.querySelector('.submit-voteButton').dataset.electionId;
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('voteReviewModal'));
+                modal.show();
+            });
 
-    // Prepare data for backend
-    const voteData = {};
-    Object.entries(votes).forEach(([positionId, vote]) => {
-        voteData[positionId] = vote.candidate_id;
-    });
+            // Final Submit
+            document.getElementById('finalSubmitVoteBtn').addEventListener('click', function () {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('voteReviewModal'));
+                modal.hide();
 
-    fetch('{{ route("votes.store") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-            election_id: electionId, // Include election_id
-            votes: voteData // Structure votes as an object with position_id as keys
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Error submitting votes: ' + data.message);
-        }
-    })
-    .catch(() => alert('Error submitting votes.'));
-});
+                const electionId = document.querySelector('.submit-voteButton').dataset.electionId;
+                const voteData = {};
+                Object.entries(votes).forEach(([positionId, vote]) => {
+                    voteData[positionId] = vote.candidate_id;
+                });
+
+                console.log('Submitting votes:', { election_id: electionId, votes: voteData });
+
+                fetch('{{ route("votes.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        election_id: electionId,
+                        votes: voteData
+                    })
+                })
+                .then(res => {
+                    if (!res.ok) {
+                        throw new Error(`HTTP error! Status: ${res.status}`);
+                    }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Clear votes and reset buttons
+                        Object.keys(votes).forEach(positionId => {
+                            delete votes[positionId];
+                            document.querySelectorAll(`.vote-button[data-position-id="${positionId}"]`).forEach(b => {
+                                b.textContent = 'Vote';
+                                b.classList.remove('btn-cancel', 'btn-danger', 'btn-disabled');
+                                b.classList.add('btn-primary');
+                                b.disabled = false;
+                            });
+                        });
+
+                        document.dispatchEvent(new CustomEvent('vote:submit', {
+                            detail: { success: true, message: 'Your votes have been recorded successfully.' }
+                        }));
+                    } else {
+                        document.dispatchEvent(new CustomEvent('vote:submit', {
+                            detail: { success: false, message: data.message }
+                        }));
+                    }
+                })
+                .catch(error => {
+                    console.error('Vote submission error:', error);
+                    document.dispatchEvent(new CustomEvent('vote:submit', {
+                        detail: { success: false, error: `Failed to submit votes: ${error.message}` }
+                    }));
+                });
+            });
 
             // Modal Population
             document.querySelectorAll('.info-button').forEach(btn => {
-            btn.addEventListener('click', function () {
-                const m = document.getElementById('candidateModal');
-                m.querySelector('#modalCandidateImage').src        = this.dataset.image;
-                m.querySelector('#modalCandidateName').textContent = this.dataset.candidateName;
-                m.querySelector('#modalPosition').textContent      = this.dataset.position;
-                m.querySelector('#modalPartylist').textContent     = this.dataset.partylist;
-                m.querySelector('#modalYearLevel').textContent     = this.dataset.yearLevel;
-                m.querySelector('#modalProgram').textContent       = this.dataset.program;
-                m.querySelector('#modalPlatform').textContent      = this.dataset.platform;
+                btn.addEventListener('click', function () {
+                    const m = document.getElementById('candidateModal');
+                    m.querySelector('#modalCandidateImage').src = this.dataset.image;
+                    m.querySelector('#modalCandidateName').textContent = this.dataset.candidateName;
+                    m.querySelector('#modalPosition').textContent = this.dataset.position;
+                    m.querySelector('#modalPartylist').textContent = this.dataset.partylist;
+                    m.querySelector('#modalYearLevel').textContent = this.dataset.yearLevel;
+                    m.querySelector('#modalProgram').textContent = this.dataset.program;
+                    m.querySelector('#modalPlatform').textContent = this.dataset.platform;
+                });
             });
-});
-
         });
     </script>
 @endpush

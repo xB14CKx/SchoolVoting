@@ -1,15 +1,12 @@
-// resources/js/sweetalert2.js
-
 import Swal from 'sweetalert2';
 import htmx from 'htmx.org';
 
 export function initializeSweetAlert2() {
-    // Show success popup before swapping (for success case)
+    // Eligibility Check Popups (Existing Logic)
     document.body.addEventListener('htmx:beforeSwap', function(event) {
         const requestUrl = event.detail.xhr.responseURL;
         const eligibilityCheckUrl = window.eligibilityCheckUrl;
 
-        // Only process responses from the eligibility check endpoint
         if (!requestUrl.includes(eligibilityCheckUrl)) {
             console.log('Skipping SweetAlert2 for non-eligibility request:', requestUrl);
             return;
@@ -18,18 +15,15 @@ export function initializeSweetAlert2() {
         const response = event.detail.xhr.response;
         console.log('Raw HTMX Response:', response);
 
-        // Check if the response contains an error message (indicating an error case)
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = response;
         const errorElement = tempDiv.querySelector('#error-message-data');
 
         if (errorElement) {
-            // Error case: prevent swap for now, we’ll handle it in htmx:afterSwap
             console.log('Error detected in response:', errorElement.dataset.error);
         } else {
-            // Success case: show success popup before swapping
             console.log('Success case, showing success popup');
-            event.detail.shouldSwap = false; // Prevent immediate swap
+            event.detail.shouldSwap = false;
             Swal.fire({
                 icon: 'success',
                 title: 'Success',
@@ -37,26 +31,22 @@ export function initializeSweetAlert2() {
                 timer: 1500,
                 showConfirmButton: false
             }).then(() => {
-                // Manually swap the body content after the popup
                 const target = document.querySelector('body');
                 target.outerHTML = response;
-                htmx.process(document.body); // Reprocess HTMX on new content
+                htmx.process(document.body);
             });
         }
     });
 
-    // Handle errors after swapping (for error case)
     document.body.addEventListener('htmx:afterSwap', function(event) {
         const requestUrl = event.detail.xhr.responseURL;
         const eligibilityCheckUrl = window.eligibilityCheckUrl;
 
-        // Only process responses from the eligibility check endpoint
         if (!requestUrl.includes(eligibilityCheckUrl)) {
             console.log('Skipping SweetAlert2 for non-eligibility request:', requestUrl);
             return;
         }
 
-        // Check if the swapped content contains an error message
         const errorElement = document.querySelector('#error-message-data');
         if (errorElement) {
             const errorMessage = errorElement.dataset.error;
@@ -73,6 +63,94 @@ export function initializeSweetAlert2() {
                 }
             });
         }
+    });
+
+    // File Upload Popups
+    document.body.addEventListener('htmx:afterRequest', function(event) {
+        const requestUrl = event.detail.xhr.responseURL;
+        const uploadUrl = '/upload'; // Use relative URL to match route('upload.store')
+
+        if (!requestUrl.includes(uploadUrl)) {
+            return;
+        }
+
+        console.log('File upload request detected:', requestUrl);
+
+        const trigger = event.detail.xhr.getResponseHeader('HX-Trigger');
+        if (trigger) {
+            try {
+                const triggerData = JSON.parse(trigger);
+                if (triggerData.uploadSuccess) {
+                    const { added, skipped } = triggerData.uploadSuccess;
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'File Uploaded!',
+                        text: `Added ${added} new students, skipped ${skipped} duplicates or invalid records.`,
+                        confirmButtonColor: '#3085d6'
+                    }).then(() => {
+                        const selectedYear = document.getElementById("yearDropdownButton")
+                            ?.querySelector(".button-text")
+                            ?.textContent.match(/\d+/)[0] || '2025';
+                        htmx.ajax('GET', `/fetch-students?year=${selectedYear}`, {
+                            target: "#studentTableBody",
+                            swap: "innerHTML"
+                        });
+                    });
+                    return;
+                }
+            } catch (e) {
+                console.error('Failed to parse HX-Trigger:', e);
+            }
+        }
+
+        // Fallback for error cases (e.g., validation or server errors)
+        if (event.detail.xhr.status !== 200) {
+            let errorMessage = 'There was an error uploading the file.';
+            try {
+                const response = JSON.parse(event.detail.xhr.response);
+                errorMessage = response.message || errorMessage;
+            } catch (e) {
+                console.error('Failed to parse error response:', e);
+            }
+            Swal.fire({
+                icon: 'error',
+                title: 'Upload Failed',
+                text: errorMessage,
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+
+    // Vote Submission Popups
+    document.addEventListener('vote:submit', function(event) {
+        const { success, message, error } = event.detail;
+
+        if (success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Votes Submitted!',
+                text: 'Your votes have been recorded successfully.',
+                confirmButtonColor: '#3085d6'
+            }).then(() => {
+                location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Submission Failed',
+                text: message || error || 'An error occurred while submitting your votes.',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+
+    document.addEventListener('vote:noVotes', function() {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Votes Selected',
+            text: 'Please select at least one candidate to vote for.',
+            confirmButtonColor: '#3085d6'
+        });
     });
 }
 

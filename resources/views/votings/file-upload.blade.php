@@ -36,8 +36,7 @@
                         hx-target="#studentTableBody"
                         hx-swap="innerHTML"
                         hx-encoding="multipart/form-data"
-                        enctype="multipart/form-data"
-                        hx-on::after-request="showUploadSuccess(event)">
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="upload-panel">
                             <input type="file" name="file" id="fileInput" class="d-none" accept=".csv,.xlsx,.xls">
@@ -78,7 +77,6 @@
 
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const dropdownButton = document.getElementById("yearDropdownButton");
@@ -122,33 +120,6 @@
                 swap: "innerHTML"
             });
         });
-
-        function showUploadSuccess(event) {
-            if (event.detail.xhr.status === 200) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'File Uploaded!',
-                    text: 'Student data has been updated and table refreshed.',
-                    confirmButtonColor: '#3085d6'
-                }).then(() => {
-                    // Refresh the table after the alert is closed
-                    const selectedYear = document.getElementById("yearDropdownButton")
-                        .querySelector(".button-text")
-                        .textContent.match(/\d+/)[0];
-                    htmx.ajax('GET', `/fetch-students?year=${selectedYear}`, {
-                        target: "#studentTableBody",
-                        swap: "innerHTML"
-                    });
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Upload Failed',
-                    text: 'There was an error uploading the file.',
-                    confirmButtonColor: '#d33'
-                });
-            }
-        }
     </script>
     @endpush
 </x-app-layout>
