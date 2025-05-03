@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
@@ -69,7 +69,7 @@ class StudentController extends Controller
         ]);
 
         if (!$student) {
-            \Log::error('Student not found for user: ' . json_encode(auth()->user()));
+            Log::error('Student not found for user: ' . json_encode(auth()->user()));
             return back()->with('error', 'Student not found.');
         }
 
@@ -94,5 +94,23 @@ class StudentController extends Controller
         \Log::info('Saved image: ' . $student->image);
 
         return back()->with('success', 'Profile image updated!');
+    }
+
+    /**
+     * Update the contact number for a student.
+     */
+    public function updateContact(Request $request)
+    {
+        $request->validate([
+            'contact_number' => 'required|digits:11',
+        ]);
+        $student = \App\Models\Student::where('email', auth()->user()->email)->first();
+        if (!$student) {
+            return response()->json(['success' => false, 'message' => 'Student not found.']);
+        }
+        $student->contact_number = $request->contact_number;
+        $student->save();
+        \Log::info('Redirecting to userinfo route with success message.');
+        return response()->json(['success' => true, 'message' => 'Contact number updated!']);
     }
 }

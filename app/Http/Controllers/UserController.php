@@ -100,4 +100,25 @@ class UserController extends Controller
                 ->with('error', 'Failed to delete user: ' . $e->getMessage());
         }
     }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'], // Validate current password
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = auth()->user();
+
+        // Log the validation process
+        if (!Hash::check($request->current_password, $user->password)) {
+            return redirect()->back()->with('error', 'The current password is incorrect.');
+        }
+
+        // Update the password
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return redirect()->route('userinfo', [], false)->with('success', 'Password updated!')->withFragment('password-updated');
+    }
 }

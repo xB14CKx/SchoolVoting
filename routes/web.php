@@ -83,6 +83,9 @@ Route::middleware('auth')->group(function () {
     // Upload profile image
     Route::post('/student/upload-profile-image', [StudentController::class, 'uploadProfileImage'])->name('student.uploadProfileImage');
 
+    // Update contact number (for user info page)
+    Route::post('/student/update-contact', [StudentController::class, 'updateContact'])->name('student.updateContact');
+
     // Admin-only Routes
     Route::middleware('can:is-admin')->group(function () {
         Route::get('/admin', function () {

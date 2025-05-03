@@ -17,6 +17,7 @@ class CreateStudentsTable extends Migration
             $table->foreignId('program_id')->nullable()->constrained('programs', 'program_id')->onDelete('set null'); // PROGRAM (foreign key, nullable)
             $table->enum('year_level', ['1st', '2nd', '3rd', '4th']); // YEAR LEVEL (ENUM)
             $table->string('contact_number', 255); // CONTACT NUMBER
+            $table->string('image', 255)->nullable(); //  IMAGE COLUMN HERE
             $table->date('date_of_birth'); // DATE OF BIRTH
             $table->enum('sex', ['Male', 'Female']); // SEX
             $table->timestamps(); // created_at and updated_at

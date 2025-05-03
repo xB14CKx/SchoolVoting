@@ -15,15 +15,22 @@ class PasswordController extends Controller
      */
     public function update(Request $request): RedirectResponse
     {
-        $validated = $request->validateWithBag('updatePassword', [
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', Password::defaults(), 'confirmed'],
+        $user = $request->user();
+
+        // Always check current password first
+        if (!Hash::check($request->current_password, $user->password)) {
+            // SweetAlert2 popup via session
+            return back()->with('sweetalert_error', 'The current password you entered is incorrect.');
+        }
+
+        // Only validate the new password if the current password is correct
+        $request->validate([
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $request->user()->update([
-            'password' => Hash::make($validated['password']),
-        ]);
+        $user->password = Hash::make($request->password);
+        $user->save();
 
-        return back()->with('status', 'password-updated');
+        return back()->with('sweetalert_success', 'Password updated successfully!');
     }
 }
