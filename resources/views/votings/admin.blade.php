@@ -71,6 +71,7 @@
   </article>
 </template>
 
+  
 
   <!-- Card Details -->
   <section class="ballot-container">
@@ -212,7 +213,46 @@
     </div>
 
   </section>
+<!-- Open Election button -->
+<button class="open-electionButton" id="electionActionButton"><strong>Open Election</strong></button>
 
+<!-- Open Election Modal -->
+<div class="modal fade" id="openElectionModal" tabindex="-1" aria-labelledby="openElectionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="openElectionLabel">Open Election</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to open the election for this school year?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmOpenElection">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Close Election Modal -->
+<div class="modal fade" id="closeElectionModal" tabindex="-1" aria-labelledby="closeElectionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="closeElectionLabel">Close Election</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to close the election for this school year?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="confirmCloseElection">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
   </div>
 </div>
 
@@ -846,6 +886,35 @@ document.getElementById('updateCandidateBtn').addEventListener('click', function
         console.error("Error updating candidate:", error);
         alert("Error updating candidate: " + (error.message || "Unknown error"));
     });
-});  });
+});
+
+// Election open/close button logic
+let electionOpen = false;
+const electionActionButton = document.getElementById('electionActionButton');
+const openElectionModal = new bootstrap.Modal(document.getElementById('openElectionModal'));
+const closeElectionModal = new bootstrap.Modal(document.getElementById('closeElectionModal'));
+
+electionActionButton.addEventListener('click', function() {
+  if (!electionOpen) {
+    openElectionModal.show();
+  } else {
+    closeElectionModal.show();
+  }
+});
+
+document.getElementById('confirmOpenElection').addEventListener('click', function() {
+  electionOpen = true;
+  electionActionButton.innerHTML = '<strong>Close Election</strong>';
+  electionActionButton.classList.add('close-election');
+  openElectionModal.hide();
+});
+
+document.getElementById('confirmCloseElection').addEventListener('click', function() {
+  electionOpen = false;
+  electionActionButton.innerHTML = '<strong>Open Election</strong>';
+  electionActionButton.classList.remove('close-election');
+  closeElectionModal.hide();
+});
+  });
 </script>
 </x-app-layout>

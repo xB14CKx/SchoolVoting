@@ -7,7 +7,6 @@
     background-color: #f7bd03;
     top: 0;
     left: 0;
-    z-index: 0; /* turn to zero para dili niya ma cover ang function sa buttons */
   }
   
   .content-wrapper {
@@ -18,7 +17,6 @@
     width: 100%;
     padding: 56px 80px;
     align-items: flex-start;
-    z-index: 1; /* add ni para ma apply gihapon siya tas above siya sa background nato */
   }
 
   @media (max-width: 991px) {
@@ -250,7 +248,7 @@ body {
 }
 
 .more-options-button:hover svg path {
-    fill: gold; 
+    fill: #f7bd03; 
 }
 
 .options-menu {
@@ -281,7 +279,7 @@ body {
 }
 
 .option-button:hover {
-    background: gold;
+    background: #f7bd03;
 }
 
 
@@ -332,6 +330,51 @@ body {
     width: 40px;
     height: 40px;
   }
+
+  .open-electionButton {
+    position: fixed;
+    width: 200px;
+    height: 45px;
+    padding: 12px;
+    border-radius: 8px;
+    color: black;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 100%;
+    cursor: pointer;
+    background-color:#f7bd03;
+    border: none;
+    text-align: center;
+    margin-top: 580px;
+    margin-left: 1150px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.open-electionButton:hover {
+  background-color: black;
+  color: #f7bd03;
+}
+
+.open-electionButton.close-election {
+    color: #f7bd03 !important;
+    background-color: black;
+}
+
+.open-electionButton.close-election:hover {
+  color: black !important;
+  background-color: #f7bd03;
+}
+
+
+.modal {
+  z-index: 2000 !important;
+}
+
+.modal-backdrop {
+  z-index: 1990 !important;
+}
+
   
   
   .candidate-figure {
