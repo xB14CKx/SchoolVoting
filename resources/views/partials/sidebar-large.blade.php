@@ -31,6 +31,8 @@
             <a href="{{ url('/userinfo') }}" class="userinfo-button">
                 <i class="fa-solid fa-user" aria-hidden="true"></i> User Info
             </a>
+            <a href="{{ url('/file-upload') }}" class="upload-button"><i class="fa-solid fa-file-arrow-up"></i> &nbsp;File Upload</a>
+
         @endif
 
         <!-- Shared links for both admin and user -->

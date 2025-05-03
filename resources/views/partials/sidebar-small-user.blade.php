@@ -25,9 +25,9 @@
             <i class="fa-solid fa-user user-icon" aria-hidden="true"></i>
         </a>
 
-        <form action="{{ route('logout') }}" method="post" style="display: inline; margin-top: -50px;">
+        <form action="{{ route('logout') }}" method="post" style="display: inline;">
             @csrf
-            <button type="submit" class="logout-icon" style="border: none; background: none; padding: 0; cursor: pointer;">
+            <button type="submit" class="logout-user-icon" style="border: none; background: none; padding: 0; cursor: pointer;">
                 <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
             </button>
         </form>
