@@ -20,7 +20,9 @@ class Student extends Model
         'program_id',
         'year_level',
         'contact_number',
+        'image',
         'date_of_birth',
+        'sex',
     ];
 
     /**

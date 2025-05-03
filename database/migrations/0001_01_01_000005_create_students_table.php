@@ -18,6 +18,7 @@ class CreateStudentsTable extends Migration
             $table->enum('year_level', ['1st', '2nd', '3rd', '4th']); // YEAR LEVEL (ENUM)
             $table->string('contact_number', 255); // CONTACT NUMBER
             $table->date('date_of_birth'); // DATE OF BIRTH
+            $table->enum('sex', ['Male', 'Female']); // SEX
             $table->timestamps(); // created_at and updated_at
 
             // Adding foreign key constraint index

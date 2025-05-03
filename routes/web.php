@@ -16,6 +16,7 @@ use App\Models\Program;
 use App\Models\Partylist;
 use App\Models\Candidate;
 use App\Models\User;
+use App\Models\Student;
 
 // Guest Routes (unauthenticated users)
 Route::middleware('guest')->group(function () {
@@ -63,7 +64,9 @@ Route::middleware('auth')->group(function () {
         })->name('vote-counting');
 
         Route::get('/userinfo', function () {
-            return view('votings.userinfo');
+            $user = auth()->user();
+            $student = Student::with('program')->where('email', $user->email)->first();
+            return view('votings.userinfo', compact('student'));
         })->name('userinfo');
     });
 
@@ -76,6 +79,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports', function () {
         return view('votings.reports');
     })->name('reports');
+
+    // Upload profile image
+    Route::post('/student/upload-profile-image', [StudentController::class, 'uploadProfileImage'])->name('student.uploadProfileImage');
 
     // Admin-only Routes
     Route::middleware('can:is-admin')->group(function () {

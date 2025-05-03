@@ -5,8 +5,7 @@
 .page-container {
     width: 100%;
     min-height: 100vh;
-    position: relative;
-    /* do this */
+    position: fixed;
     align-items: center;
     background-color: #f7bd03;
     top: 0;
