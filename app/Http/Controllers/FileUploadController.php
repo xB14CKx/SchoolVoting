@@ -11,12 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class FileUploadController extends Controller
 {
-    public function index()
-    {
-        return view('votings.file-upload');
-    }
-
-    // Define a mapping of abbreviations to full program names
     private $programAbbreviations = [
         'BSIT' => 'BS in Information Technology',
         'BSCS' => 'BS in Computer Science',
@@ -27,6 +21,11 @@ class FileUploadController extends Controller
         'BMA' => 'Bachelor of Multimedia Arts',
     ];
 
+    public function index()
+    {
+        return view('votings.file-upload');
+    }
+
     public function upload(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -34,161 +33,141 @@ class FileUploadController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'message' => $validator->errors()->first()
-            ], 422);
+            return response()->json(['message' => $validator->errors()->first()], 422);
         }
 
         try {
             $file = $request->file('file');
             $spreadsheet = IOFactory::load($file->getRealPath());
-            $worksheet = $spreadsheet->getActiveSheet();
-            $rows = $worksheet->toArray();
+            $rows = $spreadsheet->getActiveSheet()->toArray();
 
-            // Skip header row
-            $students = [];
+            $studentsToInsert = [];
+            $studentsForResponse = [];
             $skipped = 0;
             $added = 0;
 
-            foreach (array_slice($rows, 1) as $row) {
-                // Map the row data to the database fields
-                $studentData = [
-                    'id' => $row[0] ?? null,
-                    'first_name' => $row[1] ?? '',
-                    'middle_name' => !empty($row[2]) ? $row[2] : null,
-                    'last_name' => $row[3] ?? '',
-                    'email' => $row[4] ?? '',
-                    'program' => $row[5] ?? '',
-                    'year_level' => $row[6] ?? '',
-                    'contact_number' => $row[7] ?? '',
-                    'date_of_birth' => $row[8] ?? null,
-                ];
+            // Load all programs once and map by name
+            $programs = Program::all()->keyBy('program_name');
 
-                // Skip if email is empty or invalid
-                if (empty($studentData['email']) || !filter_var($studentData['email'], FILTER_VALIDATE_EMAIL)) {
+            // Extract header and slice the rest
+            $dataRows = array_slice($rows, 1);
+
+            // Collect all emails to check for duplicates in bulk
+            $emails = array_filter(array_map(fn($row) => $row[4] ?? '', $dataRows));
+            $existingEmails = Student::whereIn('email', $emails)->pluck('email')->toArray();
+
+            foreach ($dataRows as $row) {
+                $id = $row[0] ?? null;
+                $email = $row[4] ?? '';
+                $programCode = $row[5] ?? '';
+                $dob = $row[8] ?? null;
+
+                // Validate minimal required data
+                if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) || empty($id) || !is_numeric($id)) {
                     $skipped++;
                     continue;
                 }
 
-                // Skip if ID is empty or invalid (since ID is required and non-auto-incrementing)
-                if (empty($studentData['id']) || !is_numeric($studentData['id'])) {
-                    $skipped++;
-                    continue;
-                }
-
-                // Validate and format date_of_birth to follow MySQL date rules (YYYY-MM-DD)
-                $formattedDate = null;
-                if (!empty($studentData['date_of_birth'])) {
-                    try {
-                        $date = new \DateTime($studentData['date_of_birth']);
-                        $formattedDate = $date->format('Y-m-d');
-                        $currentDate = new \DateTime();
-                        $minDate = new \DateTime('1900-01-01');
-                        if ($date > $currentDate || $date < $minDate) {
-                            $skipped++;
-                            continue;
-                        }
-                    } catch (\Exception $e) {
+                // Format and validate date
+                try {
+                    $date = new \DateTime($dob);
+                    $currentDate = new \DateTime();
+                    $minDate = new \DateTime('1900-01-01');
+                    if ($date > $currentDate || $date < $minDate) {
                         $skipped++;
                         continue;
                     }
-                } else {
+                    $formattedDob = $date->format('Y-m-d');
+                } catch (\Exception $e) {
                     $skipped++;
                     continue;
                 }
 
-                // Check for program abbreviation and map to full name
-                $programName = $studentData['program'];
-                if (array_key_exists($studentData['program'], $this->programAbbreviations)) {
-                    $programName = $this->programAbbreviations[$studentData['program']];
-                }
-
-                // Map program to program_id
-                $program = Program::where('program_name', $programName)->first();
+                // Convert program abbreviation
+                $programName = $this->programAbbreviations[$programCode] ?? $programCode;
+                $program = $programs[$programName] ?? null;
                 if (!$program) {
                     $skipped++;
-                    continue; // Skip if program not found
-                }
-                $studentData['program_id'] = $program->program_id;
-
-                // Check if student already exists by email
-                $existingStudent = Student::where('email', $studentData['email'])->first();
-
-                if ($existingStudent) {
-                    $skipped++;
-                    $students[] = [
-                        'id' => $existingStudent->id,
-                        'name' => $existingStudent->first_name . ' ' . ($existingStudent->middle_name ? $existingStudent->middle_name . ' ' : '') . $existingStudent->last_name,
-                        'email' => $existingStudent->email,
-                        'program_id' => $existingStudent->program_id,
-                        'year_level' => $existingStudent->year_level,
-                        'contact_number' => $existingStudent->contact_number,
-                        'date_of_birth' => $existingStudent->date_of_birth,
-                    ];
                     continue;
                 }
 
-                // Create new student record
-                $student = Student::create([
+                // Check if email exists
+                if (in_array($email, $existingEmails)) {
+                    $skipped++;
+                    continue;
+                }
+
+                // Prepare student data
+                $studentData = [
+                    'id' => $id,
+                    'first_name' => $row[1] ?? '',
+                    'middle_name' => !empty($row[2]) ? $row[2] : null,
+                    'last_name' => $row[3] ?? '',
+                    'email' => $email,
+                    'program_id' => $program->program_id,
+                    'year_level' => $row[6] ?? '',
+                    'contact_number' => $row[7] ?? '',
+                    'date_of_birth' => $formattedDob,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                $studentsToInsert[] = $studentData;
+
+                $studentsForResponse[] = [
                     'id' => $studentData['id'],
-                    'first_name' => $studentData['first_name'],
-                    'middle_name' => $studentData['middle_name'],
-                    'last_name' => $studentData['last_name'],
+                    'name' => $studentData['first_name'] . ' ' . ($studentData['middle_name'] ? $studentData['middle_name'] . ' ' : '') . $studentData['last_name'],
                     'email' => $studentData['email'],
-                    'program_id' => $studentData['program_id'],
+                    'program_name' => $program->program_name,
                     'year_level' => $studentData['year_level'],
                     'contact_number' => $studentData['contact_number'],
-                    'date_of_birth' => $formattedDate,
-                ]);
-
-                $added++;
-
-                // Add to response array
-                $students[] = [
-                    'id' => $student->id,
-                    'name' => $student->first_name . ' ' . ($student->middle_name ? $student->middle_name . ' ' : '') . $student->last_name,
-                    'email' => $student->email,
-                    'program_name' => $program->program_name, // Use the resolved program name
-                    'year_level' => $student->year_level,
-                    'contact_number' => $student->contact_number,
-                    'date_of_birth' => $student->date_of_birth ? $student->date_of_birth : '',
+                    'date_of_birth' => $studentData['date_of_birth'],
                 ];
             }
 
-            // Store the file
+            // Batch insert valid students
+            if (!empty($studentsToInsert)) {
+                Student::insert($studentsToInsert);
+                $added = count($studentsToInsert);
+            }
+
             $path = $file->store('uploads');
 
-            // Check if the request is from HTMX
+            // Handle HTMX response
             if ($request->header('HX-Request') === 'true') {
                 $html = '';
-                foreach ($students as $student) {
-                    $html .= '<tr>';
-                    $html .= '<td>' . htmlspecialchars($student['id']) . '</td>';
-                    $html .= '<td>' . htmlspecialchars($student['name']) . '</td>';
-                    $html .= '<td>' . htmlspecialchars($student['email']) . '</td>';
-                    $html .= '<td>' . htmlspecialchars($student['program_name']) . '</td>';
-                    $html .= '<td>' . htmlspecialchars($student['year_level']) . '</td>';
-                    $html .= '<td>' . htmlspecialchars($student['contact_number']) . '</td>';
-                    $html .= '<td>' . htmlspecialchars($student['date_of_birth'] ?? '') . '</td>';
-                    $html .= '</tr>';
+                if (empty($studentsForResponse)) {
+                    $html = '<tr><td colspan="7" class="text-center">No new students added.</td></tr>';
+                } else {
+                    foreach ($studentsForResponse as $student) {
+                        $html .= '<tr>';
+                        $html .= '<td>' . htmlspecialchars($student['id']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['name']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['email']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['program_name']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['year_level']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['contact_number']) . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['date_of_birth']) . '</td>';
+                        $html .= '</tr>';
+                    }
                 }
-                return response($html)->header('HX-Trigger', 'uploadSuccess');
+
+                return response($html)->header('HX-Trigger', json_encode([
+                    'uploadSuccess' => [
+                        'added' => $added,
+                        'skipped' => $skipped
+                    ]
+                ]));
             }
 
             return response()->json([
                 'message' => "File uploaded successfully. Added $added new students, skipped $skipped duplicates or invalid records.",
-                'students' => $students,
+                'students' => $studentsForResponse,
                 'file_path' => $path,
             ]);
         } catch (\Exception $e) {
-            if ($request->header('HX-Request') === 'true') {
-                return response()->json([
-                    'message' => 'Error processing file: ' . $e->getMessage()
-                ], 500);
-            }
-            return response()->json([
-                'message' => 'Error processing file: ' . $e->getMessage()
-            ], 500);
+            $msg = 'Error processing file: ' . $e->getMessage();
+            return response()->json(['message' => $msg], 500);
         }
     }
 
@@ -204,10 +183,10 @@ class FileUploadController extends Controller
                         'id' => $student->id,
                         'name' => $student->first_name . ' ' . ($student->middle_name ? $student->middle_name . ' ' : '') . $student->last_name,
                         'email' => $student->email,
-                        'program_name' => $student->program ? $student->program->program_name : 'Unknown',
+                        'program_name' => $student->program?->program_name ?? 'Unknown',
                         'year_level' => $student->year_level,
                         'contact_number' => $student->contact_number,
-                        'date_of_birth' => $student->date_of_birth ? $student->date_of_birth : '',
+                        'date_of_birth' => $student->date_of_birth ?? '',
                     ];
                 })->toArray();
 
@@ -224,10 +203,11 @@ class FileUploadController extends Controller
                         $html .= '<td>' . htmlspecialchars($student['program_name']) . '</td>';
                         $html .= '<td>' . htmlspecialchars($student['year_level']) . '</td>';
                         $html .= '<td>' . htmlspecialchars($student['contact_number']) . '</td>';
-                        $html .= '<td>' . htmlspecialchars($student['date_of_birth'] ?? '') . '</td>';
+                        $html .= '<td>' . htmlspecialchars($student['date_of_birth']) . '</td>';
                         $html .= '</tr>';
                     }
                 }
+
                 return response($html);
             }
 
@@ -236,14 +216,7 @@ class FileUploadController extends Controller
                 'students' => $students,
             ]);
         } catch (\Exception $e) {
-            if ($request->header('HX-Request') === 'true') {
-                return response()->json([
-                    'message' => 'Error fetching students: ' . $e->getMessage()
-                ], 500);
-            }
-            return response()->json([
-                'message' => 'Error fetching students: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['message' => 'Error fetching students: ' . $e->getMessage()], 500);
         }
     }
 }
