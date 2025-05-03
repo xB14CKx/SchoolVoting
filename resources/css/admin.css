@@ -348,22 +348,27 @@ body {
     text-align: center;
     margin-top: 580px;
     margin-left: 1150px;
+    border: 2px solid black;
     transition: background-color 0.3s ease-in-out;
 }
 
 .open-electionButton:hover {
   background-color: black;
   color: #f7bd03;
+  border: 2px solid white;
+
 }
 
 .open-electionButton.close-election {
     color: #f7bd03 !important;
     background-color: black;
+    border: 2px solid white;
 }
 
 .open-electionButton.close-election:hover {
   color: black !important;
   background-color: #f7bd03;
+  border: 2px solid black;
 }
 
 

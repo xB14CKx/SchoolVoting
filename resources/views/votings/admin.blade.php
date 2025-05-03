@@ -511,10 +511,9 @@
                         })
                         .then(data => {
                             if (data.success) {
-                                card.remove();
-                                // Update the card count and enable/disable add button
                                 const container = card.closest('.candidate-grid');
-                                checkCardLimit(container.id);
+                                card.remove();
+                                checkCardLimit(container.id); // Call after removing the card
                             } else {
                                 alert(data.message || 'Failed to delete candidate');
                             }
