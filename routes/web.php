@@ -115,6 +115,9 @@ Route::middleware('auth')->group(function () {
             Route::get('results', [ElectionResultController::class, 'show'])->name('votings.results.show');
             Route::post('results', [ElectionResultController::class, 'update'])->name('votings.results.update');
         });
+
+        // Search for a student by ID (for Add Candidate modal AJAX)
+        Route::get('/students/search/{id}', [StudentController::class, 'search'])->middleware('can:is-admin');
     });
 
     // Voting Routes

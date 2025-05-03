@@ -265,8 +265,17 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <!-- Image Upload -->
+          <!-- Student ID Search -->
+          <div class="mb-3">
+            <label for="studentIdSearch" class="form-label">Student ID</label>
+            <div class="input-group">
+              <input type="text" class="form-control" id="studentIdSearch" placeholder="Enter Student ID">
+              <button class="btn btn-outline-secondary" type="button" id="searchStudentBtn">Search</button>
+            </div>
+            <div id="studentSearchFeedback" class="form-text text-danger d-none"></div>
+          </div>
 
+          <!-- Image Upload -->
           <h6>Image Upload</h6>
           <br>
           <div class="mb-3 text-center">
@@ -914,6 +923,81 @@ document.getElementById('confirmCloseElection').addEventListener('click', functi
   electionActionButton.innerHTML = '<strong>Open Election</strong>';
   electionActionButton.classList.remove('close-election');
   closeElectionModal.hide();
+});
+
+// Add Candidate Modal: Student ID Search
+const studentIdInput = document.getElementById('studentIdSearch');
+const searchStudentBtn = document.getElementById('searchStudentBtn');
+const studentSearchFeedback = document.getElementById('studentSearchFeedback');
+
+const candidateFields = {
+  firstName: document.getElementById('candidateFirstName'),
+  middleName: document.getElementById('candidateMiddleName'),
+  lastName: document.getElementById('candidateLastName'),
+  program: document.getElementById('candidateProgram'),
+  yearLevel: document.getElementById('candidateYearLevel'),
+  email: document.getElementById('candidateEmail') // if you have this field
+};
+
+// Disable all candidate fields by default
+function setCandidateFields(data, lock) {
+  candidateFields.firstName.value = data.first_name || '';
+  candidateFields.middleName.value = data.middle_name || '';
+  candidateFields.lastName.value = data.last_name || '';
+  if (candidateFields.email) candidateFields.email.value = data.email || '';
+  candidateFields.program.value = data.program_id || '';
+  candidateFields.yearLevel.value = data.year_level || '';
+  // Lock or unlock fields
+  Object.values(candidateFields).forEach(field => {
+    if (field) field.readOnly = lock;
+    if (field && field.tagName === 'SELECT') field.disabled = lock;
+    if (lock) field?.classList.add('disabled');
+    else field?.classList.remove('disabled');
+  });
+  // Always keep partylist, image, and platform enabled
+  document.getElementById('candidatePartylist').disabled = false;
+  document.getElementById('candidateImage').disabled = false;
+  document.getElementById('candidatePlatform').readOnly = false;
+}
+
+// On modal open, disable all fields except Student ID, image, partylist, platform
+const addCandidateModal = document.getElementById('addCandidateModal');
+addCandidateModal.addEventListener('show.bs.modal', function () {
+  setCandidateFields({}, true);
+  document.getElementById('candidatePartylist').disabled = true;
+  document.getElementById('candidateImage').disabled = true;
+  document.getElementById('candidatePlatform').readOnly = true;
+});
+
+searchStudentBtn.addEventListener('click', function() {
+  const studentId = studentIdInput.value.trim();
+  if (!studentId) return;
+  fetch(`/students/search/${studentId}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.success) {
+        setCandidateFields(data.student, false); // unlock fields if found
+        studentSearchFeedback.classList.add('d-none');
+        document.getElementById('candidatePartylist').disabled = false;
+        document.getElementById('candidateImage').disabled = false;
+        document.getElementById('candidatePlatform').readOnly = false;
+      } else {
+        setCandidateFields({}, true);
+        studentSearchFeedback.textContent = 'Student not found.';
+        studentSearchFeedback.classList.remove('d-none');
+        document.getElementById('candidatePartylist').disabled = true;
+        document.getElementById('candidateImage').disabled = true;
+        document.getElementById('candidatePlatform').readOnly = true;
+      }
+    })
+    .catch(() => {
+      setCandidateFields({}, true);
+      studentSearchFeedback.textContent = 'Error searching student.';
+      studentSearchFeedback.classList.remove('d-none');
+      document.getElementById('candidatePartylist').disabled = true;
+      document.getElementById('candidateImage').disabled = true;
+      document.getElementById('candidatePlatform').readOnly = true;
+    });
 });
   });
 </script>
