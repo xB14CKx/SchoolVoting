@@ -74,7 +74,7 @@ Route::middleware('auth')->group(function () {
 
     // Reports Route
     Route::get('/reports', function () {
-        return view('reports');
+        return view('votings.reports');
     })->name('reports');
 
     // Admin-only Routes

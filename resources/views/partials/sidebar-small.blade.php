@@ -16,6 +16,8 @@
                 <a href="{{ url('/admin') }}">
                     <i class="fa-solid fa-shield-halved admin-icon" aria-hidden="true"></i>
                 </a>
+                <a href="{{ url('/file-upload') }}">
+                    <i class="fa-solid fa-file-arrow-up upload-icon" aria-hidden="true"></i>
             @else
                 <!-- User-specific links -->
                 <a href="{{ url('/elect') }}">
