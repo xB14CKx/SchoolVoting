@@ -49,6 +49,21 @@ class CandidateController extends Controller
                 ], 422);
             }
 
+            // Check if partylist is already used for this position
+            $existingPartylist = Candidate::where('position_id', $validatedData['position_id'])
+                ->where('partylist_id', $validatedData['partylist_id'])
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingPartylist) {
+                DB::rollBack();
+                Log::warning('Partylist already used for position:', $validatedData);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A candidate from this partylist is already running for this position.'
+                ], 422);
+            }
+
             // Create the candidate
             $candidate = Candidate::create([
                 'first_name' => $validatedData['first_name'],
@@ -168,9 +183,9 @@ class CandidateController extends Controller
             // Check for duplicate candidate (same first_name, last_name, and position_id)
             $existingCandidate = Candidate::where('first_name', $validated['first_name'])
                 ->where('last_name', $validated['last_name'])
-                ->where('position_id', $positionId) // Use the candidate's existing position_id
-                ->where('candidate_id', '!=', $id) // Exclude the current candidate
-                ->lockForUpdate() // Lock the rows to prevent race conditions
+                ->where('position_id', $positionId)
+                ->where('candidate_id', '!=', $id)
+                ->lockForUpdate()
                 ->first();
 
             if ($existingCandidate) {
@@ -179,6 +194,22 @@ class CandidateController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'A candidate with this name is already running for this position.'
+                ], 422);
+            }
+
+            // Check if partylist is already used for this position by another candidate
+            $existingPartylist = Candidate::where('position_id', $positionId)
+                ->where('partylist_id', $validated['partylist_id'])
+                ->where('candidate_id', '!=', $id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingPartylist) {
+                DB::rollBack();
+                Log::warning('Partylist already used for position during update:', $validated);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'A candidate from this partylist is already running for this position.'
                 ], 422);
             }
 
