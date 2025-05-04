@@ -11,7 +11,6 @@ class ElectionCandidateController extends Controller
 {
     public function create(Request $request)
     {
-        // Find or create the current year's election
         $election = ElectionController::getOrCreateCurrentElection();
         $candidates = Candidate::all();
         return view('election_candidates.create', compact('election', 'candidates'));
@@ -20,26 +19,24 @@ class ElectionCandidateController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'election_id' => 'required|exists:elections,id',
+            'election_id' => 'required|exists:elections,election_id',
             'candidate_id' => 'required|exists:candidates,candidate_id',
         ]);
 
         try {
-            $election = Election::findOrFail($validated['election_id']);
+            $election = Election::where('election_id', $validated['election_id'])->firstOrFail();
 
-            // Check if the candidate is already attached to the election
-            if ($election->candidates()->where('candidate_id', $validated['candidate_id'])->exists()) {
-                return redirect()->route('elections.show', $election)
+            if ($election->candidates()->where('candidates.candidate_id', $validated['candidate_id'])->exists()) {
+                return redirect()->route('elections.candidates.create', ['election' => $election->election_id])
                     ->with('error', 'This candidate is already added to the election.');
             }
 
-            // Attach the candidate to the election
-            $election->candidates()->syncWithoutDetaching($validated['candidate_id']);
+            $election->candidates()->attach($validated['candidate_id']);
 
-            return redirect()->route('elections.show', $election)
+            return redirect()->route('elections.candidates.create', ['election' => $election->election_id])
                 ->with('success', 'Candidate added to election.');
         } catch (\Exception $e) {
-            return redirect()->route('election_candidates.create')
+            return redirect()->route('elections.candidates.create')
                 ->with('error', 'Failed to add candidate to election: ' . $e->getMessage());
         }
     }
@@ -47,27 +44,26 @@ class ElectionCandidateController extends Controller
     public function destroy(Election $election, Candidate $candidate)
     {
         try {
-            // Detach the candidate from the election
             $election->candidates()->detach($candidate->candidate_id);
 
-            return redirect()->route('elections.show', $election)
+            return redirect()->route('elections.candidates.create', ['election' => $election->election_id])
                 ->with('success', 'Candidate removed from election.');
         } catch (\Exception $e) {
-            return redirect()->route('elections.show', $election)
+            return redirect()->route('elections.candidates.create', ['election' => $election->election_id])
                 ->with('error', 'Failed to remove candidate from election: ' . $e->getMessage());
         }
     }
 
     public function elect()
     {
-        $currentElection = \App\Models\Election::where('status', 'open')->latest()->first();
-    
+        $currentElection = Election::where('status', 'open')->latest()->first();
+
         $positions = \App\Models\Position::with(['candidates' => function ($query) use ($currentElection) {
             $query->whereHas('elections', function ($q) use ($currentElection) {
                 $q->where('election_id', $currentElection->election_id);
             })->with(['program', 'partylist']);
         }])->get();
-    
+
         return view('votings.elect', compact('positions'));
     }
 }

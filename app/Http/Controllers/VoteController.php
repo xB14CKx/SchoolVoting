@@ -18,17 +18,11 @@ class VoteController extends Controller
     {
         $currentYear = date('Y');
 
-        // Find or create an election for the current year with status 'open'
+        // Find or create an election for the current year
         $election = Election::firstOrCreate(
             ['year' => $currentYear],
             ['year' => $currentYear, 'status' => 'open']
         );
-
-        // Ensure the election status is 'open'
-        if ($election->status !== 'open') {
-            $election->status = 'open';
-            $election->save();
-        }
 
         if (!$election->exists || !$election->election_id) {
             Log::error('Election not found or invalid', [
@@ -37,6 +31,9 @@ class VoteController extends Controller
             ]);
             return redirect()->route('elections.index')->with('error', 'Unable to create or find an election for the current year.');
         }
+
+        // Check if election is open
+        $isElectionOpen = $this->isElectionOpen($election);
 
         // Fetch positions with their candidates, filtered by election
         $positions = Position::with(['candidates' => function ($query) use ($election) {
@@ -53,7 +50,7 @@ class VoteController extends Controller
             ]);
         }
 
-        return view('votings.elect', compact('positions', 'election'));
+        return view('votings.elect', compact('positions', 'election', 'isElectionOpen'));
     }
 
     public function create(Election $election)

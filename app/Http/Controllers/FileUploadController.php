@@ -7,7 +7,9 @@ use App\Models\Program;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class FileUploadController extends Controller
 {
@@ -39,65 +41,79 @@ class FileUploadController extends Controller
         try {
             $file = $request->file('file');
             $spreadsheet = IOFactory::load($file->getRealPath());
-            $rows = $spreadsheet->getActiveSheet()->toArray();
+            $worksheet = $spreadsheet->getActiveSheet();
+            $rows = $worksheet->toArray();
 
             $studentsToInsert = [];
             $studentsForResponse = [];
             $skipped = 0;
             $added = 0;
 
-            // Load all programs once and map by name
             $programs = Program::all()->keyBy('program_name');
-
-            // Extract header and slice the rest
             $dataRows = array_slice($rows, 1);
-
-            // Collect all emails to check for duplicates in bulk
             $emails = array_filter(array_map(fn($row) => $row[4] ?? '', $dataRows));
             $existingEmails = Student::whereIn('email', $emails)->pluck('email')->toArray();
 
-            foreach ($dataRows as $row) {
+            foreach ($dataRows as $index => $row) {
                 $id = $row[0] ?? null;
                 $email = $row[4] ?? '';
                 $programCode = $row[5] ?? '';
                 $dob = $row[8] ?? null;
+                $sex = $row[9] ?? null;
 
-                // Validate minimal required data
                 if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) || empty($id) || !is_numeric($id)) {
+                    Log::warning('Skipped row due to invalid data', ['row' => $index + 2, 'id' => $id, 'email' => $email]);
                     $skipped++;
                     continue;
                 }
 
-                // Format and validate date
+                $formattedDob = null;
                 try {
-                    $date = new \DateTime($dob);
+                    Log::debug('Raw DOB value:', ['row' => $index + 2, 'dob' => $dob]);
+
+                    if (is_numeric($dob)) {
+                        $date = Date::excelToDateTimeObject($dob);
+                    } elseif (preg_match('/^\=DATE\((\d+),\s*(\d+),\s*(\d+)\)$/i', $dob, $matches)) {
+                        $year = (int)$matches[1];
+                        $month = (int)$matches[2];
+                        $day = (int)$matches[3];
+                        $date = new \DateTime();
+                        $date->setDate($year, $month, $day);
+                    } else {
+                        $date = \DateTime::createFromFormat('m/d/Y', $dob)
+                            ?: \DateTime::createFromFormat('d/m/Y', $dob)
+                            ?: new \DateTime($dob);
+                    }
+
                     $currentDate = new \DateTime();
                     $minDate = new \DateTime('1900-01-01');
                     if ($date > $currentDate || $date < $minDate) {
+                        Log::warning('Skipped row due to invalid date range', ['row' => $index + 2, 'dob' => $dob]);
                         $skipped++;
                         continue;
                     }
+
                     $formattedDob = $date->format('Y-m-d');
                 } catch (\Exception $e) {
+                    Log::warning('Skipped row due to DOB parse failure', ['row' => $index + 2, 'dob' => $dob, 'error' => $e->getMessage()]);
                     $skipped++;
                     continue;
                 }
 
-                // Convert program abbreviation
                 $programName = $this->programAbbreviations[$programCode] ?? $programCode;
                 $program = $programs[$programName] ?? null;
                 if (!$program) {
+                    Log::warning('Skipped row due to unrecognized program', ['row' => $index + 2, 'program_code' => $programCode]);
                     $skipped++;
                     continue;
                 }
 
-                // Check if email exists
                 if (in_array($email, $existingEmails)) {
+                    Log::warning('Skipped row due to duplicate email', ['row' => $index + 2, 'email' => $email]);
                     $skipped++;
                     continue;
                 }
 
-                // Prepare student data
                 $studentData = [
                     'id' => $id,
                     'first_name' => $row[1] ?? '',
@@ -108,6 +124,7 @@ class FileUploadController extends Controller
                     'year_level' => $row[6] ?? '',
                     'contact_number' => $row[7] ?? '',
                     'date_of_birth' => $formattedDob,
+                    'sex' => $sex,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
@@ -122,10 +139,10 @@ class FileUploadController extends Controller
                     'year_level' => $studentData['year_level'],
                     'contact_number' => $studentData['contact_number'],
                     'date_of_birth' => $studentData['date_of_birth'],
+                    'sex' => $sex,
                 ];
             }
 
-            // Batch insert valid students
             if (!empty($studentsToInsert)) {
                 Student::insert($studentsToInsert);
                 $added = count($studentsToInsert);
@@ -133,7 +150,6 @@ class FileUploadController extends Controller
 
             $path = $file->store('uploads');
 
-            // Handle HTMX response
             if ($request->header('HX-Request') === 'true') {
                 $html = '';
                 if (empty($studentsForResponse)) {
@@ -166,8 +182,7 @@ class FileUploadController extends Controller
                 'file_path' => $path,
             ]);
         } catch (\Exception $e) {
-            $msg = 'Error processing file: ' . $e->getMessage();
-            return response()->json(['message' => $msg], 500);
+            return response()->json(['message' => 'Error processing file: ' . $e->getMessage()], 500);
         }
     }
 

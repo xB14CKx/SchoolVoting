@@ -2,10 +2,10 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@200;400;700&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-@vite(['resources/css/elect.css', 'resources/js/app.js'])
 @endpush
 
 <x-app-layout>
+@vite(['resources/css/elect.css', 'resources/js/app.js'])
 <div class="page-container">
     <!-- Background Image -->
     <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/fe992e701c7edc01644f69af503f11ed319f8132"
@@ -34,6 +34,13 @@
             </div>
             <hr class="elect-divider" />
         </section>
+
+        <!-- Error Message Container -->
+        @if (!$isElectionOpen)
+        <div id="electionStatusMessage" class="alert alert-danger" role="alert">
+            This election is not currently open for voting.
+        </div>
+        @endif
 
         <!-- Candidate Section -->
 @php
@@ -106,7 +113,8 @@ function formatProgram($programName) {
                                 data-candidate-first-name="{{ $candidate->first_name }}"
                                 data-candidate-middle-name="{{ $candidate->middle_name }}"
                                 data-candidate-last-name="{{ $candidate->last_name }}"
-                                data-partylist="{{ $candidate->partylist->partylist_name ?? '' }}">
+                                data-partylist="{{ $candidate->partylist->partylist_name ?? '' }}"
+                                @if (!$isElectionOpen) disabled @endif>
                                 Vote
                             </button>
                         </figure>
@@ -119,7 +127,7 @@ function formatProgram($programName) {
 </section>
 
 <!-- Submit Vote Button -->
-<button class="submit-voteButton" data-election-id="{{ $election->election_id }}"><strong>Submit Vote</strong></button>
+<button class="submit-voteButton" data-election-id="{{ $election->election_id }}" @if (!$isElectionOpen) disabled @endif><strong>Submit Vote</strong></button>
 
 </div>
 </div>
@@ -187,6 +195,8 @@ function formatProgram($programName) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const isElectionOpen = @json($isElectionOpen);
+
             // School Year Dropdown
             const dropdownButton = document.getElementById("yearDropdownButton");
             const dropdownMenu = document.getElementById("yearDropdown");
@@ -221,6 +231,8 @@ function formatProgram($programName) {
 
             document.querySelectorAll('.vote-button').forEach(btn => {
                 btn.addEventListener('click', function () {
+                    if (!isElectionOpen) return;
+
                     const positionId = this.dataset.positionId;
                     const candidateId = this.dataset.candidateId;
                     const candidateName = `${this.dataset.candidateFirstName} ${this.dataset.candidateMiddleName ? this.dataset.candidateMiddleName.charAt(0) + '.' : ''} ${this.dataset.candidateLastName}`;
@@ -266,6 +278,8 @@ function formatProgram($programName) {
 
             // Submit Vote Button
             document.querySelector('.submit-voteButton').addEventListener('click', function () {
+                if (!isElectionOpen) return;
+
                 if (Object.keys(votes).length === 0) {
                     document.dispatchEvent(new CustomEvent('vote:noVotes'));
                     return;
@@ -304,6 +318,8 @@ function formatProgram($programName) {
 
             // Final Submit
             document.getElementById('finalSubmitVoteBtn').addEventListener('click', function () {
+                if (!isElectionOpen) return;
+
                 const modal = bootstrap.Modal.getInstance(document.getElementById('voteReviewModal'));
                 modal.hide();
 

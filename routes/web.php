@@ -18,6 +18,7 @@ use App\Models\Candidate;
 use App\Models\User;
 use App\Models\Student;
 
+
 // Guest Routes (unauthenticated users)
 Route::middleware('guest')->group(function () {
     Route::get('/', [PagesController::class, 'home'])->name('home');
@@ -34,23 +35,20 @@ Route::middleware('guest')->group(function () {
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::middleware('verified')->group(function () {
-
-    Route::get('/dashboard', function () {
-        if (auth()->user()->isAdmin()) {
-            return redirect()->route('admin');
-        } elseif (auth()->user()->isStudent()) {
-            return redirect()->route('elect');
-        } else {
-            abort(403, 'Unauthorized action.');
-        }
-    })->name('dashboard');
+        Route::get('/dashboard', function () {
+            if (auth()->user()->isAdmin()) {
+                return redirect()->route('admin');
+            } elseif (auth()->user()->isStudent()) {
+                return redirect()->route('elect');
+            } else {
+                abort(403, 'Unauthorized action.');
+            }
+        })->name('dashboard');
 
         Route::post('/send-test-email', [TestEmailController::class, 'send'])->name('send.test.email');
 
-        // Updated route for /elect to use VoteController::elect
         Route::get('/elect', [VoteController::class, 'elect'])->name('elect');
 
-        // Student-only route for votings.elect, also updated to use VoteController::elect
         Route::middleware('can:is-student')->group(function () {
             Route::get('/votings/elect', [VoteController::class, 'elect'])->name('votings.elect');
         });
@@ -70,20 +68,16 @@ Route::middleware('auth')->group(function () {
         })->name('userinfo');
     });
 
-    // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Reports Route
     Route::get('/reports', function () {
         return view('votings.reports');
     })->name('reports');
 
-    // Upload profile image
     Route::post('/student/upload-profile-image', [StudentController::class, 'uploadProfileImage'])->name('student.uploadProfileImage');
 
-    // Update contact number (for user info page)
     Route::post('/student/update-contact', [StudentController::class, 'updateContact'])->name('student.updateContact');
 
     // Admin-only Routes
@@ -92,7 +86,8 @@ Route::middleware('auth')->group(function () {
             $programs = Program::all();
             $partylists = Partylist::all();
             $candidates = Candidate::with(['program', 'partylist', 'position'])->get();
-            return view('votings.admin', compact('programs', 'partylists', 'candidates'));
+            $currentElection = \App\Http\Controllers\ElectionController::getOrCreateCurrentElection();
+            return view('votings.admin', compact('programs', 'partylists', 'candidates', 'currentElection'));
         })->name('admin');
 
         Route::resource('users', UserController::class)->names('users');
@@ -104,35 +99,33 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/fetch-students', [FileUploadController::class, 'fetchStudents'])->name('fetch.students');
 
-        // File Upload Routes
         Route::get('/upload', [FileUploadController::class, 'index'])->name('upload.index');
         Route::post('/upload', [FileUploadController::class, 'upload'])->name('upload.store');
 
-        // Candidates Management
         Route::resource('candidates', CandidateController::class)->names('candidates');
-
-        // Elections Management
         Route::resource('elections', ElectionController::class)->names('elections');
+        Route::get('/candidates/{candidate}/has-votes', [CandidateController::class, 'hasVotes'])->name('candidates.hasVotes');
 
-        // Election Subroutes (Admin)
+        // Election status routes
+        Route::post('/elections/{election}/open', [ElectionController::class, 'open'])->name('elections.open');
+        Route::post('/elections/{election}/close', [ElectionController::class, 'close'])->name('elections.close');
+
         Route::prefix('elections/{election}')->whereNumber('election')->group(function () {
-            Route::get('candidates/create', [ElectionCandidateController::class, 'create'])->name('elections.candidates.create');
-            Route::post('candidates', [ElectionCandidateController::class, 'store'])->name('elections.candidates.store');
-            Route::delete('candidates/{candidate}', [ElectionCandidateController::class, 'destroy'])
+            Route::get('/candidates/create', [ElectionCandidateController::class, 'create'])->name('elections.candidates.create');
+            Route::post('/candidates', [ElectionCandidateController::class, 'store'])->name('elections.candidates.store');
+            Route::delete('/candidates/{candidate}', [ElectionCandidateController::class, 'destroy'])
                 ->whereNumber('candidate')->name('elections.candidates.destroy');
 
-            Route::get('results', [ElectionResultController::class, 'show'])->name('votings.results.show');
-            Route::post('results', [ElectionResultController::class, 'update'])->name('votings.results.update');
+            Route::get('/results', [ElectionResultController::class, 'show'])->name('votings.results.show');
+            Route::post('/results', [ElectionResultController::class, 'update'])->name('votings.results.update');
         });
 
-        // Search for a student by ID (for Add Candidate modal AJAX)
-        Route::get('/students/search/{id}', [StudentController::class, 'search'])->middleware('can:is-admin');
+        Route::get('/students/search/{id}', [StudentController::class, 'search'])->name('students.search');
     });
 
-    // Voting Routes
     Route::prefix('elections/{election}')->whereNumber('election')->middleware('voter')->group(function () {
-        Route::get('vote', [VoteController::class, 'create'])->name('elections.vote.create');
-        Route::post('vote', [VoteController::class, 'store'])->name('elections.vote.store');
+        Route::get('/vote', [VoteController::class, 'create'])->name('elections.vote.create');
+        Route::post('/vote', [VoteController::class, 'store'])->name('elections.vote.store');
     });
 
     Route::post('/votes', [VoteController::class, 'store'])->name('votes.store');

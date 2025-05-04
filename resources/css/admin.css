@@ -2,39 +2,39 @@
 .page-container {
     width: 100%;
     min-height: 100vh;
-    position: relative; /* do this */
+    position: relative;
     align-items: center;
     background-color: #f7bd03;
     top: 0;
     left: 0;
-  }
-  
-  .content-wrapper {
-    display: flex; /*do this*/
+}
+
+.content-wrapper {
+    display: flex;
     flex-direction: column;
     position: relative;
-    min-height: 2300px; /* adjust lang ni depende unsa kataas ang needed sa page, so far mao ni sa admin */
+    min-height: 2300px;
     width: 100%;
     padding: 56px 80px;
     align-items: flex-start;
-  }
+}
 
-  @media (max-width: 991px) {
+@media (max-width: 991px) {
     .content-wrapper {
-      max-width: 100%;
-      padding: 56px 20px;
+        max-width: 100%;
+        padding: 56px 20px;
     }
-  }
+}
 
-  /* Background logo */
-  .background-logo {
-    position: fixed; /* do this */
+/* Background logo */
+.background-logo {
+    position: fixed;
     width: 100%;
     height: 100%;
     object-fit: cover;
     opacity: 0.5;
     mix-blend-mode: luminosity;
-  }
+}
 
 /* Header Title and Divider */
 body {
@@ -132,7 +132,7 @@ body {
 .admin-actions {
     display: flex;
     align-items: center;
-    gap: 20px; 
+    gap: 20px;
 }
 
 @media (max-width: 991px) {
@@ -160,7 +160,7 @@ body {
     }
 }
 
-/*School Year Dropdown */
+/* School Year Dropdown */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -168,8 +168,8 @@ body {
 
 .dropdown-menu {
     position: absolute;
-    top: -65px; 
-    left: calc(12px - 5px); 
+    top: -65px;
+    left: calc(12px - 5px);
     background: white;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -201,39 +201,33 @@ body {
     max-width: 330px;
     align-items: stretch;
     gap: 40px 100px;
-    font-family:
-      Inter,
-      -apple-system,
-      Roboto,
-      Helvetica,
-      sans-serif;
+    font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
     text-align: center;
     position: relative;
-  }
-  
-  .ballot-content {
+}
+
+.ballot-content {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-  }
-  
-  .candidate-section {
+}
+
+.candidate-section {
     padding-left: 13px;
     white-space: nowrap;
     position: relative;
     width: 100%;
-  }
-  
-  .position-title {
+}
+
+.position-title {
     color: #000;
     font-size: 25px;
     font-weight: 900;
     margin-left: 80px;
     text-align: left;
-  }
+}
 
-  
-  .more-options-button {
+.more-options-button {
     position: absolute;
     top: 10px;
     right: 5px;
@@ -241,14 +235,14 @@ body {
     border: none;
     padding: 0;
     cursor: pointer;
-  }
-
-  .more-options-button svg path {
-    fill: #FFFFFF; 
 }
 
-.more-options-button:hover svg path {
-    fill: #f7bd03; 
+.more-options-button svg circle {
+    fill: #FFFFFF;
+}
+
+.more-options-button:hover svg circle {
+    fill: #f7bd03;
 }
 
 .options-menu {
@@ -276,45 +270,45 @@ body {
     cursor: pointer;
     width: 100%;
     font-size: 11px;
+    color: #fff;
 }
 
 .option-button:hover {
     background: #f7bd03;
 }
 
-
 .candidate-grid {
     display: grid;
     flex-wrap: wrap;
     grid-template-columns: repeat(5, 200px);
-    gap: 50px;       
+    gap: 50px;
     margin-top: 20px;
-  }
-  
-  .candidate-card {    
-        display: flex;
-        gap: 50px;   
-        position: relative;
-        border-radius: 10px;
-        background-color: rgba(30, 30, 30, 0.71);
-        align-items: center;
-        margin-top: 13px;
-        padding: 10px 10px 20px 35px;
-        flex-direction: column;
-        font-size: 14px;
-        color: #fff;
-        font-weight: 600;
-        width: 210px;
-        height: 310px;
-        margin-left: 70px; 
-        margin-top: 20px;
-        margin-bottom: 50px;
-  }
-  
-  .add-candidate-button {
+}
+
+.candidate-card {
+    display: flex;
+    gap: 50px;
+    position: relative;
+    border-radius: 10px;
+    background-color: rgba(30, 30, 30, 0.71);
+    align-items: center;
+    margin-top: 13px;
+    padding: 10px 10px 20px 35px;
+    flex-direction: column;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 600;
     width: 210px;
     height: 310px;
-    border: 2px dashed black; 
+    margin-left: 70px;
+    margin-top: 20px;
+    margin-bottom: 50px;
+}
+
+.add-candidate-button {
+    width: 210px;
+    height: 310px;
+    border: 2px dashed black;
     background: none;
     border-radius: 10px;
     cursor: pointer;
@@ -324,65 +318,60 @@ body {
     margin-top: 20px;
     margin-bottom: 50px;
     margin-left: 80px;
-  }
-  
-  .add-icon {
+}
+
+.add-icon {
     width: 40px;
     height: 40px;
-  }
+}
 
-  .open-electionButton {
-    position: fixed;
-    width: 200px;
-    height: 45px;
-    padding: 12px;
-    border-radius: 8px;
-    color: black;
-    font-family: "Inter", sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    line-height: 100%;
-    cursor: pointer;
-    background-color:#f7bd03;
-    border: none;
-    text-align: center;
-    margin-top: 580px;
-    margin-left: 1150px;
-    border: 2px solid black;
-    transition: background-color 0.3s ease-in-out;
+.open-electionButton {
+    position: fixed !important;
+    width: 200px !important;
+    height: 45px !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+    color: black !important;
+    font-family: "Inter", sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    line-height: 100% !important;
+    cursor: pointer !important;
+    background-color: #f7bd03 !important;
+    border: 2px solid black !important;
+    text-align: center !important;
+    margin-top: 580px !important;
+    margin-left: 1150px !important;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border 0.3s ease-in-out !important;
 }
 
 .open-electionButton:hover {
-  background-color: black;
-  color: #f7bd03;
-  border: 2px solid white;
-
+    background-color: black !important;
+    color: #f7bd03 !important;
+    border: 2px solid white !important;
 }
 
 .open-electionButton.close-election {
     color: #f7bd03 !important;
-    background-color: black;
-    border: 2px solid white;
+    background-color: black !important;
+    border: 2px solid white !important;
 }
 
 .open-electionButton.close-election:hover {
-  color: black !important;
-  background-color: #f7bd03;
-  border: 2px solid black;
+    color: black !important;
+    background-color: #f7bd03 !important;
+    border: 2px solid black !important;
 }
 
-
 .modal {
-  z-index: 2000 !important;
+    z-index: 2000 !important;
 }
 
 .modal-backdrop {
-  z-index: 1990 !important;
+    z-index: 1990 !important;
 }
 
-  
-  
-  .candidate-figure {
+.candidate-figure {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -396,17 +385,17 @@ body {
     max-width: 100%;
     padding-right: 5px;
     margin-left: -15px;
-  }
+}
 
-  .candidate-image {
+.candidate-image {
     width: 600px;
     height: 600px;
     object-fit: cover;
     border-radius: 8px;
     aspect-ratio: 1/1;
-  }
-  
-  .candidate-details {
+}
+
+.candidate-details {
     text-align: center;
     font-size: 13px;
     line-height: 1.6;
@@ -414,17 +403,16 @@ body {
     width: 150%;
     max-width: 570px;
     padding: 0 10px;
+}
 
-  }
-
-  .candidate-name, .candidate-partylist {
+.candidate-name, .candidate-partylist {
     font-size: 15px;
     font-weight: 600;
     margin-top: 5px;
     margin-bottom: 5px;
-  }
+}
 
-  #imagePreview img {
+#imagePreview img {
     max-height: 150px;
     object-fit: cover;
-  }
+}
