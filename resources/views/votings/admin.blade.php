@@ -396,84 +396,6 @@
             const electionCloseUrl = "{{ route('elections.close', ['election' => $currentElection->election_id]) }}";
             const candidates = @json($candidates);
             let currentEditingCandidateId = null;
-            let currentPositionId = null; // To store the position ID for reopening addCandidateModal
-
-            // Helper function to store modal form data
-            function storeModalFormData(modalId) {
-                const modal = document.getElementById(modalId);
-                const formData = {};
-                const inputs = modal.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
-                    if (input.type === 'file') {
-                        formData[input.id] = input.files[0] || null;
-                    } else {
-                        formData[input.id] = input.value;
-                    }
-                });
-                return formData;
-            }
-
-            // Helper function to restore modal form data
-            function restoreModalFormData(modalId, formData) {
-                const modal = document.getElementById(modalId);
-                const inputs = modal.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
-                    if (input.id in formData) {
-                        if (input.type === 'file') {
-                            if (formData[input.id]) {
-                                const preview = modal.querySelector(`#${input.id === 'candidateImage' ? 'previewImg' : 'editPreviewImg'}`);
-                                if (preview && formData[input.id].dataUrl) {
-                                    preview.src = formData[input.id].dataUrl;
-                                    preview.classList.remove('d-none');
-                                }
-                            }
-                        } else {
-                            input.value = formData[input.id] || '';
-                        }
-                    }
-                });
-            }
-
-            // Helper function to reopen a modal
-            function reopenModal(modalId, options = {}) {
-                const modal = new bootstrap.Modal(document.getElementById(modalId));
-                if (modalId === 'addCandidateModal' && options.positionId) {
-                    const positionName = getPositionTitle(options.positionId);
-                    document.getElementById('candidatePosition').value = positionName;
-                    document.getElementById('addCandidateLabel').textContent = `Add Candidate for ${positionName}`;
-                }
-                if (modalId === 'editCandidateModal' && options.candidateId) {
-                    const candidate = candidates.find(c => c.candidate_id == options.candidateId);
-                    if (candidate) {
-                        document.getElementById('editCandidatePosition').value = candidate.position.position_name;
-                        document.getElementById('editCandidatePartylist').value = candidate.partylist_id;
-                        document.getElementById('editCandidateFirstName').value = candidate.first_name;
-                        document.getElementById('editCandidateLastName').value = candidate.last_name;
-                        document.getElementById('editCandidateMiddleName').value = candidate.middle_name;
-                        document.getElementById('editCandidateYearLevel').value = candidate.year_level;
-                        document.getElementById('editCandidateProgram').value = candidate.program_id;
-                        document.getElementById('editCandidatePlatform').value = candidate.platform || '';
-                        const previewImg = document.getElementById('editPreviewImg');
-                        if (candidate.image) {
-                            previewImg.src = '{{ asset('storage/') }}/' + candidate.image;
-                            previewImg.classList.remove('d-none');
-                        } else {
-                            previewImg.classList.add('d-none');
-                        }
-                    }
-                }
-                modal.show();
-            }
-
-            // Helper function to check if partylist is unique for a position
-            function checkPartylistUnique(positionId, partylistId, excludeCandidateId = null) {
-                const positionName = getPositionTitle(positionId);
-                const positionCandidates = candidates.filter(c =>
-                    c.position.position_name === positionName &&
-                    (excludeCandidateId == null || c.candidate_id != excludeCandidateId)
-                );
-                return !positionCandidates.some(c => c.partylist_id == partylistId);
-            }
 
             document.addEventListener("DOMContentLoaded", function () {
                 // Initialize existing candidates
@@ -507,7 +429,11 @@
                 function updateButtonState(status) {
                     electionStatus = status;
                     electionActionButton.innerHTML = `<strong>${status === 'Open' ? 'Close Election' : 'Open Election'}</strong>`;
-                    electionActionButton.classList.toggle('close-election', status === 'Open');
+                    if (status === 'Open') {
+                        electionActionButton.classList.add('close-election');
+                    } else {
+                        electionActionButton.classList.remove('close-election');
+                    }
                 }
 
                 // Initialize button state
@@ -524,8 +450,6 @@
 
                 // Handle confirm open election
                 document.getElementById('confirmOpenElection').addEventListener('click', function() {
-                    const previousStatus = electionStatus;
-                    updateButtonState('Open'); // Optimistically update UI
                     fetch(electionOpenUrl, {
                         method: 'POST',
                         headers: {
@@ -536,18 +460,16 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        openElectionModal.hide();
                         if (data.success) {
+                            updateButtonState('Open');
+                            openElectionModal.hide();
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
                                 text: data.message || 'Election opened successfully.',
                                 confirmButtonText: 'OK'
-                            }).then(() => {
-                                location.reload(); // Reload to sync with server state
                             });
                         } else {
-                            updateButtonState(previousStatus); // Revert on failure
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
@@ -558,8 +480,6 @@
                     })
                     .catch(error => {
                         console.error('Error opening election:', error);
-                        updateButtonState(previousStatus); // Revert on error
-                        openElectionModal.hide();
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
@@ -571,8 +491,6 @@
 
                 // Handle confirm close election
                 document.getElementById('confirmCloseElection').addEventListener('click', function() {
-                    const previousStatus = electionStatus;
-                    updateButtonState('Closed'); // Optimistically update UI
                     fetch(electionCloseUrl, {
                         method: 'POST',
                         headers: {
@@ -583,18 +501,16 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        closeElectionModal.hide();
                         if (data.success) {
+                            updateButtonState('Closed');
+                            closeElectionModal.hide();
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
                                 text: data.message || 'Election closed successfully.',
                                 confirmButtonText: 'OK'
-                            }).then(() => {
-                                location.reload(); // Reload to sync with server state
                             });
                         } else {
-                            updateButtonState(previousStatus); // Revert on failure
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
@@ -605,8 +521,6 @@
                     })
                     .catch(error => {
                         console.error('Error closing election:', error);
-                        updateButtonState(previousStatus); // Revert on error
-                        closeElectionModal.hide();
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
@@ -628,9 +542,11 @@
                     event.stopPropagation();
                     const card = this.closest('.candidate-card');
                     const menu = card.querySelector('.options-menu');
+                    // Close all other menus
                     document.querySelectorAll('.options-menu').forEach(m => {
                         if (m !== menu) m.classList.add('hidden');
                     });
+                    // Toggle the current menu
                     menu.classList.toggle('hidden');
                 }
 
@@ -750,21 +666,14 @@
                 addButtons.forEach(btn => {
                     btn.addEventListener('click', function () {
                         const targetId = btn.getAttribute('data-position');
-                        currentPositionId = targetId; // Store for reopening
                         const container = document.getElementById(targetId);
                         const currentCards = container.querySelectorAll('.candidate-card').length;
                         if (currentCards >= 2) {
-                            const addModal = bootstrap.Modal.getInstance(document.getElementById('addCandidateModal'));
-                            if (addModal) addModal.hide();
                             Swal.fire({
                                 icon: 'warning',
                                 title: 'Limit Reached',
                                 text: 'You can only add up to 2 candidates for this position.',
                                 confirmButtonText: 'OK'
-                            }).then(() => {
-                                if (addModal) {
-                                    reopenModal('addCandidateModal', { positionId: targetId });
-                                }
                             });
                             return;
                         }
@@ -873,6 +782,7 @@
                     const wrapper = document.createElement('div');
                     wrapper.innerHTML = cardHTML.trim();
                     const card = wrapper.firstElementChild;
+                    // Attach listeners to the new card
                     card.querySelector('.more-options-button').addEventListener('click', handleMoreOptionsClick);
                     card.querySelectorAll('.option-button').forEach(button => {
                         button.addEventListener('click', handleOptionButtonClick);
@@ -946,49 +856,23 @@
 
                 // Handle candidate addition
                 document.getElementById('saveCandidateBtn').addEventListener('click', function () {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
-                    const formDataStored = storeModalFormData('addCandidateModal');
-                    if (formDataStored.candidateImage) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            formDataStored.candidateImage.dataUrl = e.target.result;
-                        };
-                        reader.readAsDataURL(formDataStored.candidateImage);
-                    }
-
-                    const partylistId = document.getElementById("candidatePartylist").value;
-                    if (!checkPartylistUnique(currentPositionId, partylistId)) {
-                        modal.hide();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid Partylist',
-                            text: 'A candidate from this partylist is already running for this position.',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            reopenModal('addCandidateModal', { positionId: currentPositionId });
-                            restoreModalFormData('addCandidateModal', formDataStored);
-                        });
-                        return;
-                    }
-
+                    const platform = document.getElementById("candidatePlatform").value;
                     const formData = new FormData();
                     const imageFile = document.getElementById("candidateImage").files[0];
                     if (imageFile) {
                         formData.append('image', imageFile);
                     }
                     formData.append('position_id', getPositionId(document.getElementById("candidatePosition").value));
-                    formData.append('partylist_id', partylistId);
+                    formData.append('partylist_id', document.getElementById("candidatePartylist").value);
                     formData.append('first_name', document.getElementById("candidateFirstName").value);
                     formData.append('last_name', document.getElementById("candidateLastName").value);
                     formData.append('middle_name', document.getElementById("candidateMiddleName").value);
                     formData.append('year_level', document.getElementById("candidateYearLevel").value);
                     formData.append('program_id', document.getElementById("candidateProgram").value);
-                    formData.append('platform', document.getElementById("candidatePlatform").value);
+                    formData.append('platform', platform);
                     formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
-                    modal.hide();
-                    const backdrop = document.querySelector('.modal-backdrop');
-                    if (backdrop) backdrop.remove();
+                    const modal = bootstrap.Modal.getInstance(document.getElementById("addCandidateModal"));
 
                     fetch(candidateStoreUrl, {
                         method: "POST",
@@ -1000,75 +884,60 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            modal.hide();
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
                                 text: 'Candidate added successfully.',
-                                confirmButtonText: 'OK'
+                                confirmButtonText: 'OK',
+                                customClass: {
+                                    popup: 'swal2-popup-custom'
+                                }
                             }).then(() => {
                                 location.reload();
                             });
                         } else {
+                            modal.hide();
+                            // Remove modal backdrop to prevent overlap
+                            const backdrop = document.querySelector('.modal-backdrop');
+                            if (backdrop) backdrop.remove();
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
                                 text: 'Failed to add candidate: ' + (data.message || 'Unknown error'),
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                reopenModal('addCandidateModal', { positionId: currentPositionId });
-                                restoreModalFormData('addCandidateModal', formDataStored);
+                                confirmButtonText: 'OK',
+                                customClass: {
+                                    popup: 'swal2-popup-custom'
+                                }
                             });
                         }
                     })
                     .catch(error => {
                         console.error("Error submitting candidate:", error);
+                        modal.hide();
+                        // Remove modal backdrop to prevent overlap
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) backdrop.remove();
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
                             text: 'Error submitting candidate: ' + (error.message || 'Unknown error'),
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            reopenModal('addCandidateModal', { positionId: currentPositionId });
-                            restoreModalFormData('addCandidateModal', formDataStored);
+                            confirmButtonText: 'OK',
+                            customClass: {
+                                popup: 'swal2-popup-custom'
+                            }
                         });
                     });
                 });
 
                 // Handle update candidate
                 document.getElementById('updateCandidateBtn').addEventListener('click', function () {
-                    const modal = bootstrap.Modal.getInstance(document.getElementById("editCandidateModal"));
-                    const formDataStored = storeModalFormData('editCandidateModal');
-                    if (formDataStored.editCandidateImage) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            formDataStored.editCandidateImage.dataUrl = e.target.result;
-                        };
-                        reader.readAsDataURL(formDataStored.editCandidateImage);
-                    }
-
-                    const partylistId = document.getElementById("editCandidatePartylist").value;
-                    const positionName = document.getElementById("editCandidatePosition").value;
-                    const positionId = getPositionContainerId(positionName);
-                    if (!checkPartylistUnique(positionId, partylistId, currentEditingCandidateId)) {
-                        modal.hide();
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Invalid Partylist',
-                            text: 'A candidate from this partylist is already running for this position.',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            reopenModal('editCandidateModal', { candidateId: currentEditingCandidateId });
-                            restoreModalFormData('editCandidateModal', formDataStored);
-                        });
-                        return;
-                    }
-
                     const formData = new FormData();
                     const imageFile = document.getElementById("editCandidateImage").files[0];
                     if (imageFile) {
                         formData.append('image', imageFile);
                     }
-                    formData.append('partylist_id', partylistId);
+                    formData.append('partylist_id', document.getElementById("editCandidatePartylist").value);
                     formData.append('first_name', document.getElementById("editCandidateFirstName").value);
                     formData.append('last_name', document.getElementById("editCandidateLastName").value);
                     formData.append('middle_name', document.getElementById("editCandidateMiddleName").value);
@@ -1077,10 +946,6 @@
                     formData.append('platform', document.getElementById("editCandidatePlatform").value);
                     formData.append('_method', 'PUT');
                     formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
-
-                    modal.hide();
-                    const backdrop = document.querySelector('.modal-backdrop');
-                    if (backdrop) backdrop.remove();
 
                     fetch(`/candidates/${currentEditingCandidateId}`, {
                         method: 'POST',
@@ -1092,6 +957,8 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById("editCandidateModal"));
+                            modal.hide();
                             Swal.fire({
                                 icon: 'success',
                                 title: 'Success',
@@ -1106,9 +973,6 @@
                                 title: 'Error',
                                 text: 'Failed to update candidate: ' + (data.message || 'Unknown error'),
                                 confirmButtonText: 'OK'
-                            }).then(() => {
-                                reopenModal('editCandidateModal', { candidateId: currentEditingCandidateId });
-                                restoreModalFormData('editCandidateModal', formDataStored);
                             });
                         }
                     })
@@ -1119,9 +983,6 @@
                             title: 'Error',
                             text: 'Error updating candidate: ' + (error.message || 'Unknown error'),
                             confirmButtonText: 'OK'
-                        }).then(() => {
-                            reopenModal('editCandidateModal', { candidateId: currentEditingCandidateId });
-                            restoreModalFormData('editCandidateModal', formDataStored);
                         });
                     });
                 });
@@ -1166,26 +1027,12 @@
 
                 searchStudentBtn.addEventListener('click', function() {
                     const studentId = studentIdInput.value.trim();
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('addCandidateModal'));
-                    const formDataStored = storeModalFormData('addCandidateModal');
-                    if (formDataStored.candidateImage) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            formDataStored.candidateImage.dataUrl = e.target.result;
-                        };
-                        reader.readAsDataURL(formDataStored.candidateImage);
-                    }
-
                     if (!studentId) {
-                        modal.hide();
                         Swal.fire({
                             icon: 'warning',
                             title: 'Input Required',
                             text: 'Please enter a Student ID.',
                             confirmButtonText: 'OK'
-                        }).then(() => {
-                            reopenModal('addCandidateModal', { positionId: currentPositionId });
-                            restoreModalFormData('addCandidateModal', formDataStored);
                         });
                         return;
                     }
@@ -1199,7 +1046,6 @@
                                 document.getElementById('candidateImage').disabled = false;
                                 document.getElementById('candidatePlatform').readOnly = false;
                             } else {
-                                modal.hide();
                                 setCandidateFields({}, true);
                                 studentSearchFeedback.textContent = 'Student not found.';
                                 studentSearchFeedback.classList.remove('d-none');
@@ -1211,14 +1057,10 @@
                                     title: 'Not Found',
                                     text: 'Student not found.',
                                     confirmButtonText: 'OK'
-                                }).then(() => {
-                                    reopenModal('addCandidateModal', { positionId: currentPositionId });
-                                    restoreModalFormData('addCandidateModal', formDataStored);
                                 });
                             }
                         })
                         .catch(() => {
-                            modal.hide();
                             setCandidateFields({}, true);
                             studentSearchFeedback.textContent = 'Error searching student.';
                             studentSearchFeedback.classList.remove('d-none');
@@ -1230,9 +1072,6 @@
                                 title: 'Error',
                                 text: 'Error searching student.',
                                 confirmButtonText: 'OK'
-                            }).then(() => {
-                                reopenModal('addCandidateModal', { positionId: currentPositionId });
-                                restoreModalFormData('addCandidateModal', formDataStored);
                             });
                         });
                 });

@@ -2,6 +2,11 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
 export default defineConfig({
+    // server: {
+    //     host: '192.168.137.1',
+    //     port: 5173,
+    //     strictPort: true
+    // },
     plugins: [
         laravel({
             input: [
@@ -11,7 +16,7 @@ export default defineConfig({
                 'resources/css/eligibility.css',
                 'resources/css/about.css',
                 'resources/css/contact.css',
-                'resources/css/login.css',
+                'resources/css/logIn.css',
                 'resources/css/registration.css',
                 'resources/js/app.js',
                 'resources/js/topbar.js',

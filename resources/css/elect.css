@@ -1,11 +1,9 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
-
 .page-container {
     width: 100%;
     min-height: 100vh;
-    position: fixed;
+    position: relative;
     align-items: center;
     background-color: #f7bd03;
     top: 0;
