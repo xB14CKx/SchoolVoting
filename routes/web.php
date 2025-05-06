@@ -18,7 +18,6 @@ use App\Models\Candidate;
 use App\Models\User;
 use App\Models\Student;
 
-
 // Guest Routes (unauthenticated users)
 Route::middleware('guest')->group(function () {
     Route::get('/', [PagesController::class, 'home'])->name('home');
@@ -34,6 +33,8 @@ Route::middleware('guest')->group(function () {
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
+    Route::get('/vote-counting', [App\Http\Controllers\VoteController::class, 'voteCountingPage'])->name('vote-counting');
+
     Route::middleware('verified')->group(function () {
         Route::get('/dashboard', function () {
             if (auth()->user()->isAdmin()) {
@@ -56,10 +57,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/result', function () {
             return view('votings.result');
         })->name('result');
-
-        Route::get('/vote-counting', function () {
-            return view('votings.vote-counting');
-        })->name('vote-counting');
 
         Route::get('/userinfo', function () {
             $user = auth()->user();
