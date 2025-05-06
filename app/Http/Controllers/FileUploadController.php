@@ -6,23 +6,13 @@ use App\Models\Student;
 use App\Models\Program;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\StudentsImport;
 use Illuminate\Support\Facades\Log;
 
 class FileUploadController extends Controller
 {
-    private $programAbbreviations = [
-        'BSIT' => 'BS in Information Technology',
-        'BSCS' => 'BS in Computer Science',
-        'BSIS' => 'BS in Information Systems',
-        'BLIS' => 'Bachelor of Library and Information Science',
-        'BSEMC-Dig' => 'BS in Entertainment and Multimedia Computing – Digital Animation',
-        'BSEMC-Gam' => 'BS in Entertainment and Multimedia Computing – Game Development',
-        'BMA' => 'Bachelor of Multimedia Arts',
-    ];
-
     public function index()
     {
         return view('votings.file-upload');
@@ -40,113 +30,25 @@ class FileUploadController extends Controller
 
         try {
             $file = $request->file('file');
-            $spreadsheet = IOFactory::load($file->getRealPath());
-            $worksheet = $spreadsheet->getActiveSheet();
-            $rows = $worksheet->toArray();
+            $importer = new StudentsImport();
+            $result = Excel::toCollection($importer, $file)->first();
 
-            $studentsToInsert = [];
-            $studentsForResponse = [];
-            $skipped = 0;
-            $added = 0;
-
-            $programs = Program::all()->keyBy('program_name');
-            $dataRows = array_slice($rows, 1);
-            $emails = array_filter(array_map(fn($row) => $row[4] ?? '', $dataRows));
-            $existingEmails = Student::whereIn('email', $emails)->pluck('email')->toArray();
-
-            foreach ($dataRows as $index => $row) {
-                $id = $row[0] ?? null;
-                $email = $row[4] ?? '';
-                $programCode = $row[5] ?? '';
-                $dob = $row[8] ?? null;
-                $sex = $row[9] ?? null;
-
-                if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) || empty($id) || !is_numeric($id)) {
-                    Log::warning('Skipped row due to invalid data', ['row' => $index + 2, 'id' => $id, 'email' => $email]);
-                    $skipped++;
-                    continue;
-                }
-
-                $formattedDob = null;
-                try {
-                    Log::debug('Raw DOB value:', ['row' => $index + 2, 'dob' => $dob]);
-
-                    if (is_numeric($dob)) {
-                        $date = Date::excelToDateTimeObject($dob);
-                    } elseif (preg_match('/^\=DATE\((\d+),\s*(\d+),\s*(\d+)\)$/i', $dob, $matches)) {
-                        $year = (int)$matches[1];
-                        $month = (int)$matches[2];
-                        $day = (int)$matches[3];
-                        $date = new \DateTime();
-                        $date->setDate($year, $month, $day);
-                    } else {
-                        $date = \DateTime::createFromFormat('m/d/Y', $dob)
-                            ?: \DateTime::createFromFormat('d/m/Y', $dob)
-                            ?: new \DateTime($dob);
-                    }
-
-                    $currentDate = new \DateTime();
-                    $minDate = new \DateTime('1900-01-01');
-                    if ($date > $currentDate || $date < $minDate) {
-                        Log::warning('Skipped row due to invalid date range', ['row' => $index + 2, 'dob' => $dob]);
-                        $skipped++;
-                        continue;
-                    }
-
-                    $formattedDob = $date->format('Y-m-d');
-                } catch (\Exception $e) {
-                    Log::warning('Skipped row due to DOB parse failure', ['row' => $index + 2, 'dob' => $dob, 'error' => $e->getMessage()]);
-                    $skipped++;
-                    continue;
-                }
-
-                $programName = $this->programAbbreviations[$programCode] ?? $programCode;
-                $program = $programs[$programName] ?? null;
-                if (!$program) {
-                    Log::warning('Skipped row due to unrecognized program', ['row' => $index + 2, 'program_code' => $programCode]);
-                    $skipped++;
-                    continue;
-                }
-
-                if (in_array($email, $existingEmails)) {
-                    Log::warning('Skipped row due to duplicate email', ['row' => $index + 2, 'email' => $email]);
-                    $skipped++;
-                    continue;
-                }
-
-                $studentData = [
-                    'id' => $id,
-                    'first_name' => $row[1] ?? '',
-                    'middle_name' => !empty($row[2]) ? $row[2] : null,
-                    'last_name' => $row[3] ?? '',
-                    'email' => $email,
-                    'program_id' => $program->program_id,
-                    'year_level' => $row[6] ?? '',
-                    'contact_number' => $row[7] ?? '',
-                    'date_of_birth' => $formattedDob,
-                    'sex' => $sex,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-
-                $studentsToInsert[] = $studentData;
-
-                $studentsForResponse[] = [
-                    'id' => $studentData['id'],
-                    'name' => $studentData['first_name'] . ' ' . ($studentData['middle_name'] ? $studentData['middle_name'] . ' ' : '') . $studentData['last_name'],
-                    'email' => $studentData['email'],
-                    'program_name' => $program->program_name,
-                    'year_level' => $studentData['year_level'],
-                    'contact_number' => $studentData['contact_number'],
-                    'date_of_birth' => $studentData['date_of_birth'],
-                    'sex' => $sex,
-                ];
+            if (empty($result)) {
+                Log::error('No data found in the uploaded file');
+                return response()->json(['message' => 'No data found in the uploaded file'], 422);
             }
 
-            if (!empty($studentsToInsert)) {
-                Student::insert($studentsToInsert);
-                $added = count($studentsToInsert);
-            }
+            $result = $importer->collection($result);
+
+            $studentsForResponse = $result['studentsForResponse'];
+            $added = $result['added'];
+            $skipped = $result['skipped'];
+
+            Log::info('Upload processing complete', [
+                'added' => $added,
+                'skipped' => $skipped,
+                'total_processed' => $added + $skipped,
+            ]);
 
             $path = $file->store('uploads');
 
@@ -182,6 +84,7 @@ class FileUploadController extends Controller
                 'file_path' => $path,
             ]);
         } catch (\Exception $e) {
+            Log::error('Error processing file', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return response()->json(['message' => 'Error processing file: ' . $e->getMessage()], 500);
         }
     }
