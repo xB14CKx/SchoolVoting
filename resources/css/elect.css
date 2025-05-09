@@ -1,5 +1,6 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
 
+/* Page container */
 .page-container {
     width: 100%;
     min-height: 100vh;
@@ -12,22 +13,12 @@
 
 .content-wrapper {
     display: flex;
-    /*do this*/
     flex-direction: column;
     position: relative;
     min-height: 831px;
     width: 100%;
     padding: 56px 80px;
     align-items: flex-start;
-
-}
-
-
-@media (max-width: 991px) {
-    .content-wrapper {
-        max-width: 100%;
-        padding: 56px 20px;
-    }
 }
 
 /* Background logo */
@@ -109,11 +100,11 @@ body {
 }
 
 .action-button:hover .chevron-icon path {
-    stroke: #4B2E2E !important;
+    stroke: #4B2E2E;
 }
 
 .action-button:hover .button-text {
-    color: #4B2E2E !important;
+    color: #4B2E2E;
 }
 
 .school-year-text {
@@ -139,35 +130,7 @@ body {
     gap: 20px;
 }
 
-@media (max-width: 991px) {
-    .elect-container {
-        width: 90%;
-        padding-top: 40px;
-    }
-
-    .elect-title {
-        font-size: 32px;
-    }
-}
-
-@media (max-width: 640px) {
-    .elect-container {
-        width: 95%;
-        padding-top: 30px;
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .elect-title {
-        font-size: 28px;
-    }
-
-    .school-year-wrapper {
-        margin-top: 8px;
-    }
-}
-
-/*School Year Dropdown */
+/* School Year Dropdown */
 .dropdown {
     position: relative;
     display: inline-block;
@@ -211,7 +174,6 @@ body {
     gap: 20px;
     padding: 20px;
     display: block;
-
 }
 
 .position-wrapper {
@@ -231,8 +193,8 @@ body {
     height: 380px;
     margin-left: 70px;
     margin-top: 10px;
-
 }
+
 .candidate-grid {
     display: flex;
     gap: 2rem;
@@ -263,15 +225,15 @@ body {
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 5px;
-    margin-top:-5px;
+    margin-top: -5px;
 }
 
 .modal {
-    z-index: 2000 !important;
+    z-index: 2000;
 }
 
 .modal-backdrop {
-    z-index: 1990 !important;
+    z-index: 1990;
 }
 
 .role-label {
@@ -297,7 +259,6 @@ body {
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
     margin-top: 7px;
-
 }
 
 .vote-button:hover {
@@ -306,29 +267,31 @@ body {
 
 .vote-button.btn-disabled,
 .vote-button:disabled {
-    background-color: #cccccc !important;
-    color: #888888 !important;
-    cursor: not-allowed !important;
+    background-color: #cccccc;
+    color: #888888;
+    cursor: not-allowed;
     pointer-events: none;
     border: none;
     opacity: 0.7;
 }
+
 .vote-button.btn-disabled:hover,
 .vote-button:disabled:hover {
-    background-color: #cccccc !important;
-    color: #888888 !important;
+    background-color: #cccccc;
+    color: #888888;
 }
 
 /* Cancel button: black background, gold on hover */
 .vote-button.btn-cancel,
 .vote-button.btn-cancel:active {
-    background-color: #000 !important;
-    color: #fff !important;
+    background-color: #000;
+    color: #fff;
     border: none;
 }
+
 .vote-button.btn-cancel:hover {
-    background-color: #f7bd03 !important;
-    color: #000 !important;
+    background-color: #f7bd03;
+    color: #000;
 }
 
 .submit-voteButton {
@@ -352,24 +315,7 @@ body {
 }
 
 .submit-voteButton:hover {
-    background-color: #1B1F3B !important;
-}
-
-@media (max-width: 991px) {
-    .submit-vote-button {
-        width: 160px;
-        height: 38px;
-        font-size: 15px;
-    }
-}
-
-@media (max-width: 640px) {
-    .submit-vote-button {
-        width: 140px;
-        height: 36px;
-        font-size: 14px;
-        padding: 10px;
-    }
+    background-color: #1B1F3B;
 }
 
 #voteReviewModal .modal-dialog {
@@ -400,7 +346,7 @@ body {
 .vote-review-position {
     color: #f7bd03;
     letter-spacing: 0.5px;
-    font-size: 20px !important;
+    font-size: 20px;
 }
 
 .vote-review-candidate {
@@ -421,7 +367,6 @@ body {
     display: flex;
     margin-top: 20px;
 }
-
 
 .info-button {
     position: absolute;
@@ -480,7 +425,6 @@ body {
 /* Update Modal Styling */
 .modal {
     z-index: 1050;
-    /* Ensure modal is above other content */
 }
 
 .modal-content {
@@ -497,3 +441,147 @@ body {
     background-color: #fff;
 }
 
+/* Mobile-specific responsive styles */
+@media (max-width: 991px) {
+    .content-wrapper {
+        padding: 24px 16px;
+        max-width: 100%;
+    }
+
+    .elect-container {
+        width: 100%;
+        padding: 24px 16px;
+    }
+
+    .elect-header {
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .elect-title {
+        font-size: clamp(24px, 5vw, 28px);
+        margin: 0 0 8px 0;
+        white-space: normal;
+    }
+
+    .school-year-wrapper {
+        font-size: clamp(14px, 2.5vw, 15px);
+        margin-top: 8px;
+    }
+
+    .action-button {
+        margin: 0;
+        padding: 8px;
+    }
+
+    .button-text {
+        font-size: clamp(14px, 2.5vw, 15px);
+    }
+
+    .chevron-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .elect-divider {
+        width: 100%;
+        margin: 16px 0;
+        margin-left: 0;
+    }
+
+    .dropdown-menu {
+        top: 100%;
+        left: 0;
+        width: 140px;
+    }
+
+    .candidate-figure {
+        width: 200px;
+        min-height: 340px; /* Changed from height to min-height */
+        margin-left: 0;
+        padding: 16px;
+    }
+
+    .profile-image {
+        width: 140px;
+        height: 140px;
+    }
+
+    .candidate-details {
+        font-size: 13px;
+    }
+
+    .candidate-name,
+    .candidate-partylist {
+        font-size: 14px;
+    }
+
+    .submit-voteButton {
+        bottom: 24px;
+        right: 24px;
+        width: 140px;
+        height: 36px;
+        font-size: 13px;
+        margin: 0;
+        position: fixed;
+    }
+}
+
+@media (max-width: 640px) {
+    .content-wrapper {
+        padding: 16px 12px;
+    }
+
+    .elect-container {
+        padding: 16px 12px;
+    }
+
+    .elect-title {
+        font-size: 20px;
+    }
+
+    .school-year-wrapper {
+        font-size: 13px;
+    }
+
+    .button-text {
+        font-size: 13px;
+    }
+
+    .chevron-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .dropdown-menu {
+        width: 120px;
+    }
+
+    .candidate-figure {
+        width: 180px;
+        min-height: 300px; /* Changed from height to min-height */
+        padding: 12px;
+    }
+
+    .profile-image {
+        width: 120px;
+        height: 120px;
+    }
+
+    .candidate-details {
+        font-size: 12px;
+    }
+
+    .candidate-name,
+    .candidate-partylist {
+        font-size: 13px;
+    }
+
+    .submit-voteButton {
+        width: 120px;
+        height: 32px;
+        font-size: 12px;
+        bottom: 16px;
+        right: 16px;
+    }
+}

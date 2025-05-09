@@ -24,13 +24,6 @@ body {
     align-items: flex-start;
 }
 
-@media (max-width: 991px) {
-    .content-wrapper {
-        max-width: 100%;
-        padding: 56px 20px;
-    }
-}
-
 .background-image {
     position: fixed;
     width: 100%;
@@ -61,7 +54,6 @@ body {
     opacity: 1;
     margin-bottom: 14px;
     margin-left: 70px;
-
 }
 
 .position-title {
@@ -73,14 +65,8 @@ body {
     margin-left: 70px;
     margin-bottom: 10px;
     margin-top: 30px;
-    letter-spacing  : 0.5px;
+    letter-spacing: 0.5px;
     text-transform: none;
-}
-
-@media (max-width: 991px) {
-    .position-title {
-        margin-left: 10px;
-    }
 }
 
 .candidate-row {
@@ -97,12 +83,6 @@ body {
     margin-left: 70px;
     align-items: stretch;
     gap: 2px;
-}
-
-@media (max-width: 991px) {
-    .candidate-comparison {
-        margin-left: 10px;
-    }
 }
 
 .candidates-wrapper {
@@ -196,4 +176,111 @@ body {
     color: rgba(0, 0, 0, 1);
     font-family: Inter, -apple-system, Roboto, Helvetica, sans-serif;
     text-align: center;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 767px) {
+    .content-wrapper {
+        max-width: 100%;
+        padding: 24px 16px;
+    }
+
+    .title {
+        font-size: 24px;
+        margin-left: 8px;
+        white-space: normal;
+    }
+
+    .divider {
+        width: calc(100% - 16px);
+        margin-left: 8px;
+    }
+
+    .position-title {
+        font-size: 20px;
+        margin-left: 8px;
+    }
+
+    .candidate-comparison {
+        margin-left: 8px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .candidates-wrapper {
+        width: 100%;
+        gap: 24px;
+    }
+
+    .candidate-row {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .candidate-details {
+        padding-left: 8px;
+        text-align: left;
+    }
+
+    .candidate-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 12px;
+    }
+
+    .progress-wrapper {
+        max-width: 100%;
+        height: 18px;
+    }
+
+    .progress-percentage {
+        font-size: 12px;
+    }
+
+    .vote-count {
+        font-size: 14px;
+        margin-left: 8px;
+        min-width: 48px;
+    }
+
+    .candidate-name {
+        font-size: 12px;
+        margin-left: 0;
+        text-align: left;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-wrapper {
+        padding: 16px 12px;
+    }
+
+    .title {
+        font-size: 20px;
+    }
+
+    .position-title {
+        font-size: 18px;
+    }
+
+    .candidate-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .progress-wrapper {
+        height: 16px;
+    }
+
+    .progress-percentage {
+        font-size: 11px;
+    }
+
+    .vote-count {
+        font-size: 13px;
+    }
+
+    .candidate-name {
+        font-size: 11px;
+    }
 }

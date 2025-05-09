@@ -16,8 +16,8 @@
 
 .sidebar-content {
     display: flex;
-    width: 115%;
-    padding: 20px 19px 493px;
+    width: 100%; /* Fixed to fit within sidebar */
+    padding: 20px 19px;
     flex-direction: column;
     align-items: center;
 }
@@ -25,17 +25,16 @@
 .logo {
     object-fit: contain;
     object-position: center;
-    width: 150px;
+    width: 60px; /* Reduced for better fit */
     height: 74px;
-    margin-right: 15px;
-    overflow: hidden;
+    margin-right: 0; /* Adjusted for centering */
 }
 
 .largesb-icon {
     color: white;
     font-size: 25px;
     margin-top: 22px;
-    margin-right: 20px;
+    margin-right: 0;
     margin-bottom: -10px;
     transition: color 0.2s ease;
 }
@@ -48,7 +47,7 @@
     color: white;
     font-size: 25px;
     margin-top: 80px;
-    margin-right: 20px;
+    margin-right: 0;
     margin-bottom: -10px;
     transition: color 0.2s ease;
 }
@@ -61,7 +60,7 @@
     color: white;
     font-size: 25px;
     margin-top: 80px;
-    margin-right: 20px;
+    margin-right: 0;
     margin-bottom: -10px;
     transition: color 0.2s ease;
 }
@@ -73,7 +72,7 @@
 .count-icon {
     font-size: 25px;
     color: white;
-    margin-right: 20px;
+    margin-right: 0;
     margin-top: 50px;
     margin-bottom: -10px;
     transition: color 0.2s ease;
@@ -86,7 +85,7 @@
 .result-icon {
     font-size: 25px;
     color: white;
-    margin-right: 20px;
+    margin-right: 0;
     margin-top: 50px;
     margin-bottom: -10px;
     transition: color 0.2s ease;
@@ -99,7 +98,7 @@
 .reports-icon {
     font-size: 25px;
     color: white;
-    margin-right: 20px;
+    margin-right: 0;
     margin-top: 50px;
     margin-bottom: -10px;
     transition: color 0.2s ease;
@@ -112,7 +111,7 @@
 .upload-icon {
     font-size: 25px;
     color: white;
-    margin-right: 20px;
+    margin-right: 0;
     margin-top: 50px;
     transition: color 0.2s ease;
 }
@@ -124,7 +123,7 @@
 .user-icon {
     font-size: 25px;
     color: white;
-    margin-right: 20px;
+    margin-right: 0;
     margin-top: 50px;
     margin-bottom: -10px;
     transition: color 0.2s ease;
@@ -137,7 +136,7 @@
 .logout-icon {
     color: white;
     font-size: 25px;
-    margin-right: 25px;
+    margin-right: 0;
     margin-top: 100px;
 }
 
@@ -148,10 +147,64 @@
 .logout-user-icon {
     color: white;
     font-size: 25px;
-    margin-right: 25px;
+    margin-right: 0;
     margin-top: 150px;
 }
 
 .logout-user-icon:hover {
     color: #ffd700;
+}
+
+/* Responsive styles for mobile */
+@media (max-width: 991px) {
+    .sidebar-small {
+        width: 60px; /* Reduced width for tablets */
+    }
+
+    .logo {
+        width: 50px;
+        height: 60px;
+    }
+
+    .largesb-icon,
+    .admin-icon,
+    .heart-icon,
+    .count-icon,
+    .result-icon,
+    .reports-icon,
+    .upload-icon,
+    .user-icon,
+    .logout-icon,
+    .logout-user-icon {
+        font-size: 20px; /* Smaller icons for better fit */
+    }
+}
+
+@media (max-width: 640px) {
+    .sidebar-small {
+        width: 50px; /* Further reduced width for mobile */
+    }
+
+    .logo {
+        width: 40px;
+        height: 50px;
+    }
+
+    .sidebar-content {
+        padding: 15px 10px; /* Reduced padding */
+    }
+
+    .largesb-icon,
+    .admin-icon,
+    .heart-icon,
+    .count-icon,
+    .result-icon,
+    .reports-icon,
+    .upload-icon,
+    .user-icon,
+    .logout-icon,
+    .logout-user-icon {
+        font-size: 18px;
+        margin-top: 30px; /* Reduced spacing */
+    }
 }
