@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Candidate;
 use App\Models\Partylist;
 use App\Models\Program;
+use App\Models\Election;
 use App\Http\Controllers\ElectionController;
 
 class CandidateController extends Controller
@@ -293,5 +294,45 @@ class CandidateController extends Controller
             ->get();
 
         return view('votings.elect', compact('candidates'));
+    }
+
+    // Fetch candidates by year for the admin page
+    public function getByYear($year)
+    {
+        try {
+            // Find the election for the specified year
+            $election = Election::where('year', $year)->first();
+
+            if (!$election) {
+                Log::warning("Election not found for year: {$year}");
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Election not found for the selected year.'
+                ], 404);
+            }
+
+            // Fetch candidates associated with the election
+            $candidates = Candidate::whereHas('elections', function ($query) use ($election) {
+                $query->where('election_candidates.election_id', $election->election_id);
+            })
+            ->with(['position', 'program', 'partylist'])
+            ->get();
+
+            Log::info("Fetched candidates for year {$year}:", $candidates->toArray());
+
+            return response()->json([
+                'success' => true,
+                'candidates' => $candidates
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching candidates by year: ' . $e->getMessage(), [
+                'year' => $year,
+                'exception' => $e->getTraceAsString()
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching candidates: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

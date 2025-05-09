@@ -392,6 +392,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             const candidateStoreUrl = "{{ route('candidates.store') }}";
+            const candidatesByYearUrl = "{{ route('candidates.byYear', ['year' => ':year']) }}";
             const electionOpenUrl = "{{ route('elections.open', ['election' => $currentElection->election_id]) }}";
             const electionCloseUrl = "{{ route('elections.close', ['election' => $currentElection->election_id]) }}";
             const candidates = @json($candidates);
@@ -829,6 +830,72 @@
                     return map[positionName] || null;
                 }
 
+                // Function to clear all candidate grids
+                function clearCandidateGrids() {
+                    const grids = [
+                        'presidentCandidates',
+                        'vicePresidentCandidates',
+                        'secretaryCandidates',
+                        'treasurerCandidates',
+                        'auditorCandidates',
+                        'PIOCandidates',
+                        'businessManagerCandidates'
+                    ];
+                    grids.forEach(gridId => {
+                        const container = document.getElementById(gridId);
+                        const addButton = container.querySelector('.add-candidate-button');
+                        container.innerHTML = '';
+                        container.appendChild(addButton);
+                        checkCardLimit(gridId);
+                    });
+                }
+
+                // Function to fetch candidates by year and update grids
+                function fetchCandidatesByYear(year) {
+                    const url = candidatesByYearUrl.replace(':year', year);
+                    fetch(url, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            clearCandidateGrids();
+                            candidates.length = 0; // Clear the candidates array
+                            data.candidates.forEach(candidate => {
+                                candidates.push(candidate); // Update the candidates array
+                                const container = document.getElementById(getPositionContainerId(candidate.position.position_name));
+                                if (container) {
+                                    const card = createCandidateCard(candidate);
+                                    container.insertBefore(card, container.querySelector('.add-candidate-button'));
+                                }
+                            });
+                            positionIds.forEach(id => checkCardLimit(id));
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'No candidates found for the selected year.',
+                                confirmButtonText: 'OK'
+                            });
+                            clearCandidateGrids();
+                            candidates.length = 0; // Clear the candidates array
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching candidates:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error fetching candidates: ' + (error.message || 'Unknown error'),
+                            confirmButtonText: 'OK'
+                        });
+                        clearCandidateGrids();
+                        candidates.length = 0; // Clear the candidates array
+                    });
+                }
+
                 // School Year Dropdown
                 const dropdownButton = document.getElementById("yearDropdownButton");
                 const dropdownMenu = document.getElementById("yearDropdown");
@@ -839,6 +906,7 @@
                     listItem.addEventListener("click", function () {
                         dropdownButton.querySelector(".button-text").textContent = `School Year ${year}`;
                         dropdownMenu.classList.remove("show");
+                        fetchCandidatesByYear(year);
                     });
                     dropdownMenu.appendChild(listItem);
                 }
@@ -894,7 +962,9 @@
                                     popup: 'swal2-popup-custom'
                                 }
                             }).then(() => {
-                                location.reload();
+                                // Fetch candidates for the current year after adding a new candidate
+                                const currentYear = dropdownButton.querySelector(".button-text").textContent.replace('School Year ', '');
+                                fetchCandidatesByYear(currentYear);
                             });
                         } else {
                             modal.hide();
@@ -965,7 +1035,9 @@
                                 text: 'Candidate updated successfully.',
                                 confirmButtonText: 'OK'
                             }).then(() => {
-                                location.reload();
+                                // Fetch candidates for the current year after updating a candidate
+                                const currentYear = dropdownButton.querySelector(".button-text").textContent.replace('School Year ', '');
+                                fetchCandidatesByYear(currentYear);
                             });
                         } else {
                             Swal.fire({

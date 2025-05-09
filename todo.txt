@@ -4,3 +4,21 @@ create imports for excel file to database
 population of data from excel to db students
 
 query using database
+
+
+
+When running system for real time check the following:
+
+    -.env, change the ip addresses you see
+    - config/reverb.php, same process above
+    - vite.config.js same process above
+
+Use these commands in terminal
+
+    - php artisan serve --host=Current IPV4 Address
+    - npm run dev
+    - php artisan reverb:start --host=Current IPV4 Address --port=8080
+    - php artisan queue:work
+
+
+

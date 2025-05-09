@@ -107,6 +107,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/elections/{election}/open', [ElectionController::class, 'open'])->name('elections.open');
         Route::post('/elections/{election}/close', [ElectionController::class, 'close'])->name('elections.close');
 
+        // New route for fetching candidates by year
+        Route::get('/candidates/by-year/{year}', [CandidateController::class, 'getByYear'])->name('candidates.byYear');
+
         Route::prefix('elections/{election}')->whereNumber('election')->group(function () {
             Route::get('/candidates/create', [ElectionCandidateController::class, 'create'])->name('elections.candidates.create');
             Route::post('/candidates', [ElectionCandidateController::class, 'store'])->name('elections.candidates.store');
