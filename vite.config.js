@@ -7,6 +7,11 @@ export default defineConfig({
     //     port: 5173,
     //     strictPort: true
     // },
+     server: {
+         host: '192.168.1.4',
+         port: 5173,
+         strictPort: true
+     },
     plugins: [
         laravel({
             input: [

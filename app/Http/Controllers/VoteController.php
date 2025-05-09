@@ -16,9 +16,16 @@ class VoteController extends Controller
 {
     public function elect()
     {
+        if (!Auth::check() || !Auth::user()->isStudent()) {
+            Log::warning('Non-student user attempted to access elect', [
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role ?? 'none',
+            ]);
+            abort(403, 'Unauthorized: Only students can access this page.');
+        }
+
         $currentYear = date('Y');
 
-        // Find or create an election for the current year
         $election = Election::firstOrCreate(
             ['year' => $currentYear],
             ['year' => $currentYear, 'status' => 'open']
@@ -32,17 +39,14 @@ class VoteController extends Controller
             return redirect()->route('elections.index')->with('error', 'Unable to create or find an election for the current year.');
         }
 
-        // Check if election is open
         $isElectionOpen = $this->isElectionOpen($election);
 
-        // Fetch positions with their candidates, filtered by election
         $positions = Position::with(['candidates' => function ($query) use ($election) {
             $query->whereHas('elections', function ($q) use ($election) {
                 $q->where('elections.election_id', $election->election_id);
             })->with(['program', 'partylist']);
         }])->get();
 
-        // Log if no candidates are found
         if ($positions->pluck('candidates')->flatten()->isEmpty()) {
             Log::warning('No candidates found for election', [
                 'election_id' => $election->election_id,
@@ -55,6 +59,14 @@ class VoteController extends Controller
 
     public function create(Election $election)
     {
+        if (!Auth::check() || !Auth::user()->isStudent()) {
+            Log::warning('Non-student user attempted to access vote create', [
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role ?? 'none',
+            ]);
+            abort(403, 'Unauthorized: Only students can vote.');
+        }
+
         if (!$this->isElectionOpen($election)) {
             return redirect()->route('elections.show', $election)
                 ->with('error', 'This election is not currently open for voting.');
@@ -68,16 +80,12 @@ class VoteController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role !== 'student') {
+        if (!Auth::check() || !Auth::user()->isStudent()) {
             Log::warning('Non-student user attempted to vote', [
-                'user_id' => $user->id,
-                'role' => $user->role,
+                'user_id' => Auth::id(),
+                'role' => Auth::user()->role ?? 'none',
             ]);
             return $this->respondWithError('You are not eligible to vote.', $election);
-        }
-
-        if ($election && Vote::where('user_id', $user->id)->where('election_id', $election->election_id)->exists()) {
-            return $this->respondWithError('You have already voted in this election.', $election);
         }
 
         if ($election) {
@@ -136,12 +144,30 @@ class VoteController extends Controller
 
     protected function storeMultipleVotes(Request $request, $user)
     {
-        Log::info('Received vote submission request:', $request->all());
+        Log::info('Vote submission raw input:', $request->all());
+        Log::info('User ID:', ['user_id' => $user->id]);
 
         $validated = $request->validate([
             'election_id' => 'required|exists:elections,election_id',
             'votes' => 'required|array',
-            'votes.*' => 'required|exists:candidates,candidate_id',
+            'votes.*' => [
+                'required',
+                'exists:candidates,candidate_id',
+                function ($attribute, $value, $fail) use ($request) {
+                    $positionId = explode('.', $attribute)[1];
+                    $candidate = Candidate::find($value);
+                    if (!$candidate) {
+                        return $fail("Candidate ID {$value} does not exist.");
+                    }
+                    if ($candidate->position_id != $positionId) {
+                        return $fail("Candidate ID {$value} does not belong to position ID {$positionId}.");
+                    }
+                    $electionId = $request->input('election_id');
+                    if (!$candidate->elections()->where('elections.election_id', $electionId)->exists()) {
+                        return $fail("Candidate ID {$value} does not belong to this election.");
+                    }
+                },
+            ],
         ]);
 
         $election = Election::findOrFail($validated['election_id']);
@@ -149,27 +175,24 @@ class VoteController extends Controller
             return $this->respondWithError('This election is not open.');
         }
 
-        if (Vote::where('user_id', $user->id)->where('election_id', $election->election_id)->exists()) {
-            return $this->respondWithError('You have already voted in this election.');
+        $existingVotes = Vote::where('user_id', $user->id)
+                            ->where('election_id', $election->election_id)
+                            ->pluck('position_id')
+                            ->toArray();
+
+        $newPositionIds = array_keys($validated['votes']);
+        $duplicatePositions = array_intersect($existingVotes, $newPositionIds);
+
+        if (!empty($duplicatePositions)) {
+            return $this->respondWithError('You have already voted for the following positions: ' . implode(', ', $duplicatePositions) . '.');
         }
 
         try {
             DB::beginTransaction();
 
-            foreach ($validated['votes'] as $positionId => $candidateId) {
-                if (!is_numeric($positionId) || !Position::where('position_id', $positionId)->exists()) {
-                    throw new \Exception("Invalid position ID: {$positionId}");
-                }
-
-                $candidate = Candidate::findOrFail($candidateId);
-                if (!$candidate->elections()->where('elections.election_id', $validated['election_id'])->exists()) {
-                    throw new \Exception("Candidate ID {$candidateId} does not belong to this election.");
-                }
-
-                if ($candidate->position_id != $positionId) {
-                    throw new \Exception("Candidate ID {$candidateId} does not belong to position ID {$positionId}.");
-                }
-
+            $positionIds = array_keys($validated['votes']);
+            foreach ($positionIds as $positionId) {
+                $candidateId = $validated['votes'][$positionId];
                 Vote::create([
                     'user_id' => $user->id,
                     'candidate_id' => $candidateId,
@@ -178,8 +201,6 @@ class VoteController extends Controller
                 ]);
             }
 
-            // Trigger VoteCast event after all votes are recorded
-            $positionIds = array_keys($validated['votes']);
             foreach ($positionIds as $positionId) {
                 $candidates = Candidate::where('position_id', $positionId)
                     ->withCount('votes')
@@ -189,6 +210,10 @@ class VoteController extends Controller
                     return [$candidate->candidate_id => $candidate->votes_count];
                 })->toArray();
 
+                Log::info('Dispatching VoteCast event', [
+                    'position_id' => $positionId,
+                    'candidate_votes' => $candidateVotes,
+                ]);
                 event(new VoteCast($positionId, $candidateVotes));
             }
 
@@ -202,7 +227,7 @@ class VoteController extends Controller
                 'election_id' => $validated['election_id'],
                 'user_id' => $user->id,
             ]);
-            return response()->json(['success' => false, 'message' => 'Error submitting votes: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Error submitting votes: ' . $e->getMessage()], 400);
         }
     }
 
@@ -214,7 +239,6 @@ class VoteController extends Controller
             return redirect()->back()->with('error', 'No election found for the current year.');
         }
 
-        // Fetch all positions with their candidates for this election
         $positions = Position::with(['candidates' => function ($query) use ($election) {
             $query->whereHas('elections', function ($q) use ($election) {
                 $q->where('elections.election_id', $election->election_id);
@@ -225,7 +249,6 @@ class VoteController extends Controller
             }]);
         }])->get();
 
-        // Prepare data for the view
         $positionsData = $positions->map(function ($position) {
             return [
                 'position_id' => $position->position_id,
@@ -234,7 +257,7 @@ class VoteController extends Controller
                     return [
                         'candidate_id' => $candidate->candidate_id,
                         'first_name' => $candidate->first_name,
-                        'middle_name' => $candidate->middle_name, // <-- add this line
+                        'middle_name' => $candidate->middle_name,
                         'last_name' => $candidate->last_name,
                         'full_name' => $candidate->last_name . ', ' . $candidate->first_name . ($candidate->middle_name ? ' ' . $candidate->middle_name : ''),
                         'program' => $candidate->program->program_name ?? '',
@@ -248,7 +271,6 @@ class VoteController extends Controller
             ];
         });
 
-        // Ensure $positionsData is a collection and not empty
         if ($positionsData->isEmpty()) {
             $positionsData = collect();
         }
