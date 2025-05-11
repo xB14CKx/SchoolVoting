@@ -82,7 +82,7 @@ class VoteCountController extends Controller
             $votesQuery = Vote::where('candidate_id', $candidate->candidate_id)
                 ->where('election_id', $election->election_id)
                 ->join('users', 'votes.user_id', '=', 'users.id')
-                ->join('students', 'students.id', '=', 'users.id');
+                ->join('students', 'students.id', '=', 'users.student_id');
 
             if ($demographic === 'program') {
                 $votesQuery->leftJoin('programs', 'students.program_id', '=', 'programs.program_id')

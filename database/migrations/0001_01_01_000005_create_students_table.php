@@ -9,22 +9,31 @@ class CreateStudentsTable extends Migration
     public function up()
     {
         Schema::create('students', function (Blueprint $table) {
-            $table->bigInteger('id')->primary(); // Non-auto-incrementing primary key
-            $table->string('first_name', 50); // FIRST NAME
-            $table->string('middle_name', 50)->nullable(); // MIDDLE NAME (nullable)
-            $table->string('last_name', 50); // LAST NAME
-            $table->string('email', 255)->unique(); // EMAIL (unique)
-            $table->foreignId('program_id')->nullable()->constrained('programs', 'program_id')->onDelete('set null'); // PROGRAM (foreign key, nullable)
-            $table->enum('year_level', ['1st', '2nd', '3rd', '4th']); // YEAR LEVEL (ENUM)
-            $table->string('contact_number', 255); // CONTACT NUMBER
-            $table->string('image', 255)->nullable(); //  IMAGE COLUMN HERE
-            $table->date('date_of_birth'); // DATE OF BIRTH
-            $table->enum('sex', ['Male', 'Female']); // SEX
-            $table->timestamps(); // created_at and updated_at
+            // Primary key — UNSIGNED BIGINT AUTO_INCREMENT
+            $table->id();                               
 
-            // Adding foreign key constraint index
-            $table->index('program_id'); // Index for program_id
-            $table->index('year_level'); // Index for year_level
+            // Core columns
+            $table->string('first_name', 50);
+            $table->string('middle_name', 50)->nullable();
+            $table->string('last_name', 50);
+            $table->string('email', 255)->unique();
+
+            // Academic program (nullable FK → programs.program_id)
+            $table->foreignId('program_id')
+                  ->nullable()
+                  ->constrained('programs', 'program_id')  // keep if PK is program_id
+                  ->onDelete('set null');
+
+            $table->enum('year_level', ['1st', '2nd', '3rd', '4th']);
+            $table->string('contact_number', 255);
+            $table->string('image', 255)->nullable();
+            $table->date('date_of_birth');
+            $table->enum('sex', ['Male', 'Female']);
+
+            $table->timestamps();
+
+            // ❹ Optional helper indexes (foreignId already adds one on program_id)
+            $table->index('year_level');
         });
     }
 

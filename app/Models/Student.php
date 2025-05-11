@@ -3,16 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Program;
 
 class Student extends Model
 {
-    protected $table = 'students'; // Explicitly set the table name
+    /* -----------------------------------------------------------------
+     |  Table & PK settings
+     |------------------------------------------------------------------*/
+    protected $table      = 'students';   // explicit, but optional if you keep default
     protected $primaryKey = 'id';
-    public $incrementing = false; // Not auto-incrementing
-    protected $keyType = 'int';
 
+    // `id` is now AUTO_INCREMENT UNSIGNED BIGINT, so leave $incrementing true
+    // (default) and no need to override $keyType unless you like the clarity:
+    protected $keyType    = 'int';
+
+    /* -----------------------------------------------------------------
+     |  Mass-assignable attributes
+     |------------------------------------------------------------------*/
     protected $fillable = [
-        'id',
         'first_name',
         'middle_name',
         'last_name',
@@ -25,18 +34,26 @@ class Student extends Model
         'sex',
     ];
 
+    /* -----------------------------------------------------------------
+     |  Relationships
+     |------------------------------------------------------------------*/
+
     /**
-     * Get the user associated with this student.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * The user account that belongs to this student.
+     * (NULL if the student hasn’t registered yet.)
      */
     public function user()
     {
-        return $this->hasOne(User::class, 'email', 'email');
+        // FK is users.student_id → students.id
+        return $this->hasOne(User::class, 'student_id', 'id');
     }
 
+    /**
+     * Academic program the student is enrolled in.
+     */
     public function program()
     {
+        // FK is students.program_id → programs.program_id
         return $this->belongsTo(Program::class, 'program_id', 'program_id');
     }
 }

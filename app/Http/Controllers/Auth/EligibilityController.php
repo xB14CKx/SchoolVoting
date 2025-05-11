@@ -44,7 +44,7 @@ class EligibilityController extends Controller
             }
 
             // Check if this student already has a user account
-            $existingUser = User::where('email', $student->email)->first();
+            $existingUser = User::where('student_id', $student->id)->first();
             if ($existingUser) {
                 Log::info('Student already registered', [
                     'student_id' => $student->id,
@@ -61,7 +61,7 @@ if (!in_array($student->year_level, ['1st', '2nd', '3rd', '4th']) || !$student->
 {
                 Log::info('Student not eligible', [
                     'student_id' => $student->id,
-                    'year' => $student->year,
+                    'year' => $student->year_level,
                     'email' => $student->email,
                 ]);
                 $errorMessage = 'You are not eligible to register. Please contact the administrator.';
