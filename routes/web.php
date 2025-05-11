@@ -34,6 +34,7 @@ Route::middleware('guest')->group(function () {
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::get('/vote-counting', [App\Http\Controllers\VoteController::class, 'voteCountingPage'])->name('vote-counting');
+    Route::get('/vote-counting/demographics', [\App\Http\Controllers\VoteCountController::class, 'getDemographicBreakdown']);
 
     Route::middleware('verified')->group(function () {
         Route::get('/dashboard', function () {

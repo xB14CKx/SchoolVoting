@@ -2,26 +2,58 @@ body {
     overflow-x: hidden;
 }
 
+.full-yellow-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #f7bd03;
+    z-index: 0;
+    pointer-events: none;
+}
+
 .vote-counting-container {
     width: 100%;
-    min-height: 100vh;
+    height: 100%;
     position: relative;
     align-items: center;
     background-color: #f7bd03;
-    overflow-y: auto;
     top: 0;
     left: 0;
-    z-index: -1;
+    z-index: 1;
 }
 
 .content-wrapper {
     display: flex;
     flex-direction: column;
     position: relative;
-    min-height: 831px;
+    min-height: 100px; 
     width: 100%;
     padding: 56px 80px;
     align-items: flex-start;
+    z-index: 2;
+}
+
+.custom-drop-container {
+    display: flex;
+    gap: 30px;
+    font-family: Inter, sans-serif;
+    position: relative;
+    z-index: 2; /* Ensure dropdown is above background */
+    margin-left: 20px;
+    margin-top: 50px;
+    pointer-events: auto !important;
+}
+
+.dark-background-container {
+    position: relative;
+    width: 1300px;
+    height: 500px;
+    margin-top: 300px; 
+    margin-left: 130px;
+    margin-bottom: 20px;
+    z-index: 2;
 }
 
 .background-image {
@@ -282,5 +314,217 @@ body {
 
     .candidate-name {
         font-size: 11px;
+    }
+}
+
+/* Demographics */
+.dark-background-container {
+    position: relative;
+    width: 1300px;
+    height: 500px;
+    margin-top: 470px; 
+    margin-left: 130px;
+    margin-bottom: 20px;
+    z-index: 2;
+}
+  
+.background-transparentWrapper {
+    width: 100%;
+    height: 100%;
+    margin-top: -40px;
+    pointer-events: none !important;
+    z-index: 1 !important;
+    position: relative;
+}
+  
+.background-svg {
+    width: 100%;
+    height: 100%;
+    pointer-events: none !important;
+    z-index: 1 !important;
+    position: relative;
+}
+  
+@media (max-width: 991px) {
+    .dark-background-container {
+      width: 100%;
+      height: auto;
+      min-height: 436px;
+    }
+}
+  
+@media (max-width: 640px) {
+    .dark-background-container {
+      min-height: 300px;
+    }
+}
+
+/* Dropdown */
+.custom-drop-container {
+    display: flex;
+    gap: 30px;
+    font-family: Inter, sans-serif;
+    position: relative;
+    z-index: 2; /* Ensure dropdown is above background */
+    margin-left: 20px;
+    margin-top: 50px;
+    pointer-events: auto !important;
+}
+
+.custom-drop-container * {
+    pointer-events: auto !important;
+    z-index: 2000 !important;
+}
+
+.custom-dropdown-wrapper {
+    position: relative;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    color: white;
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: -20px;
+}
+
+.dropdown-labelDemo {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    margin-top:60px;
+}
+
+.drop-icon {
+    width: 30px;
+    height: 21px;
+    margin-top: 60px;
+    transition: transform 0.3s ease, stroke 0.3s ease;
+}
+
+.dropdown-labelPosi {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    margin-top: 60px;
+}
+
+.down-icon {
+    width: 30px;
+    height: 21px;
+    margin-left: 30px;
+    margin-top: 60px;
+    transition: transform 0.3s ease, stroke 0.3s ease;
+}
+
+.dropdown-item:hover .dropdown-labelDemo,
+.dropdown-item:hover .dropdown-labelPosi {
+  color: #000000; 
+}
+
+.dropdown-item:hover .drop-icon path,
+.dropdown-item:hover .down-icon path {
+  stroke: #000000; 
+}
+
+/* Dropdown menu */
+.custom-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%; /* Directly below the button */
+    left: 0;   /* Align left edge with button */
+    background-color: #ffffff;
+    border: 1px solid #d2ccccd2;
+    border-radius: 6px;
+    padding: 10px 0;
+    min-width: 180px;
+    z-index: 9999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: none; /* Remove previous transform */
+}
+
+.custom-dropdown-menu li {
+    padding: 10px 20px;
+    color: #000000;
+    list-style: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.custom-dropdown-menu li:hover {
+  background-color: #d2ccccd2;
+}
+
+.custom-dropdown-menu.active {
+  display: block;
+}
+
+/* Pie Chart Comparison Section */
+.pie-charts-comparison {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 120px;
+    z-index: 10;
+}
+
+.pie-chart-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#pieChart1,
+#pieChart2 {
+    width: 350px !important;
+    height: 350px !important;
+    max-width: 90vw;
+    max-height: 90vh;
+    background: transparent;
+}
+
+.pie-chart-label {
+    text-align: center;
+    color: white;
+    margin-top: 18px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 1200px) {
+    .pie-charts-comparison {
+        gap: 40px;
+    }
+    #pieChart1,
+    #pieChart2 {
+        width: 320px !important;
+        height: 320px !important;
+    }
+}
+
+@media (max-width: 900px) {
+    .pie-charts-comparison {
+        flex-direction: column;
+        gap: 32px;
+    }
+    #pieChart1,
+    #pieChart2 {
+        width: 220px !important;
+        height: 220px !important;
+    }
+    .pie-chart-label {
+        font-size: 18px;
     }
 }

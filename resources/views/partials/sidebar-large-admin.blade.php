@@ -31,7 +31,6 @@
         <a href="{{ url('/admin') }}" class="admin-button"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i> &nbsp;Admin</a>
         <a href="{{ url('/vote-counting') }}" class="count-button"><i class="fa-solid fa-square-poll-horizontal" aria-hidden="true"></i> &nbsp;Vote Counting</a>
         <a href="{{ url('/result') }}" class="results-button"><i class="fa-solid fa-check-to-slot" aria-hidden="true"></i> &nbsp;Results</a>
-        <a href="{{ url('/reports') }}" class="reports-button"><i class="fa-solid fa-chart-pie"></i> &nbsp;Reports</a>
         <a href="{{ url('/file-upload') }}" class="upload-button"><i class="fa-solid fa-file-arrow-up"></i> &nbsp;File Upload</a>
         <form action="{{ route('logout') }}" method="post" style="display: inline;  margin-top: -70px;">
             @csrf

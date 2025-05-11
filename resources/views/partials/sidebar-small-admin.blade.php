@@ -30,10 +30,6 @@
                 <i class="fa-solid fa-check-to-slot result-icon" aria-hidden="true"></i>
             </a>
 
-            <a href="{{ url('/reports') }}">
-                <i class="fa-solid fa-chart-pie reports-icon" aria-hidden="true"></i>
-            </a>
-
             <a href="{{ url('/file-upload') }}">
                 <i class="fa-solid fa-file-arrow-up upload-icon" aria-hidden="true"></i>
             </a>
