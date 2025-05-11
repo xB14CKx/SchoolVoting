@@ -21,39 +21,43 @@ class RegisteredUserController extends Controller
      *
      * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
-    public function create()
-    {
-        try {
-            $programs = Program::all();
+public function create()
+{
+    try {
+        $programs = Program::all();
+        $studentId = session('eligible_student_id');
 
-            $studentId = session('eligible_student_id');
+        Log::info('Checking eligibility for registration', [
+            'eligible_student_id' => $studentId,
+        ]);
 
-            Log::info('Checking eligibility for registration', [
-                'id' => $studentId,
-                'eligible_student_id' => $studentId,
-            ]);
-
-            if (!$studentId) {
-                Log::info('Redirecting to eligibility due to session mismatch');
-                return redirect()->route('register.eligibility')
-                    ->with('error', 'Please check your eligibility before registering.');
-            }
-
-            $student = Student::with('program')->find($studentId);
-
-            // Fetch the selected program details
-            $program = Program::find($student->program_id);
-            $programName = $program ? $program->name : 'Unknown Program';
-            $programId = $student->program_id ?? null;
-
-            return view('auth.register', compact('student', 'programs', 'programName', 'programId'));
-        } catch (\Exception $e) {
-            Log::error('Failed to load registration form: ' . $e->getMessage());
-
+        if (!$studentId) {
+            Log::info('Redirecting to eligibility due to session mismatch');
             return redirect()->route('register.eligibility')
-                ->with('error', 'Failed to load registration form. Please try again.');
+                ->with('error', 'Please check your eligibility before registering.');
         }
+
+        // Use the correct field for lookup
+        $student = Student::with('program')->where('student_id', $studentId)->first();
+
+        if (!$student) {
+            Log::error('Student not found in create()', ['student_id' => $studentId]);
+            return redirect()->route('register.eligibility')
+                ->with('error', 'Student not found. Please check your ID again.');
+        }
+
+        $program = Program::find($student->program_id);
+        $programName = $program ? $program->name : 'Unknown Program';
+        $programId = $student->program_id ?? null;
+
+        return view('auth.register', compact('student', 'programs', 'programName', 'programId'));
+    } catch (\Exception $e) {
+        Log::error('Failed to load registration form: ' . $e->getMessage());
+
+        return redirect()->route('register.eligibility')
+            ->with('error', 'Failed to load registration form. Please try again.');
     }
+}
 
     /**
      * Handle an incoming registration request.

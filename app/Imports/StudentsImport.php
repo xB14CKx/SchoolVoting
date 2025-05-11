@@ -22,30 +22,42 @@ class StudentsImport implements ToCollection, WithHeadingRow
         'BMA' => 'Bachelor of Multimedia Arts',
     ];
 
-    /**
-     * Process the Excel file and import students into the database in batches.
-     *
-     * @param  \Illuminate\Support\Collection  $rows
-     * @return array
-     */
+    private $yearLevelMapping = [
+        '1' => '1st',
+        '2' => '2nd',
+        '3' => '3rd',
+        '4' => '4th',
+    ];
+
     public function collection(Collection $rows)
     {
         $programs = Program::all()->keyBy('program_name');
-        $existingStudents = Student::all()->keyBy('email');
+        $existingStudents = Student::all()->keyBy('student_id'); // Use student_id for duplicate checks
         $studentsForResponse = [];
         $skipped = 0;
         $added = 0;
 
         $rows->chunk(100)->each(function ($chunk) use ($programs, &$existingStudents, &$studentsForResponse, &$skipped, &$added) {
-            $studentsToInsert = [];
-
             foreach ($chunk as $index => $row) {
                 $email = $row['email'] ?? '';
-                $programCode = trim($row['program'] ?? ''); // Trim spaces from program code
-                $id = $row['id'] ?? null;
+                $programCode = trim($row['program'] ?? '');
+                $studentId = $row['id'] ?? null;
 
-                if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) || empty($id) || !is_numeric($id)) {
-                    Log::warning('Skipped row due to invalid data', ['row' => $index + 2, 'id' => $id, 'email' => $email]);
+                // Validate required fields
+                if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    Log::warning('Skipped row due to invalid or missing email', [
+                        'row' => $index + 2,
+                        'email' => $email
+                    ]);
+                    $skipped++;
+                    continue;
+                }
+
+                if (empty($studentId) || !is_numeric($studentId)) {
+                    Log::warning('Skipped row due to invalid or missing student_id', [
+                        'row' => $index + 2,
+                        'student_id' => $studentId
+                    ]);
                     $skipped++;
                     continue;
                 }
@@ -53,61 +65,101 @@ class StudentsImport implements ToCollection, WithHeadingRow
                 $programName = $this->programAbbreviations[$programCode] ?? $programCode;
                 $program = $programs[$programName] ?? null;
                 if (!$program) {
-                    Log::warning('Skipped row due to unrecognized program', ['row' => $index + 2, 'program_code' => $programCode]);
+                    Log::warning('Skipped row due to unrecognized program', [
+                        'row' => $index + 2,
+                        'program_code' => $programCode,
+                        'mapped_program_name' => $programName,
+                        'available_programs' => $programs->keys()->toArray()
+                    ]);
                     $skipped++;
                     continue;
                 }
 
-                $existingStudent = $existingStudents[$email] ?? null;
-                if ($existingStudent && $existingStudent->id != $id) {
-                    Log::warning('Skipped row due to duplicate email with different ID', [
+                // Check for duplicate student_id
+                $existingStudent = $existingStudents[$studentId] ?? null;
+                if ($existingStudent && $existingStudent->email != $email) {
+                    Log::warning('Skipped row due to duplicate student_id with different email', [
                         'row' => $index + 2,
-                        'email' => $email,
-                        'existing_id' => $existingStudent->id,
-                        'new_id' => $id
+                        'student_id' => $studentId,
+                        'existing_email' => $existingStudent->email,
+                        'new_email' => $email
+                    ]);
+                    $skipped++;
+                    continue;
+                }
+
+                // Map and validate year_level
+                $yearLevel = $row['year'] ?? '';
+                $yearLevel = $this->yearLevelMapping[$yearLevel] ?? $yearLevel;
+                if (!in_array($yearLevel, ['1st', '2nd', '3rd', '4th'])) {
+                    Log::warning('Skipped row due to invalid year_level', [
+                        'row' => $index + 2,
+                        'year_level' => $yearLevel
+                    ]);
+                    $skipped++;
+                    continue;
+                }
+
+                // Validate sex
+                $sex = $row['sex'] ?? '';
+                if (!in_array($sex, ['Male', 'Female'])) {
+                    Log::warning('Skipped row because sex is not Male or Female', [
+                        'row' => $index + 2,
+                        'sex' => $sex
                     ]);
                     $skipped++;
                     continue;
                 }
 
                 $studentData = [
-                    'id' => $row['id'],
-                    'first_name' => $row['first_name'],
+                    'student_id' => $studentId,
+                    'first_name' => $row['first_name'] ?? '',
                     'middle_name' => $row['middle_name'] ?? null,
-                    'last_name' => $row['last_name'],
-                    'email' => $row['email'],
+                    'last_name' => $row['last_name'] ?? '',
+                    'email' => $email,
                     'program_id' => $program->program_id,
-                    'year_level' => $row['year'],
+                    'year_level' => $yearLevel,
                     'contact_number' => (string) ($row['contact'] ?? ''),
                     'date_of_birth' => $this->parseDate($row['date_of_birth']),
-                    'sex' => $row['sex'] ?? '',
+                    'sex' => $sex,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ];
 
-                $student = Student::updateOrCreate(
-                    ['id' => $row['id']],
-                    $studentData
-                );
+                try {
+                    $student = Student::updateOrCreate(
+                        ['student_id' => $studentId],
+                        $studentData
+                    );
 
-                if ($student->wasRecentlyCreated) {
-                    $added++;
-                } else {
-                    Log::info('Updated existing student', ['id' => $id, 'email' => $email]);
+                    if ($student->wasRecentlyCreated) {
+                        $added++;
+                        Log::info('Added new student', ['student_id' => $studentId, 'email' => $email]);
+                    } else {
+                        Log::info('Updated existing student', ['student_id' => $studentId, 'email' => $email]);
+                    }
+
+                    $existingStudents[$studentId] = $student;
+
+                    $studentsForResponse[] = [
+                        'id' => (string) $studentId,
+                        'name' => trim(($row['first_name'] ?? '') . ' ' . ($row['middle_name'] ?? '') . ' ' . ($row['last_name'] ?? '')),
+                        'email' => $email,
+                        'program_name' => $program->program_name,
+                        'year_level' => $yearLevel,
+                        'contact_number' => (string) ($row['contact'] ?? ''),
+                        'date_of_birth' => $this->parseDate($row['date_of_birth']),
+                        'sex' => $sex,
+                    ];
+                } catch (\Exception $e) {
+                    Log::error('Failed to save student', [
+                        'row' => $index + 2,
+                        'student_id' => $studentId,
+                        'email' => $email,
+                        'error' => $e->getMessage()
+                    ]);
+                    $skipped++;
                 }
-
-                $existingStudents[$email] = $student;
-
-                $studentsForResponse[] = [
-                    'id' => (string) $row['id'],
-                    'name' => trim(($row['first_name'] ?? '') . ' ' . ($row['middle_name'] ?? '') . ' ' . ($row['last_name'] ?? '')),
-                    'email' => $row['email'],
-                    'program_name' => $program->program_name,
-                    'year_level' => $row['year'] ?? '',
-                    'contact_number' => (string) ($row['contact'] ?? ''),
-                    'date_of_birth' => $this->parseDate($row['date_of_birth']),
-                    'sex' => $row['sex'] ?? '',
-                ];
             }
         });
 
@@ -118,12 +170,6 @@ class StudentsImport implements ToCollection, WithHeadingRow
         ];
     }
 
-    /**
-     * Parse the date of birth from the Excel format to Y-m-d.
-     *
-     * @param  mixed  $date
-     * @return string|null
-     */
     private function parseDate($date)
     {
         if (!$date) {
@@ -132,7 +178,6 @@ class StudentsImport implements ToCollection, WithHeadingRow
 
         try {
             if (is_numeric($date)) {
-                // Convert Excel serial date to Carbon date (Excel's base date is 1900-01-01)
                 return Carbon::createFromTimestamp(Carbon::create(1899, 12, 30)->timestamp + ($date * 86400))->format('Y-m-d');
             }
 
@@ -150,13 +195,6 @@ class StudentsImport implements ToCollection, WithHeadingRow
         }
     }
 
-    /**
-     * Check if a student ID exists in the Excel rows.
-     *
-     * @param  \Illuminate\Support\Collection  $rows
-     * @param  string  $studentId
-     * @return bool
-     */
     public function checkStudentId(Collection $rows, string $studentId): bool
     {
         return $rows->contains(function ($row) use ($studentId) {
@@ -164,13 +202,6 @@ class StudentsImport implements ToCollection, WithHeadingRow
         });
     }
 
-    /**
-     * Check multiple student IDs in batch.
-     *
-     * @param  \Illuminate\Support\Collection  $rows
-     * @param  array  $studentIds
-     * @return array
-     */
     public function checkStudentIdsBatch(Collection $rows, array $studentIds): array
     {
         $results = [];
@@ -186,13 +217,6 @@ class StudentsImport implements ToCollection, WithHeadingRow
         return $results;
     }
 
-    /**
-     * Fetch student details by ID.
-     *
-     * @param  \Illuminate\Support\Collection  $rows
-     * @param  string  $studentId
-     * @return array|null
-     */
     public function getStudentById(Collection $rows, string $studentId): ?array
     {
         $studentRow = $rows->firstWhere('id', $studentId);

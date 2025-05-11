@@ -14,17 +14,15 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();                              // BIGINT UNSIGNED PK
-            $table->foreignId('student_id')            // FK to students.id
+            $table->foreignId('student_id')            // FK to students.student_id
                   ->nullable()                         // NULL for non-students
                   ->unique()                           // one-to-one link
-                  ->constrained('students')
+                  ->constrained('students', 'student_id') // Explicitly reference student_id
                   ->cascadeOnDelete();                 // delete user if student is removed
 
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
             $table->enum('role', array_column(Role::cases(), 'value'))
                   ->default(Role::Student->value);
             $table->timestamps();                      // created_at & updated_at

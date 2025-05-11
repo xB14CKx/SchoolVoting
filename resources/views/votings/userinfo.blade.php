@@ -1,5 +1,5 @@
 @push('styles')
- 
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;400;700&display=swap" rel="stylesheet">
@@ -9,7 +9,7 @@
 
     @endpush
 
-<x-app-layout>    
+<x-app-layout>
 
 
     <div class="page-container">
@@ -51,7 +51,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="student_number" class="form-label">Student Number</label>
-                            <input type="text" id="student_number" class="form-input" value="{{ old('id', $student->id ?? '') }}" readonly />
+                            <input type="text" id="student_number" class="form-input" value="{{ old('id', $student->student_id ?? '') }}" readonly />
                         </div>
                         <div class="form-group">
                             <label for="email" class="form-label">Email</label>

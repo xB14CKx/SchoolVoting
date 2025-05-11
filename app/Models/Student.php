@@ -12,9 +12,10 @@ class Student extends Model
      |  Table & PK settings
      |------------------------------------------------------------------*/
     protected $table      = 'students';   // explicit, but optional if you keep default
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'student_id';
+    public $incrementing = false; // If it's not auto-incrementing
 
-    // `id` is now AUTO_INCREMENT UNSIGNED BIGINT, so leave $incrementing true
+    // `id` is AUTO_INCREMENT UNSIGNED BIGINT, so leave $incrementing true
     // (default) and no need to override $keyType unless you like the clarity:
     protected $keyType    = 'int';
 
@@ -22,6 +23,7 @@ class Student extends Model
      |  Mass-assignable attributes
      |------------------------------------------------------------------*/
     protected $fillable = [
+        'student_id', // Added to allow mass assignment
         'first_name',
         'middle_name',
         'last_name',
@@ -44,8 +46,8 @@ class Student extends Model
      */
     public function user()
     {
-        // FK is users.student_id → students.id
-        return $this->hasOne(User::class, 'student_id', 'id');
+        // FK is users.student_id → students.student_id (not students.id)
+        return $this->hasOne(User::class, 'student_id', 'student_id');
     }
 
     /**

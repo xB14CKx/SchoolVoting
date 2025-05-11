@@ -98,7 +98,7 @@ class FileUploadController extends Controller
                 ->get()
                 ->map(function ($student) {
                     return [
-                        'id' => $student->id,
+                        'id' => $student->student_id, // Changed to use student_id as the ID
                         'name' => $student->first_name . ' ' . ($student->middle_name ? $student->middle_name . ' ' : '') . $student->last_name,
                         'email' => $student->email,
                         'program_name' => $student->program?->program_name ?? 'Unknown',

@@ -32,8 +32,8 @@ class EligibilityController extends Controller
         ]);
 
         try {
-            // Check using the actual "id" column from the students table
-            $student = Student::find((int) $request->student_id);
+            // Check using the "student_id" column instead of the primary "id"
+            $student = Student::where('student_id', (int) $request->student_id)->first();
 
             if (!$student) {
                 Log::info('Student not found during eligibility check', [
@@ -44,10 +44,10 @@ class EligibilityController extends Controller
             }
 
             // Check if this student already has a user account
-            $existingUser = User::where('student_id', $student->id)->first();
+            $existingUser = User::where('student_id', $student->student_id)->first(); // Changed to use student_id
             if ($existingUser) {
                 Log::info('Student already registered', [
-                    'student_id' => $student->id,
+                    'student_id' => $student->student_id, // Changed to student_id
                     'email' => $student->email,
                     'user_id' => $existingUser->id,
                 ]);
@@ -56,11 +56,9 @@ class EligibilityController extends Controller
             }
 
             // Eligibility check — adjust logic as needed
-
-if (!in_array($student->year_level, ['1st', '2nd', '3rd', '4th']) || !$student->email)
-{
+            if (!in_array($student->year_level, ['1st', '2nd', '3rd', '4th']) || !$student->email) {
                 Log::info('Student not eligible', [
-                    'student_id' => $student->id,
+                    'student_id' => $student->student_id, // Changed to student_id
                     'year' => $student->year_level,
                     'email' => $student->email,
                 ]);
@@ -69,9 +67,9 @@ if (!in_array($student->year_level, ['1st', '2nd', '3rd', '4th']) || !$student->
             }
 
             // Passed all checks
-            session(['eligible_student_id' => $student->id]);
+            session(['eligible_student_id' => $student->student_id]);
             Log::info('Student eligible for registration', [
-                'student_id' => $student->id,
+                'student_id' => $student->student_id,
             ]);
 
             if ($isHtmxRequest) {

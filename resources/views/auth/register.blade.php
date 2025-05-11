@@ -77,7 +77,7 @@
                             name="student_id"
                             placeholder="ID Number"
                             class="form-input"
-                            value="{{ old('student_id', $student->id ?? '') }}"
+                            value="{{ old('student_id', $student->student_id ?? '') }}"
                             readonly
                         />
                         @error('student_id')
