@@ -104,7 +104,7 @@
                                 {{ $message }}
                             </div>
                         @enderror
-                        <div id="error-message" class="message error" style="display: none;"></div>
+                        <div id="error-message" class="message error" style="display: none; color: white;"></div>
                     </div>
                     <button type="submit" class="check-button">CHECK ELIGIBILITY</button>
                 </form>

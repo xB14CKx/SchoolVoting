@@ -37,62 +37,73 @@
     <hr class="reports-divider" />
 
     <!-- List of Candidates -->
-    <section class="candidate-comparison">
-      <header class="position-title">Position</header>
-
-      <article class="candidate-container">
-        <div class="candidate-info-wrapper">
-          <div class="candidate-profile">
-            <figure>
-              <img
-                src="https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/9f352b90667e59892919b575fe8585a0e5532e02?placeholderIfAbsent=true"
-                alt="Candidate 1 profile picture"
-                class="candidate-image"
-              />
-            </figure>
-            <h2 class="candidate-name">
-              Candidate 1
-              <br />
-              Partylist
-            </h2>
-            <div class="progress-wrapper">
-                <div class="progress-bar-fill">
-                  <span class="progress-percentage">70%</span>
+    <div class="content-wrapper">
+        @foreach($positions as $position)
+          @if($position['candidates']->count() > 0)
+            <div class="position-section">
+              <h2 class="position-title">{{ $position['position_name'] }}</h2>
+              <article class="candidate-comparison">
+                <div class="candidates-wrapper">
+                  @php
+                    $maxVotes = $position['candidates']->max('votes_count') ?: 1;
+                  @endphp
+                  @foreach($position['candidates'] as $candidate)
+                    <div class="candidate-details candidate-flex">
+                      <div class="candidate-image-name">
+                        <img src="{{ $candidate['image'] }}" class="candidate-icon" alt="Candidate icon" />
+                        <p class="candidate-name">
+                          <strong>
+                            {{ $candidate['last_name'] }}, {{ $candidate['first_name'] }}
+                            @if(!empty($candidate['middle_name']))
+                              {{ strtoupper(substr(trim($candidate['middle_name']), 0, 1)) }}.
+                            @endif
+                          </strong><br />
+                          {{ $candidate['partylist'] }}<br />
+                          @php
+                            $programName = $candidate['program'];
+                            $acronym = $programName;
+                            if (str_starts_with($programName, 'BS in ')) {
+                                $words = explode(' ', $programName);
+                                if (str_contains($programName, '–')) {
+                                    [$mainProgram, $major] = array_map('trim', explode('–', $programName));
+                                    $mainWords = array_filter(explode(' ', $mainProgram), fn($w) => strtolower($w) !== 'and');
+                                    $initials = collect($mainWords)->slice(2)->map(fn($w) => $w[0])->implode('');
+                                    if (str_contains($mainProgram, 'Entertainment and Multimedia Computing')) {
+                                        $acronym = 'BSEMC - ' . $major;
+                                    } else {
+                                        $acronym = 'BS' . $initials . ' - ' . $major;
+                                    }
+                                } else {
+                                    $filteredWords = array_filter($words, fn($w) => strtolower($w) !== 'and');
+                                    $initials = collect($filteredWords)->slice(2)->map(fn($w) => $w[0])->implode('');
+                                    $acronym = 'BS' . $initials;
+                                }
+                            } elseif (str_starts_with($programName, 'Bachelor of Multimedia Arts')) {
+                                $acronym = 'BMA';
+                            } elseif (str_starts_with($programName, 'Bachelor of ')) {
+                                $acronym = str_replace('Bachelor of ', 'B', $programName);
+                                $words = array_filter(explode(' ', $acronym), fn($w) => strtolower($w) !== 'and');
+                                $acronym = collect($words)->map(fn($w) => $w[0])->implode('');
+                            }
+                          @endphp
+                        </p>
+                      </div>
+                      <div class="candidate-bar-votes">
+                        <div class="progress-wrapper">
+                          <div class="progress-bar-fill" style="width:{{ ($candidate['votes_count']/$maxVotes)*100 }}%;">
+                            <span class="progress-percentage">{{ round(($candidate['votes_count']/$maxVotes)*100) }}%</span>
+                          </div>
+                        </div>
+                        <span class="vote-count">{{ number_format($candidate['votes_count']) }} votes</span>
+                      </div>
+                    </div>
+                  @endforeach
                 </div>
-                <span class="vote-count">1,225 votes</span>
-              </div>
+              </article>
             </div>
-      </article>
-
-<!-- Candidate 2 -->
-
-<article class="candidate-container">
-        <div class="candidate-info-wrapper">
-          <div class="candidate-profile">
-            <figure>
-              <img
-                src="https://cdn.builder.io/api/v1/image/assets/aa78da9d1a8c4ca2babcebcf463f7106/9f352b90667e59892919b575fe8585a0e5532e02?placeholderIfAbsent=true"
-                alt="Candidate 1 profile picture"
-                class="candidate-image"
-              />
-            </figure>
-            <h2 class="candidate-name">
-              Candidate 2
-              <br />
-              Partylist
-            </h2>
-            <div class="progress-wrapper">
-                <div class="progress-bar-fill">
-                  <span class="progress-percentage">30%</span>
-                </div>
-                <span class="vote-count">1,225 votes</span>
-              </div>
-            </div>
-      </article>
-
-      
-
-    </section>
+          @endif
+        @endforeach
+    </div>
 
     <!-- Dropdown -->
     <section class="dark-background-container">

@@ -11,27 +11,55 @@ main {
     /* Prevent scrolling within main */
 }
 
-/* Background Image */
-.content-container {
-    position: absolute;
+.page-container {
+    width: 100%;
+    min-height: 90vh;
+    position: relative;
+    align-items: center;
+    background-color: #f7bd03;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100vh;
-    z-index: -1;
 }
 
-.image-container {
-    width: 100%;
-    height: 100%;
+.csg-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 1000;
+    align-self: center;
+    text-shadow: 0px 16px 32px rgba(12, 12, 13, 0.4);
+    font-style: italic;
+    font-size: 50px; /* Dynamic font size */
+    text-align: center;
+    line-height: 1.2;  
+    margin-top: 60px;
 }
 
-.responsive-image {
+.content-wrapper {
+    display: flex;
+    /*do this*/
+    flex-direction: column;
+    position: relative;
+    min-height: 831px;
+    width: 100%;
+    padding: 56px 80px;
+    align-items: flex-start;
+
+}
+
+
+@media (max-width: 991px) {
+    .content-wrapper {
+        max-width: 100%;
+        padding: 56px 20px;
+    }
+}
+
+.background-logo {
+    position: fixed;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
-    display: block;
+    opacity: 0.5;
+    mix-blend-mode: luminosity;
 }
 
 /* Login Form Container */
@@ -39,14 +67,18 @@ main {
     border-radius: 15px;
     display: flex;
     width: 100%;
-    max-width: 400px;
+    height: 350px;
+    max-width: 410px;
     padding: 30px;
+    margin-top: 150px;
     flex-direction: column;
     align-items: center;
+    align-self: center;
     justify-content: center;
     text-align: center;
     background-color: rgba(51, 37, 37, 0.71);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 100px
 }
 
 /* Form Header */
@@ -68,18 +100,28 @@ main {
 /* Form Fields */
 .form-fields {
     width: 100%;
+    height: 100%;
     font-size: 15px;
     font-weight: 400;
 }
 
 .input-field {
-    border-radius: 4px;
-    background-color: white;
-    border: 1px solid rgba(30, 30, 30, 0.97);
+    border-radius: 8px;
+    background-color: #fff;
+    border: 2px solid #f7bd03;
     display: flex;
-    min-height: 43px;
+    align-items: center;
+    min-height: 50px;
     width: 100%;
-    margin-bottom: 15px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(247, 189, 3, 0.08);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    padding: 0 8px;
+}
+
+.input-field:focus-within {
+    border-color: #e6a800;
+    box-shadow: 0 0 0 2px #f7bd03;
 }
 
 .input-field:last-child {
@@ -88,19 +130,31 @@ main {
 
 .input-field input {
     width: 100%;
-    height: 100%;
+    height: 40px;
     background: transparent;
     border: none;
     outline: none;
-    color: #333;
-    padding: 0 10px;
+    color: #222;
+    padding: 0 8px;
     font-family: "Roboto", -apple-system, Helvetica, sans-serif;
-    font-size: 15px;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    box-sizing: border-box;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.input-field input:focus {
+    outline: none;
+    box-shadow: none;
 }
 
 .input-field input::placeholder {
-    color: #333;
+    color: #bdbdbd;
     opacity: 1;
+    font-size: 16px;
 }
 
 /* Validation Errors */
@@ -127,56 +181,17 @@ main {
     background-color: #f7c603;
     border: none;
     min-height: 41px;
-    width: 100%;
+    width: 90%;
     padding: 10px;
     font-size: 18px;
     font-weight: 700;
     color: #000;
     cursor: pointer;
+    margin-top: 20px;
+    margin-bottom: 20px;
     font-family: "Roboto", -apple-system, Helvetica, sans-serif;
 }
 
-.remember-section {
-    display: flex;
-    margin-top: 10px;
-    width: 100%;
-    align-items: center;
-    font-size: 13px;
-    font-weight: 200;
-    justify-content: space-between;
-    text-align: left;
-}
-
-.remember-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.checkbox {
-    background-color: #d9d9d9;
-    width: 15px;
-    height: 14px;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    cursor: pointer;
-    position: relative;
-}
-
-.checkbox:checked::after {
-    content: "✓";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: #333;
-    font-size: 10px;
-}
-
-.remember-wrapper span {
-    color: #666;
-}
 
 /* Register Section */
 .register-section {
@@ -186,7 +201,7 @@ main {
     gap: 7px;
     font-family: "Roboto", -apple-system, Helvetica, sans-serif;
     font-size: 13px;
-    color: #666;
+    color: white;
     text-align: center;
     line-height: 1;
     width: 100%;
@@ -199,7 +214,7 @@ main {
 
 .register-link {
     font-weight: 700;
-    color: #666;
+    color: white;
     text-decoration: none;
     cursor: pointer;
 }
@@ -210,7 +225,7 @@ main {
 
 /* Forgot Password Link */
 .forgot-password-link {
-    color: #666;
+    color: white;
     text-decoration: none;
     font-size: 13px;
 }

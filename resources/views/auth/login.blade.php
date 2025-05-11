@@ -6,20 +6,16 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <!-- Background Container -->
-    <div class="content-container">
-        <figure class="image-container">
-            <img
-                src="{{ asset('images/csg_logo.png') }}"
-                class="responsive-image"
-                alt="CSG Logo"
-            />
-        </figure>
-    </div>
+    <div class="page-container">
+        <!-- Background Image -->
+        <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/fe992e701c7edc01644f69af503f11ed319f8132"
+             alt="CSG Logo"
+             class="background-logo" />
 
-    <!-- Login Form -->
+<div class="content-wrapper">
+
     <div class="login-container">
         <header class="form-header">
-            <h1 class="login-title">Login</h1>
         </header>
 
         <!-- Form with HTMX -->
@@ -63,6 +59,7 @@
             </a>
         </footer>
     </div>
+</div>
 
     <!-- JavaScript for SweetAlert2 Error Handling -->
     @push('scripts')

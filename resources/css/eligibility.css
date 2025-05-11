@@ -103,6 +103,10 @@ html, body {
   flex-direction: column;
 }
 
+.message.error {
+  color: #fff;
+}
+
 .student-input {
   width: 100%;
   height: clamp(40px, 5vh, 53px); /* Dynamic height */
