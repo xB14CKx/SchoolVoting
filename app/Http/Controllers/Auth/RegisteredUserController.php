@@ -125,6 +125,7 @@ class RegisteredUserController extends Controller
             // Prepare user data
             $userData = [
                 'name' => $fullName,
+                'student_id' => $validated['student_id'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'role' => Role::Student->value,

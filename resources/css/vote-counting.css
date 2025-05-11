@@ -46,16 +46,6 @@ body {
     pointer-events: auto !important;
 }
 
-.dark-background-container {
-    position: relative;
-    width: 1300px;
-    height: 500px;
-    margin-top: 300px; 
-    margin-left: 130px;
-    margin-bottom: 20px;
-    z-index: 2;
-}
-
 .background-image {
     position: fixed;
     width: 100%;
@@ -319,13 +309,10 @@ body {
 
 /* Demographics */
 .dark-background-container {
-    position: relative;
+    position: absolute;
     width: 1300px;
-    height: 500px;
-    margin-top: 470px; 
-    margin-left: 130px;
-    margin-bottom: 20px;
-    z-index: 2;
+    margin-left: 150px;
+    top: 330%;
 }
   
 .background-transparentWrapper {

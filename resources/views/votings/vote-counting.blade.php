@@ -23,21 +23,24 @@
                     <article class="candidate-comparison">
                         <div class="candidates-wrapper">
                             @php
-                                $maxVotes = $position['candidates']->max('votes_count') ?: 1;
+                                $totalVotes = $position['candidates']->sum('votes_count') ?: 1; // Avoid division by zero
                             @endphp
                             @foreach($position['candidates'] as $candidate)
+                                @php
+                                    $percent = round(($candidate['votes_count'] / $totalVotes) * 100);
+                                @endphp
                                 <div class="candidate-details" data-candidate-id="{{ $candidate['candidate_id'] }}">
                                     <div class="candidate-row">
                                         <!-- Candidate Image -->
                                         <img src="{{ $candidate['image'] }}" class="candidate-icon" alt="Candidate icon" />
                                         <!-- Progress Bar -->
                                         <div class="progress-wrapper">
-                                            <div class="progress-bar-fill" style="width:{{ ($candidate['votes_count']/$maxVotes)*100 }}%;">
-                                                <span class="progress-percentage">{{ round(($candidate['votes_count']/$maxVotes)*100) }}%</span>
+                                            <div class="progress-bar-fill" style="width: {{ $percent }}%;">
+                                                <span class="progress-percentage">{{ $percent }}%</span>
                                             </div>
                                         </div>
                                         <!-- Vote Count on the right -->
-                                        <span class="vote-count">{{ number_format($candidate['votes_count']) }} votes</span>
+                                        <span class="vote-count" style="font-weight: bold;">{{ number_format($candidate['votes_count']) }} votes</span>
                                     </div>
                                     <!-- Name and Credentials -->
                                     <p class="candidate-name">
@@ -85,11 +88,10 @@
             @endif
         @endforeach
     </div>
-
 </section>
 
-   <!-- Dropdown -->
-   <section class="dark-background-container">
+<!-- Demographics Pie Chart Section at the bottom -->
+<div class="dark-background-container">
     <section class="custom-drop-container">
         <div class="custom-dropdown-wrapper">
             <button class="dropdown-item" id="customDemoBtn">
@@ -118,46 +120,47 @@
                 <li>Secretary</li>
                 <li>Treasurer</li>
                 <li>Auditor</li>
-                <li>Student PIO</li>
+                <li>PIO</li>
                 <li>Business Manager</li>
             </ul>
         </div>
     </section>
 
-  <!-- Demographics-->
-  <div class="background-transparentWrapper">
-    <svg
-      width="1157"
-      height="436"
-      viewBox="0 0 1157 436"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      class="background-svg"
-    >
-      <path
-        opacity="0.8"
-        d="M0 20C0 8.9543 8.95431 0 20 0H1137C1148.04 0 1157 8.95431 1157 20V416C1157 427.046 1148.04 436 1137 436H19.9999C8.95425 436 0 427.046 0 416V20Z"
-        fill="#1E1E1E"
-        fill-opacity="0.71"
-      ></path>
-    </svg>
-    <!-- Pie Chart Comparison Container -->
-    <div class="pie-charts-comparison">
-      <div class="pie-chart-wrapper">
-        <canvas id="pieChart1"></canvas>
-        <div id="pieChart1Label" class="pie-chart-label"></div>
-      </div>
-      <div class="pie-chart-wrapper">
-        <canvas id="pieChart2"></canvas>
-        <div id="pieChart2Label" class="pie-chart-label"></div>
-      </div>
+    <!-- Demographics-->
+    <div class="background-transparentWrapper">
+        <svg
+            width="1157"
+            height="436"
+            viewBox="0 0 1157 436"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            class="background-svg"
+        >
+            <path
+                opacity="0.8"
+                d="M0 20C0 8.9543 8.95431 0 20 0H1137C1148.04 0 1157 8.95431 1157 20V416C1157 427.046 1148.04 436 1137 436H19.9999C8.95425 436 0 427.046 0 416V20Z"
+                fill="#1E1E1E"
+                fill-opacity="0.71"
+            ></path>
+        </svg>
+        <!-- Pie Chart Comparison Container -->
+        <div class="pie-charts-comparison">
+            <div class="pie-chart-wrapper">
+                <canvas id="pieChart1"></canvas>
+                <div id="pieChart1Label" class="pie-chart-label"></div>
+            </div>
+            <div class="pie-chart-wrapper">
+                <canvas id="pieChart2"></canvas>
+                <div id="pieChart2Label" class="pie-chart-label"></div>
+            </div>
+        </div>
     </div>
-  </div>
-</section>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script>
 // Demographics and Position Dropdown 
 const demoBtn = document.getElementById('customDemoBtn');
@@ -288,9 +291,19 @@ function renderPieCharts(candidate1, candidate2, demographic, data, colors = PIE
         options: {
             plugins: {
                 legend: { display: true, labels: { color: 'white' } },
-                title: { display: true, text: candidate1, color: 'white' }
+                datalabels: {
+                    color: 'white',
+                    font: { weight: 'bold', size: 18 },
+                    formatter: (value, context) => {
+                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        if (!value || !total) return '';
+                        const percent = Math.round((value / total) * 100);
+                        return percent > 0 ? percent + '%' : '';
+                    }
+                }
             }
-        }
+        },
+        plugins: [ChartDataLabels]
     });
 
     if (data.candidate2 && groups2.length > 0) {
@@ -306,9 +319,19 @@ function renderPieCharts(candidate1, candidate2, demographic, data, colors = PIE
             options: {
                 plugins: {
                     legend: { display: true, labels: { color: 'white' } },
-                    title: { display: true, text: candidate2, color: 'white' }
+                    datalabels: {
+                        color: 'white',
+                        font: { weight: 'bold', size: 18 },
+                        formatter: (value, context) => {
+                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                            if (!value || !total) return '';
+                            const percent = Math.round((value / total) * 100);
+                            return percent > 0 ? percent + '%' : '';
+                        }
+                    }
                 }
-            }
+            },
+            plugins: [ChartDataLabels]
         });
         document.getElementById('pieChart2Label').innerText = candidate2;
     } else {
@@ -319,7 +342,6 @@ function renderPieCharts(candidate1, candidate2, demographic, data, colors = PIE
     document.getElementById('pieChart1Label').innerText = candidate1;
 }
 
-// Initial load
 updatePieCharts();
 </script>
 </x-app-layout>
