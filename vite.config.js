@@ -20,7 +20,10 @@ export default defineConfig({
                 'resources/css/registration.css',
                 'resources/js/app.js',
                 'resources/js/topbar.js',
-                'resources/css/file-upload.css'
+                'resources/css/file-upload.css',
+                'resources/css/result.css',
+                'resources/js/vote-counting.js',
+                'resources/js/echo.js'
             ],
             refresh: true,
         }),

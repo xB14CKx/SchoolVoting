@@ -8,7 +8,7 @@ class ElectionResult extends Model
 {
     protected $table = 'election_results';
 
-    protected $fillable = ['election_id', 'candidate_id', 'votes'];
+    protected $fillable = ['election_id', 'candidate_id', 'position_id', 'votes'];
 
     // An election result belongs to an election
     public function election()
@@ -20,5 +20,11 @@ class ElectionResult extends Model
     public function candidate()
     {
         return $this->belongsTo(Candidate::class, 'candidate_id');
+    }
+
+    // An election result belongs to a position
+    public function position()
+    {
+        return $this->belongsTo(Position::class, 'position_id');
     }
 }
