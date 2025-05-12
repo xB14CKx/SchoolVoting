@@ -19,24 +19,48 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request)
     {
         try {
-            $request->authenticate();
+            // Custom: Check if email exists
+            $user = \App\Models\User::where('email', $request->input('email'))->first();
+            if (!$user) {
+                $errorMessage = 'The email is not registered';
+                if ($request->header('HX-Request')) {
+                    return response()->json([
+                        'error' => $errorMessage,
+                    ], 422)->header('HX-Trigger', 'showError');
+                }
+                return back()->withErrors(['email' => $errorMessage]);
+            }
+
+            // Try to authenticate (password check)
+            if (!\Illuminate\Support\Facades\Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+                $errorMessage = 'Incorrect password';
+                if ($request->header('HX-Request')) {
+                    return response()->json([
+                        'error' => $errorMessage,
+                    ], 422)->header('HX-Trigger', 'showError');
+                }
+                return back()->withErrors(['email' => $errorMessage]);
+            }
+
             $request->session()->regenerate();
 
-            // For HTMX SPA: Return a redirect instruction
+            // For HTMX SPA: Return a success message and redirect
             if ($request->header('HX-Request')) {
-                return response('<meta http-equiv="refresh" content="0;url=' . route('dashboard', absolute: false) . '">', 200)
-                    ->header('HX-Redirect', route('dashboard', absolute: false));
+                return response()->json([
+                    'success' => 'Successfully logged in!',
+                    'redirect' => route('dashboard', absolute: false),
+                ], 200)->header('HX-Redirect', route('dashboard', absolute: false));
             }
-            return redirect()->intended(route('dashboard', absolute: false));
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // For HTMX SPA: Return JSON with error message for SweetAlert2
+            return redirect()->intended(route('dashboard', absolute: false))
+                ->with('success', 'Successfully logged in!');
+        } catch (\Exception $e) {
+            $errorMessage = 'An unexpected error occurred.';
             if ($request->header('HX-Request')) {
-                $errorMessage = collect($e->errors())->flatten()->first() ?? 'Invalid email or password.';
                 return response()->json([
                     'error' => $errorMessage,
                 ], 422)->header('HX-Trigger', 'showError');
             }
-            throw $e; // Fallback for non-HTMX
+            return back()->withErrors(['email' => $errorMessage]);
         }
     }
 

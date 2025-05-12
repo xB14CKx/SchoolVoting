@@ -231,11 +231,11 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="candidatePosition" class="form-label">Position</label>
-                                    <input type="text" class="form-control" id="candidatePosition" readonly>
+                                    <input type="text" class="form-control" id="candidatePosition">
                                 </div>
                                 <div class="col-md-6">
                                     <label for="candidatePartylist" class="form-label">Partylist</label>
-                                    <select class="form-select" id="candidatePartylist">
+                                    <select class="form-select" id="candidatePartylist" readonly>
                                         <option disabled selected>Choose a partylist</option>
                                         @foreach ($partylists as $party)
                                             <option value="{{ $party->partylist_id }}">{{ $party->partylist_name }}</option>
@@ -305,7 +305,14 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <!-- Image Upload -->
+                            <!-- Student ID (non-editable) -->
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="editCandidateStudentId" class="form-label">Student ID</label>
+                                    <input type="text" class="form-control" id="editCandidateStudentId" readonly>
+                                </div>
+                            </div>
+                            <!-- Image Upload (editable) -->
                             <h6>Image Upload</h6>
                             <br>
                             <div class="mb-3 text-center">
@@ -315,7 +322,6 @@
                                 <input class="form-control" type="file" id="editCandidateImage" accept="image/*">
                             </div>
                             <hr />
-
                             <!-- Position + Partylist -->
                             <div class="row mb-3">
                                 <div class="col-md-6">
@@ -336,15 +342,15 @@
                             <div class="row mb-3">
                                 <div class="col-md-4">
                                     <label for="editCandidateLastName" class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" id="editCandidateLastName">
+                                    <input type="text" class="form-control" id="editCandidateLastName" readonly>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="editCandidateFirstName" class="form-label">First Name</label>
-                                    <input type="text" class="form-control" id="editCandidateFirstName">
+                                    <input type="text" class="form-control" id="editCandidateFirstName" readonly>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="editCandidateMiddleName" class="form-label">Middle Name</label>
-                                    <input type="text" class="form-control" id="editCandidateMiddleName">
+                                    <input type="text" class="form-control" id="editCandidateMiddleName" readonly>
                                 </div>
                             </div>
                             <br>
@@ -352,7 +358,7 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label for="editCandidateYearLevel" class="form-label">Year Level</label>
-                                    <select class="form-select" id="editCandidateYearLevel">
+                                    <select class="form-select" id="editCandidateYearLevel" disabled>
                                         <option value="1st">1st Year</option>
                                         <option value="2nd">2nd Year</option>
                                         <option value="3rd">3rd Year</option>
@@ -361,14 +367,14 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label for="editCandidateProgram" class="form-label">Program</label>
-                                    <select class="form-select" id="editCandidateProgram">
+                                    <select class="form-select" id="editCandidateProgram" disabled>
                                         @foreach ($programs as $program)
                                             <option value="{{ $program->program_id }}">{{ $program->program_name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
-                            <!-- Platform -->
+                            <!-- Platform (editable) -->
                             <div class="row mb-3">
                                 <div class="col-12">
                                     <label for="editCandidatePlatform" class="form-label">Platform</label>
@@ -392,6 +398,7 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             const candidateStoreUrl = "{{ route('candidates.store') }}";
+            const candidatesByYearUrl = "{{ route('candidates.byYear', ['year' => ':year']) }}";
             const electionOpenUrl = "{{ route('elections.open', ['election' => $currentElection->election_id]) }}";
             const electionCloseUrl = "{{ route('elections.close', ['election' => $currentElection->election_id]) }}";
             const candidates = @json($candidates);
@@ -636,14 +643,7 @@
                         currentEditingCandidateId = candidateId;
                         const candidate = candidates.find(c => c.candidate_id == candidateId);
                         if (candidate) {
-                            document.getElementById("editCandidatePosition").value = candidate.position.position_name;
-                            document.getElementById("editCandidatePartylist").value = candidate.partylist_id;
-                            document.getElementById("editCandidateFirstName").value = candidate.first_name;
-                            document.getElementById("editCandidateLastName").value = candidate.last_name;
-                            document.getElementById("editCandidateMiddleName").value = candidate.middle_name;
-                            document.getElementById("editCandidateYearLevel").value = candidate.year_level;
-                            document.getElementById("editCandidateProgram").value = candidate.program_id;
-                            document.getElementById("editCandidatePlatform").value = candidate.platform || '';
+                            setEditCandidateFields(candidate);
                             const previewImg = document.getElementById("editPreviewImg");
                             if (candidate.image) {
                                 previewImg.src = '{{ asset('storage/') }}/' + candidate.image;
@@ -829,19 +829,130 @@
                     return map[positionName] || null;
                 }
 
+                // Function to clear all candidate grids
+                function clearCandidateGrids() {
+                    const grids = [
+                        'presidentCandidates',
+                        'vicePresidentCandidates',
+                        'secretaryCandidates',
+                        'treasurerCandidates',
+                        'auditorCandidates',
+                        'PIOCandidates',
+                        'businessManagerCandidates'
+                    ];
+                    grids.forEach(gridId => {
+                        const container = document.getElementById(gridId);
+                        const addButton = container.querySelector('.add-candidate-button');
+                        container.innerHTML = '';
+                        container.appendChild(addButton);
+                        checkCardLimit(gridId);
+                    });
+                }
+
+                // Function to fetch candidates by year and update grids
+                function fetchCandidatesByYear(year) {
+                    const url = candidatesByYearUrl.replace(':year', year);
+                    fetch(url, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            clearCandidateGrids();
+                            candidates.length = 0; // Clear the candidates array
+                            data.candidates.forEach(candidate => {
+                                candidates.push(candidate); // Update the candidates array
+                                const container = document.getElementById(getPositionContainerId(candidate.position.position_name));
+                                if (container) {
+                                    const card = createCandidateCard(candidate);
+                                    container.insertBefore(card, container.querySelector('.add-candidate-button'));
+                                }
+                            });
+                            positionIds.forEach(id => checkCardLimit(id));
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'No candidates found for the selected year.',
+                                confirmButtonText: 'OK'
+                            });
+                            clearCandidateGrids();
+                            candidates.length = 0; // Clear the candidates array
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching candidates:', error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Error fetching candidates: ' + (error.message || 'Unknown error'),
+                            confirmButtonText: 'OK'
+                        });
+                        clearCandidateGrids();
+                        candidates.length = 0; // Clear the candidates array
+                    });
+                }
+
                 // School Year Dropdown
                 const dropdownButton = document.getElementById("yearDropdownButton");
                 const dropdownMenu = document.getElementById("yearDropdown");
+                // Load from localStorage or use default
+                let schoolYears = JSON.parse(localStorage.getItem('schoolYears')) || [2025, 2026, 2027, 2028, 2029, 2030];
 
-                for (let year = 2025; year <= 2035; year++) {
-                    let listItem = document.createElement("li");
-                    listItem.textContent = `School Year ${year}`;
-                    listItem.addEventListener("click", function () {
-                        dropdownButton.querySelector(".button-text").textContent = `School Year ${year}`;
-                        dropdownMenu.classList.remove("show");
-                    });
-                    dropdownMenu.appendChild(listItem);
+                function saveSchoolYears() {
+                    localStorage.setItem('schoolYears', JSON.stringify(schoolYears));
                 }
+
+                function renderSchoolYearDropdown() {
+                    dropdownMenu.innerHTML = '';
+                    schoolYears.forEach(year => {
+                        let listItem = document.createElement("li");
+                        listItem.textContent = `School Year ${year}`;
+                        listItem.addEventListener("click", function () {
+                            dropdownButton.querySelector(".button-text").textContent = `School Year ${year}`;
+                            dropdownMenu.classList.remove("show");
+                            fetchCandidatesByYear(year);
+                        });
+                        dropdownMenu.appendChild(listItem);
+                    });
+                    // Add button to increment year
+                    let addBtn = document.createElement("button");
+                    addBtn.textContent = "+ Add School Year";
+                    addBtn.className = "add-school-year-btn";
+                    addBtn.onclick = function(e) {
+                        e.stopPropagation(); // Prevent dropdown from closing
+                        const lastYear = schoolYears[schoolYears.length - 1];
+                        schoolYears.push(lastYear + 1);
+                        // Persist to localStorage
+                        localStorage.setItem('schoolYears', JSON.stringify(schoolYears));
+                        renderSchoolYearDropdown();
+                        dropdownMenu.classList.add("show"); // Keep dropdown open
+                    };
+                    dropdownMenu.appendChild(addBtn);
+                    // Make dropdown scrollable if more than 6 years
+                    if (schoolYears.length > 6) {
+                        dropdownMenu.style.maxHeight = '240px';
+                        dropdownMenu.style.overflowY = 'auto';
+                    } else {
+                        dropdownMenu.style.maxHeight = '';
+                        dropdownMenu.style.overflowY = '';
+                    }
+                }
+
+                // Load schoolYears from localStorage if available
+                const storedYears = localStorage.getItem('schoolYears');
+                if (storedYears) {
+                    try {
+                        const parsed = JSON.parse(storedYears);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            schoolYears = parsed;
+                        }
+                    } catch (e) {}
+                }
+
+                renderSchoolYearDropdown();
 
                 dropdownButton.addEventListener("click", function (event) {
                     event.stopPropagation();
@@ -894,7 +1005,9 @@
                                     popup: 'swal2-popup-custom'
                                 }
                             }).then(() => {
-                                location.reload();
+                                // Fetch candidates for the current year after adding a new candidate
+                                const currentYear = dropdownButton.querySelector(".button-text").textContent.replace('School Year ', '');
+                                fetchCandidatesByYear(currentYear);
                             });
                         } else {
                             modal.hide();
@@ -965,7 +1078,9 @@
                                 text: 'Candidate updated successfully.',
                                 confirmButtonText: 'OK'
                             }).then(() => {
-                                location.reload();
+                                // Fetch candidates for the current year after updating a candidate
+                                const currentYear = dropdownButton.querySelector(".button-text").textContent.replace('School Year ', '');
+                                fetchCandidatesByYear(currentYear);
                             });
                         } else {
                             Swal.fire({
@@ -1006,15 +1121,16 @@
                     candidateFields.lastName.value = data.last_name || '';
                     candidateFields.program.value = data.program_id || '';
                     candidateFields.yearLevel.value = data.year_level || '';
-                    Object.values(candidateFields).forEach(field => {
-                        if (field) field.readOnly = lock;
-                        if (field && field.tagName === 'SELECT') field.disabled = lock;
-                        if (lock) field?.classList.add('disabled');
-                        else field?.classList.remove('disabled');
-                    });
-                    document.getElementById('candidatePartylist').disabled = false;
-                    document.getElementById('candidateImage').disabled = false;
-                    document.getElementById('candidatePlatform').readOnly = false;
+                    // Always keep these fields non-editable
+                    candidateFields.firstName.readOnly = true;
+                    candidateFields.middleName.readOnly = true;
+                    candidateFields.lastName.readOnly = true;
+                    if (candidateFields.program) candidateFields.program.disabled = true;
+                    if (candidateFields.yearLevel) candidateFields.yearLevel.disabled = true;
+                    // Only enable partylist, image, and platform
+                    document.getElementById('candidatePartylist').disabled = !lock ? false : true;
+                    document.getElementById('candidateImage').disabled = !lock ? false : true;
+                    document.getElementById('candidatePlatform').readOnly = lock ? true : false;
                 }
 
                 const addCandidateModal = document.getElementById('addCandidateModal');
@@ -1040,7 +1156,7 @@
                         .then(res => res.json())
                         .then(data => {
                             if (data && data.success) {
-                                setCandidateFields(data.student, false);
+                                setCandidateFields(data.student, false); // Only enable image, partylist, platform
                                 studentSearchFeedback.classList.add('d-none');
                                 document.getElementById('candidatePartylist').disabled = false;
                                 document.getElementById('candidateImage').disabled = false;
@@ -1075,6 +1191,25 @@
                             });
                         });
                 });
+
+                function setEditCandidateFields(candidate) {
+                    document.getElementById("editCandidateStudentId").value = candidate.student_id || '';
+                    document.getElementById("editCandidatePosition").value = candidate.position.position_name;
+                    document.getElementById("editCandidatePartylist").disabled = false;
+                    document.getElementById("editCandidateFirstName").value = candidate.first_name;
+                    document.getElementById("editCandidateFirstName").readOnly = true;
+                    document.getElementById("editCandidateLastName").value = candidate.last_name;
+                    document.getElementById("editCandidateLastName").readOnly = true;
+                    document.getElementById("editCandidateMiddleName").value = candidate.middle_name;
+                    document.getElementById("editCandidateMiddleName").readOnly = true;
+                    document.getElementById("editCandidateYearLevel").value = candidate.year_level;
+                    document.getElementById("editCandidateYearLevel").disabled = true;
+                    document.getElementById("editCandidateProgram").value = candidate.program_id;
+                    document.getElementById("editCandidateProgram").disabled = true;
+                    document.getElementById("editCandidatePlatform").value = candidate.platform || '';
+                    document.getElementById("editCandidatePlatform").readOnly = false;
+                    document.getElementById("editCandidateImage").disabled = false;
+                }
             });
         </script>
     @endpush
