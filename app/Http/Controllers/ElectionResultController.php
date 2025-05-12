@@ -12,31 +12,43 @@ class ElectionResultController extends Controller
 {
     public function show(Request $request, Election $election)
     {
-        $selectedPosition = $request->query('position', 'President');
-
-        // Fetch results for the selected position
+        // Fetch all results for the election with detailed candidate data
         $results = ElectionResult::where('election_id', $election->election_id)
-            ->whereHas('candidate', function ($query) use ($selectedPosition) {
-                $query->whereHas('position', function ($q) use ($selectedPosition) {
-                    $q->where('name', $selectedPosition);
-                });
-            })
-            ->with(['candidate', 'candidate.position', 'candidate.program', 'candidate.partylist'])
+            ->with([
+                'candidate' => function ($query) {
+                    $query->with(['position', 'program', 'partylist']);
+                },
+                'candidate.position',
+                'candidate.program',
+                'candidate.partylist'
+            ])
             ->get();
 
-        // Calculate total votes for percentage
+        // Group results by position and find the winner for each
+        $winnersByPosition = [];
+        $positions = $results->groupBy('candidate.position.name');
+
+        foreach ($positions as $positionName => $positionResults) {
+            $winner = $positionResults->sortByDesc('votes')->first();
+            if ($winner) {
+                $winnersByPosition[$positionName] = [
+                    'candidate' => $winner->candidate,
+                    'votes' => $winner->votes,
+                    'totalVotes' => $positionResults->sum('votes'),
+                ];
+            }
+        }
+
+        // Calculate total votes across all positions for overall statistics
         $totalVotes = $results->sum('votes');
 
-        // Calculate percentages and determine winner
-        $results = $results->map(function ($result) use ($totalVotes) {
-            $result->percentage = $totalVotes > 0 ? number_format(($result->votes / $totalVotes) * 100, 2) : 0;
-            return $result;
-        });
+        // Debug: Check if $winnersByPosition is populated
+        if (empty($winnersByPosition)) {
+            \Log::info('No winners found for election ID: ' . $election->election_id);
+        }
 
-        // Find the winner (candidate with the most votes)
-        $winner = $results->sortByDesc('votes')->first();
-
-        return view('election_results.show', compact('election', 'results', 'winner', 'selectedPosition', 'totalVotes'));
+        // Render the votings.result view
+        return view('votings.result', compact('election', 'winnersByPosition', 'totalVotes'));
     }
 
     public function update(Request $request, Election $election)

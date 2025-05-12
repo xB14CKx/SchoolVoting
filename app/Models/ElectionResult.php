@@ -8,7 +8,7 @@ class ElectionResult extends Model
 {
     protected $table = 'election_results';
 
-    protected $fillable = ['election_id', 'candidate_id', 'position_id', 'votes'];
+    protected $fillable = ['election_id', 'candidate_id', 'votes'];
 
     // An election result belongs to an election
     public function election()

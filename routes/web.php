@@ -17,6 +17,7 @@ use App\Models\Partylist;
 use App\Models\Candidate;
 use App\Models\User;
 use App\Models\Student;
+use App\Models\Election;
 
 // Guest Routes (unauthenticated users)
 Route::middleware('guest')->group(function () {
@@ -55,8 +56,13 @@ Route::middleware('auth')->group(function () {
             Route::get('/votings/elect', [VoteController::class, 'elect'])->name('votings.elect');
         });
 
+        // Updated /result route to use ElectionResultController
         Route::get('/result', function () {
-            return view('votings.result');
+            $election = Election::latest()->first(); // Fetch the latest election
+            if (!$election) {
+                return redirect()->route('elect')->with('error', 'No election found.');
+            }
+            return app(ElectionResultController::class)->show(request(), $election);
         })->name('result');
 
         Route::get('/userinfo', function () {
