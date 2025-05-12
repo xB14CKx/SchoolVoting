@@ -4,148 +4,79 @@ namespace App\Http\Controllers;
 
 use App\Models\Election;
 use App\Models\ElectionResult;
-use App\Models\Position;
+use App\Models\Candidate;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ElectionResultController extends Controller
 {
-    public function show(Election $election)
+    public function show(Request $request, Election $election)
     {
-        // Fetch all positions, fallback to empty collection if none
-        $positions = Position::all() ?: collect();
+        $selectedPosition = $request->query('position', 'President');
 
-        // Get the selected position_id from the query parameter, default to the first position if available
-        $selectedPositionId = request()->query('position_id', $positions->first()->id ?? null);
-
-        // Fetch results for the election, filtered by the selected position_id
-        $results = ElectionResult::where('election_id', $election->id)
-            ->when($selectedPositionId, function ($query) use ($selectedPositionId) {
-                return $query->where('position_id', $selectedPositionId);
+        // Fetch results for the selected position
+        $results = ElectionResult::where('election_id', $election->election_id)
+            ->whereHas('candidate', function ($query) use ($selectedPosition) {
+                $query->whereHas('position', function ($q) use ($selectedPosition) {
+                    $q->where('name', $selectedPosition);
+                });
             })
-            ->with('candidate')
+            ->with(['candidate', 'candidate.position', 'candidate.program', 'candidate.partylist'])
             ->get();
 
-        // Define a default position name
-        $defaultPositionName = $selectedPositionId ? Position::find($selectedPositionId)->name ?? 'President' : 'President';
+        // Calculate total votes for percentage
+        $totalVotes = $results->sum('votes');
 
-        return view('election_results.show', compact('election', 'results', 'positions', 'defaultPositionName', 'selectedPositionId'));
+        // Calculate percentages and determine winner
+        $results = $results->map(function ($result) use ($totalVotes) {
+            $result->percentage = $totalVotes > 0 ? number_format(($result->votes / $totalVotes) * 100, 2) : 0;
+            return $result;
+        });
+
+        // Find the winner (candidate with the most votes)
+        $winner = $results->sortByDesc('votes')->first();
+
+        return view('election_results.show', compact('election', 'results', 'winner', 'selectedPosition', 'totalVotes'));
     }
 
     public function update(Request $request, Election $election)
     {
-        $this->middleware('admin')->only('update');
-
-        if ($election->status !== 'closed') {
-            return redirect()->route('election_results.show', $election)
-                ->with('error', 'Election results can only be updated after the election is closed.')
-                ->with('results', ElectionResult::where('election_id', $election->id)->with('candidate')->get())
-                ->with('positions', Position::all() ?: collect())
-                ->with('defaultPositionName', 'President');
-        }
-
         try {
-            ElectionResult::where('election_id', $election->id)->delete();
+            // Validate that the election is closed
+            if ($election->status !== 'Closed') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Election results can only be updated after the election is closed.'
+                ], 400);
+            }
+
+            // Clear old results for this election
+            ElectionResult::where('election_id', $election->election_id)->delete();
+
+            // Recalculate votes based on the votes table
             $votes = $election->votes()
-                ->selectRaw('candidate_id, position_id, COUNT(*) as vote_count')
-                ->groupBy('candidate_id', 'position_id')
+                ->selectRaw('candidate_id, COUNT(*) as vote_count')
+                ->groupBy('candidate_id')
                 ->get();
 
+            // Store results
             foreach ($votes as $vote) {
                 ElectionResult::create([
-                    'election_id' => $election->id,
+                    'election_id' => $election->election_id,
                     'candidate_id' => $vote->candidate_id,
-                    'position_id' => $vote->position_id,
                     'votes' => $vote->vote_count,
                 ]);
             }
 
-            $positions = Position::all() ?: collect();
-            $selectedPositionId = request()->query('position_id', $positions->first()->id ?? null);
-            $results = ElectionResult::where('election_id', $election->id)
-                ->when($selectedPositionId, function ($query) use ($selectedPositionId) {
-                    return $query->where('position_id', $selectedPositionId);
-                })
-                ->with('candidate')
-                ->get();
-            $defaultPositionName = $selectedPositionId ? Position::find($selectedPositionId)->name ?? 'President' : 'President';
-
-            return view('election_results.show', compact('election', 'results', 'positions', 'defaultPositionName', 'selectedPositionId'))
-                ->with('success', 'Election results updated.');
-        } catch (\Exception $e) {
-            return redirect()->route('election_results.show', $election)
-                ->with('error', 'Failed to update election results: ' . $e->getMessage())
-                ->with('results', ElectionResult::where('election_id', $election->id)->with('candidate')->get())
-                ->with('positions', Position::all() ?: collect())
-                ->with('defaultPositionName', 'President');
-        }
-    }
-
-    public function closeElection(Request $request, Election $election)
-    {
-        $this->middleware('admin')->only('closeElection');
-
-        if ($election->status === 'closed') {
-            return redirect()->route('election_results.show', $election)
-                ->with('error', 'Election is already closed.')
-                ->with('results', ElectionResult::where('election_id', $election->id)->with('candidate')->get())
-                ->with('positions', Position::all() ?: collect())
-                ->with('defaultPositionName', 'President');
-        }
-
-        try {
-            $election->update(['status' => 'closed']);
-            $votes = $election->votes()
-                ->selectRaw('candidate_id, position_id, COUNT(*) as vote_count')
-                ->groupBy('candidate_id', 'position_id')
-                ->get();
-
-            ElectionResult::where('election_id', $election->id)->delete();
-
-            foreach ($votes as $vote) {
-                ElectionResult::create([
-                    'election_id' => $election->id,
-                    'candidate_id' => $vote->candidate_id,
-                    'position_id' => $vote->position_id,
-                    'votes' => $vote->vote_count,
-                ]);
-            }
-
-            // Determine winner (highest vote count per position)
-            $positionIds = $votes->pluck('position_id')->unique();
-            foreach ($positionIds as $positionId) {
-                $winnerResult = ElectionResult::where('election_id', $election->id)
-                    ->where('position_id', $positionId)
-                    ->orderBy('votes', 'desc')
-                    ->first();
-                if ($winnerResult) {
-                    Log::info('Winner determined', ['election_id' => $election->id, 'position_id' => $positionId, 'candidate_id' => $winnerResult->candidate_id, 'votes' => $winnerResult->votes]);
-                }
-            }
-
-            $positions = Position::all() ?: collect();
-            $selectedPositionId = request()->query('position_id', $positions->first()->id ?? null);
-            $results = ElectionResult::where('election_id', $election->id)
-                ->when($selectedPositionId, function ($query) use ($selectedPositionId) {
-                    return $query->where('position_id', $selectedPositionId);
-                })
-                ->with('candidate')
-                ->get();
-            $defaultPositionName = $selectedPositionId ? Position::find($selectedPositionId)->name ?? 'President' : 'President';
-
-            return view('election_results.show', compact('election', 'results', 'positions', 'defaultPositionName', 'selectedPositionId'))
-                ->with('success', 'Election closed and winners determined.');
-        } catch (\Exception $e) {
-            Log::error('Failed to close election', [
-                'election_id' => $election->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+            return response()->json([
+                'success' => true,
+                'message' => 'Election results updated successfully.'
             ]);
-            return redirect()->route('election_results.show', $election)
-                ->with('error', 'Failed to close election: ' . $e->getMessage())
-                ->with('results', ElectionResult::where('election_id', $election->id)->with('candidate')->get())
-                ->with('positions', Position::all() ?: collect())
-                ->with('defaultPositionName', 'President');
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update election results: ' . $e->getMessage()
+            ], 500);
         }
     }
 }

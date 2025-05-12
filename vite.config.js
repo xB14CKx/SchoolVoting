@@ -3,7 +3,7 @@ import laravel from 'laravel-vite-plugin';
 
 export default defineConfig({
     server: {
-        host: 'localhost',
+        host: '192.168.1.4',
         port: 5173,
         strictPort: true
     },
@@ -22,8 +22,6 @@ export default defineConfig({
                 'resources/js/topbar.js',
                 'resources/css/file-upload.css',
                 'resources/css/result.css',
-                'resources/js/vote-counting.js',
-                'resources/js/echo.js'
             ],
             refresh: true,
         }),

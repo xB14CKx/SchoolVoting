@@ -162,7 +162,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script>
-// Demographics and Position Dropdown 
+// Demographics and Position Dropdown
 const demoBtn = document.getElementById('customDemoBtn');
 const posiBtn = document.getElementById('customPosiBtn');
 const demoMenu = document.getElementById('customDemoMenu');
@@ -181,13 +181,13 @@ function setDropdownSelection(menu, btnLabel, value) {
 demoBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   demoMenu.classList.toggle('active');
-  posiMenu.classList.remove('active'); 
+  posiMenu.classList.remove('active');
 });
 
 posiBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   posiMenu.classList.toggle('active');
-  demoMenu.classList.remove('active'); 
+  demoMenu.classList.remove('active');
 });
 
 document.addEventListener('click', () => {

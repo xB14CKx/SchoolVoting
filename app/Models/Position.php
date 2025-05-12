@@ -12,7 +12,14 @@ class Position extends Model
      *
      * @var array<string>
      */
-    protected $fillable = ['name'];
+    protected $table = 'positions';
+    protected $primaryKey = 'position_id';
+    protected $fillable = ['position_id', 'name'];
+
+    public function getNameAttribute()
+    {
+        return $this->position_name;
+    }
 
     /**
      * Get the candidates running for this position.

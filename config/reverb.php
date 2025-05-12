@@ -6,24 +6,14 @@ return [
     |--------------------------------------------------------------------------
     | Default Reverb Server
     |--------------------------------------------------------------------------
-    |
-    | This option controls the default server used by Reverb to handle
-    | incoming messages as well as broadcasting message to all your
-    | connected clients. At this time only "reverb" is supported.
-    |
     */
 
     'default' => env('REVERB_SERVER', 'reverb'),
 
     /*
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     | Reverb Servers
-    |--------------------------------------------------------------------------
-    |
-    | Here you may define details for each of the supported Reverb servers.
-    | Each server has its own configuration options that are defined in
-    | the array below. You should ensure all the options are present.
-    |
+    |-------------------------------------------------------------------------
     */
 
     'servers' => [
@@ -56,14 +46,9 @@ return [
     ],
 
     /*
-    |--------------------------------------------------------------------------
+    |-------------------------------------------------------------------------
     | Reverb Applications
-    |--------------------------------------------------------------------------
-    |
-    | Here you may define how Reverb applications are managed. If you choose
-    | to use the "config" provider, you may define an array of apps which
-    | your server will support, including their connection credentials.
-    |
+    |-------------------------------------------------------------------------
     */
 
     'apps' => [
@@ -76,12 +61,20 @@ return [
                 'secret' => env('REVERB_APP_SECRET'),
                 'app_id' => env('REVERB_APP_ID'),
                 'options' => [
-                    'host' => env('REVERB_HOST', '192.168.1.4'), //use current network ip
+                    'host' => env('REVERB_HOST', '192.168.1.4'),
                     'port' => env('REVERB_PORT', 8080),
                     'scheme' => env('REVERB_SCHEME', 'http'),
                     'useTLS' => false,
                 ],
-                'allowed_origins' => ['http://192.168.1.4', 'http://192.168.1.4:8000', 'http://localhost', 'http://localhost:8000'], //same here, just copy the setup
+                'allowed_origins' => [
+                    'http://192.168.1.4',
+                    'http://192.168.1.4:8000',
+                    'http://localhost',
+                    'http://localhost:8000',
+                    'http://192.168.1.4:*', // Allow all ports on 192.168.1.4
+                    'http://localhost:*', // Allow all ports on localhost
+                    '*', // Temporary wildcard for debugging (remove in production)
+                ],
                 'ping_interval' => env('REVERB_APP_PING_INTERVAL', 60),
                 'activity_timeout' => env('REVERB_APP_ACTIVITY_TIMEOUT', 30),
                 'max_message_size' => env('REVERB_APP_MAX_MESSAGE_SIZE', 10_000),

@@ -9,6 +9,7 @@ use App\Models\Candidate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\ElectionResultController;
 
 class ElectionController extends Controller
 {
@@ -139,25 +140,43 @@ class ElectionController extends Controller
 
     public function close(Request $request, Election $election)
     {
-        try {
-            if ($election->status === 'Closed') {
+        return DB::transaction(function () use ($request, $election) {
+            try {
+                if ($election->status === 'Closed') {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Election is already closed.'
+                    ], 400);
+                }
+
+                // Update election status to Closed
+                $election->update(['status' => 'Closed']);
+
+                // Call ElectionResultController's update method
+                $resultController = new ElectionResultController();
+                $resultResponse = $resultController->update($request, $election);
+
+                // Decode JSON response
+                $resultData = $resultResponse->getData(true);
+
+                // Check if the result update was successful
+                if (!$resultData['success']) {
+                    throw new \Exception($resultData['message']);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Election closed and results updated successfully.',
+                    'newStatus' => 'Open Election'
+                ]);
+            } catch (\Exception $e) {
+                // Rollback status to Open if the update fails
+                $election->update(['status' => 'Open']);
                 return response()->json([
                     'success' => false,
-                    'message' => 'Election is already closed.'
-                ], 400);
+                    'message' => 'Failed to close election: ' . $e->getMessage()
+                ], 500);
             }
-
-            $election->update(['status' => 'Closed']);
-            return response()->json([
-                'success' => true,
-                'message' => 'Election closed successfully.',
-                'newStatus' => 'Open Election'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to close election: ' . $e->getMessage()
-            ], 500);
-        }
+        });
     }
 }

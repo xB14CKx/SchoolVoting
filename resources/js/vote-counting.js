@@ -1,24 +1,43 @@
 document.addEventListener('DOMContentLoaded', () => {
     const positions = document.querySelectorAll('.position-section');
-
     console.log('Found position sections:', positions.length);
+
+    if (positions.length === 0) {
+        console.warn('No position sections found in DOM');
+        return;
+    }
 
     positions.forEach(position => {
         const positionId = position.dataset.positionId;
+        if (!positionId) {
+            console.warn('Position ID missing for section:', position);
+            return;
+        }
+
         console.log(`Subscribing to channel: position.${positionId}`);
 
         window.Echo.channel(`position.${positionId}`)
             .listen('.App\\Events\\VoteCast', (event) => {
-                console.log('VoteCast event received for position:', positionId, event);
+                console.log('VoteCast event received for position:', positionId, JSON.stringify(event, null, 2));
 
                 const candidateRows = position.querySelectorAll('.candidate-details');
                 console.log('Found candidate rows:', candidateRows.length);
+
+                if (!event.candidateVotes || typeof event.candidateVotes !== 'object') {
+                    console.error('Invalid candidateVotes in event:', event);
+                    return;
+                }
 
                 const maxVotes = Math.max(...Object.values(event.candidateVotes), 1);
                 console.log('Max votes calculated:', maxVotes);
 
                 candidateRows.forEach(row => {
                     const candidateId = row.dataset.candidateId;
+                    if (!candidateId) {
+                        console.warn('Candidate ID missing for row:', row);
+                        return;
+                    }
+
                     const voteCount = event.candidateVotes[candidateId] || 0;
                     console.log(`Updating candidate ${candidateId} with vote count: ${voteCount}`);
 
