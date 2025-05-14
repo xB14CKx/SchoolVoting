@@ -5,6 +5,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert-custom.css') }}">
 @endpush
 
 <x-app-layout>
@@ -20,7 +21,7 @@
         <div class="content-wrapper">
             <section class="admin-container">
                 <div class="admin-header">
-                    <h1 class="admin-title">Admin</h1>
+                    <h1 class="admin-title">Add Candidates</h1>
                     <div class="admin-actions"></div>
 
                     <!-- School Year Dropdown -->
@@ -404,6 +405,48 @@
             const candidates = @json($candidates);
             let currentEditingCandidateId = null;
 
+            // SweetAlert2 unified style for delete confirmation and other popups
+            function showDeleteConfirmation(onConfirm) {
+                Swal.fire({
+                    title: '<span style="font-weight:800; font-size:2.2rem;">Are you sure?</span>',
+                    text: "This action cannot be undone!",
+                    icon: 'warning',
+                    background: '#222831',
+                    color: '#fff',
+                    iconColor: '#f7bd03',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel',
+                    customClass: {
+                        popup: 'my-swal-popup',
+                        confirmButton: 'my-swal-confirm',
+                        cancelButton: 'my-swal-cancel'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed && typeof onConfirm === 'function') {
+                        onConfirm();
+                    }
+                });
+            }
+
+            // Helper for unified SweetAlert2 popups
+            function showSwal({icon, title, text, confirmButtonText = 'OK'}) {
+                Swal.fire({
+                    icon,
+                    title,
+                    text,
+                    background: '#222831',
+                    color: '#fff',
+                    iconColor: '#f7bd03',
+                    confirmButtonText,
+                    customClass: {
+                        popup: 'my-swal-popup',
+                        confirmButton: 'my-swal-confirm',
+                        cancelButton: 'my-swal-cancel'
+                    }
+                });
+            }
+
             document.addEventListener("DOMContentLoaded", function () {
                 // Initialize existing candidates
                 candidates.forEach(candidate => {
@@ -470,28 +513,25 @@
                         if (data.success) {
                             updateButtonState('Open');
                             openElectionModal.hide();
-                            Swal.fire({
+                            showSwal({
                                 icon: 'success',
                                 title: 'Success',
-                                text: data.message || 'Election opened successfully.',
-                                confirmButtonText: 'OK'
+                                text: data.message || 'Election opened successfully.'
                             });
                         } else {
-                            Swal.fire({
+                            showSwal({
                                 icon: 'error',
                                 title: 'Error',
-                                text: data.message || 'Failed to open election.',
-                                confirmButtonText: 'OK'
+                                text: data.message || 'Failed to open election.'
                             });
                         }
                     })
                     .catch(error => {
                         console.error('Error opening election:', error);
-                        Swal.fire({
+                        showSwal({
                             icon: 'error',
                             title: 'Error',
-                            text: `Error opening election: ${error.message || 'Unknown error'}`,
-                            confirmButtonText: 'OK'
+                            text: `Error opening election: ${error.message || 'Unknown error'}`
                         });
                     });
                 });
@@ -511,28 +551,25 @@
                         if (data.success) {
                             updateButtonState('Closed');
                             closeElectionModal.hide();
-                            Swal.fire({
+                            showSwal({
                                 icon: 'success',
                                 title: 'Success',
-                                text: data.message || 'Election closed successfully.',
-                                confirmButtonText: 'OK'
+                                text: data.message || 'Election closed successfully.'
                             });
                         } else {
-                            Swal.fire({
+                            showSwal({
                                 icon: 'error',
                                 title: 'Error',
-                                text: data.message || 'Failed to close election.',
-                                confirmButtonText: 'OK'
+                                text: data.message || 'Failed to close election.'
                             });
                         }
                     })
                     .catch(error => {
                         console.error('Error closing election:', error);
-                        Swal.fire({
+                        showSwal({
                             icon: 'error',
                             title: 'Error',
-                            text: `Error closing election: ${error.message || 'Unknown error'}`,
-                            confirmButtonText: 'OK'
+                            text: `Error closing election: ${error.message || 'Unknown error'}`
                         });
                     });
                 });
@@ -579,65 +616,53 @@
                     const candidateId = card.dataset.candidateId;
 
                     if (this.textContent === 'Delete') {
-                        Swal.fire({
-                            title: 'Are you sure?',
-                            text: 'Do you want to delete this candidate?',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonText: 'Yes, delete it!',
-                            cancelButtonText: 'Cancel'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                fetch(`/candidates/${candidateId}`, {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                        'Accept': 'application/json',
-                                        'Content-Type': 'application/json'
-                                    }
-                                })
-                                .then(response => {
-                                    if (!response.ok) {
-                                        return response.text().then(text => {
-                                            try {
-                                                return Promise.reject(JSON.parse(text));
-                                            } catch (e) {
-                                                return Promise.reject(new Error(text));
-                                            }
-                                        });
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) {
-                                        const container = card.closest('.candidate-grid');
-                                        card.remove();
-                                        checkCardLimit(container.id);
-                                        Swal.fire({
-                                            icon: 'success',
-                                            title: 'Deleted',
-                                            text: 'Candidate deleted successfully.',
-                                            confirmButtonText: 'OK'
-                                        });
-                                    } else {
-                                        Swal.fire({
-                                            icon: 'error',
-                                            title: 'Error',
-                                            text: data.message || 'Failed to delete candidate.',
-                                            confirmButtonText: 'OK'
-                                        });
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error("Error deleting candidate:", error);
-                                    Swal.fire({
+                        showDeleteConfirmation(() => {
+                            fetch(`/candidates/${candidateId}`, {
+                                method: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                    'Accept': 'application/json',
+                                    'Content-Type': 'application/json'
+                                }
+                            })
+                            .then(response => {
+                                if (!response.ok) {
+                                    return response.text().then(text => {
+                                        try {
+                                            return Promise.reject(JSON.parse(text));
+                                        } catch (e) {
+                                            return Promise.reject(new Error(text));
+                                        }
+                                    });
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                if (data.success) {
+                                    const container = card.closest('.candidate-grid');
+                                    card.remove();
+                                    checkCardLimit(container.id);
+                                    showSwal({
+                                        icon: 'success',
+                                        title: 'Deleted',
+                                        text: 'Candidate deleted successfully.'
+                                    });
+                                } else {
+                                    showSwal({
                                         icon: 'error',
                                         title: 'Error',
-                                        text: 'Error deleting candidate: ' + (error.message || 'Unknown error'),
-                                        confirmButtonText: 'OK'
+                                        text: data.message || 'Failed to delete candidate.'
                                     });
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error deleting candidate:", error);
+                                showSwal({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Error deleting candidate: ' + (error.message || 'Unknown error')
                                 });
-                            }
+                            });
                         });
                     } else if (this.textContent === 'Edit') {
                         currentEditingCandidateId = candidateId;
@@ -669,11 +694,10 @@
                         const container = document.getElementById(targetId);
                         const currentCards = container.querySelectorAll('.candidate-card').length;
                         if (currentCards >= 2) {
-                            Swal.fire({
+                            showSwal({
                                 icon: 'warning',
                                 title: 'Limit Reached',
-                                text: 'You can only add up to 2 candidates for this position.',
-                                confirmButtonText: 'OK'
+                                text: 'You can only add up to 2 candidates for this position.'
                             });
                             return;
                         }
@@ -872,11 +896,10 @@
                             });
                             positionIds.forEach(id => checkCardLimit(id));
                         } else {
-                            Swal.fire({
+                            showSwal({
                                 icon: 'error',
                                 title: 'Error',
-                                text: data.message || 'No candidates found for the selected year.',
-                                confirmButtonText: 'OK'
+                                text: data.message || 'No candidates found for the selected year.'
                             });
                             clearCandidateGrids();
                             candidates.length = 0; // Clear the candidates array
@@ -884,11 +907,10 @@
                     })
                     .catch(error => {
                         console.error('Error fetching candidates:', error);
-                        Swal.fire({
+                        showSwal({
                             icon: 'error',
                             title: 'Error',
-                            text: 'Error fetching candidates: ' + (error.message || 'Unknown error'),
-                            confirmButtonText: 'OK'
+                            text: 'Error fetching candidates: ' + (error.message || 'Unknown error')
                         });
                         clearCandidateGrids();
                         candidates.length = 0; // Clear the candidates array
@@ -996,14 +1018,10 @@
                     .then(data => {
                         if (data.success) {
                             modal.hide();
-                            Swal.fire({
+                            showSwal({
                                 icon: 'success',
                                 title: 'Success',
-                                text: 'Candidate added successfully.',
-                                confirmButtonText: 'OK',
-                                customClass: {
-                                    popup: 'swal2-popup-custom'
-                                }
+                                text: 'Candidate added successfully.'
                             }).then(() => {
                                 // Fetch candidates for the current year after adding a new candidate
                                 const currentYear = dropdownButton.querySelector(".button-text").textContent.replace('School Year ', '');
@@ -1014,14 +1032,10 @@
                             // Remove modal backdrop to prevent overlap
                             const backdrop = document.querySelector('.modal-backdrop');
                             if (backdrop) backdrop.remove();
-                            Swal.fire({
+                            showSwal({
                                 icon: 'error',
                                 title: 'Error',
-                                text: 'Failed to add candidate: ' + (data.message || 'Unknown error'),
-                                confirmButtonText: 'OK',
-                                customClass: {
-                                    popup: 'swal2-popup-custom'
-                                }
+                                text: 'Failed to add candidate: ' + (data.message || 'Unknown error')
                             });
                         }
                     })
@@ -1031,14 +1045,10 @@
                         // Remove modal backdrop to prevent overlap
                         const backdrop = document.querySelector('.modal-backdrop');
                         if (backdrop) backdrop.remove();
-                        Swal.fire({
+                        showSwal({
                             icon: 'error',
                             title: 'Error',
-                            text: 'Error submitting candidate: ' + (error.message || 'Unknown error'),
-                            confirmButtonText: 'OK',
-                            customClass: {
-                                popup: 'swal2-popup-custom'
-                            }
+                            text: 'Error submitting candidate: ' + (error.message || 'Unknown error')
                         });
                     });
                 });
@@ -1072,32 +1082,29 @@
                         if (data.success) {
                             const modal = bootstrap.Modal.getInstance(document.getElementById("editCandidateModal"));
                             modal.hide();
-                            Swal.fire({
+                            showSwal({
                                 icon: 'success',
                                 title: 'Success',
-                                text: 'Candidate updated successfully.',
-                                confirmButtonText: 'OK'
+                                text: 'Candidate updated successfully.'
                             }).then(() => {
                                 // Fetch candidates for the current year after updating a candidate
                                 const currentYear = dropdownButton.querySelector(".button-text").textContent.replace('School Year ', '');
                                 fetchCandidatesByYear(currentYear);
                             });
                         } else {
-                            Swal.fire({
+                            showSwal({
                                 icon: 'error',
                                 title: 'Error',
-                                text: 'Failed to update candidate: ' + (data.message || 'Unknown error'),
-                                confirmButtonText: 'OK'
+                                text: 'Failed to update candidate: ' + (data.message || 'Unknown error')
                             });
                         }
                     })
                     .catch(error => {
                         console.error("Error updating candidate:", error);
-                        Swal.fire({
+                        showSwal({
                             icon: 'error',
                             title: 'Error',
-                            text: 'Error updating candidate: ' + (error.message || 'Unknown error'),
-                            confirmButtonText: 'OK'
+                            text: 'Error updating candidate: ' + (error.message || 'Unknown error')
                         });
                     });
                 });
@@ -1144,11 +1151,10 @@
                 searchStudentBtn.addEventListener('click', function() {
                     const studentId = studentIdInput.value.trim();
                     if (!studentId) {
-                        Swal.fire({
+                        showSwal({
                             icon: 'warning',
                             title: 'Input Required',
-                            text: 'Please enter a Student ID.',
-                            confirmButtonText: 'OK'
+                            text: 'Please enter a Student ID.'
                         });
                         return;
                     }
@@ -1168,11 +1174,10 @@
                                 document.getElementById('candidatePartylist').disabled = true;
                                 document.getElementById('candidateImage').disabled = true;
                                 document.getElementById('candidatePlatform').readOnly = true;
-                                Swal.fire({
+                                showSwal({
                                     icon: 'error',
                                     title: 'Not Found',
-                                    text: 'Student not found.',
-                                    confirmButtonText: 'OK'
+                                    text: 'Student not found.'
                                 });
                             }
                         })
@@ -1183,11 +1188,10 @@
                             document.getElementById('candidatePartylist').disabled = true;
                             document.getElementById('candidateImage').disabled = true;
                             document.getElementById('candidatePlatform').readOnly = true;
-                            Swal.fire({
+                            showSwal({
                                 icon: 'error',
                                 title: 'Error',
-                                text: 'Error searching student.',
-                                confirmButtonText: 'OK'
+                                text: 'Error searching student.'
                             });
                         });
                 });

@@ -29,7 +29,14 @@ export function initializeSweetAlert2() {
                 title: 'Success',
                 text: 'You are eligible! Loading registration form...',
                 timer: 1500,
-                showConfirmButton: false
+                showConfirmButton: false,
+                background: '#222831',
+                iconColor: '#f7bd03',
+                customClass: {
+                    popup: 'my-swal-popup',
+                    confirmButton: 'my-swal-confirm',
+                    cancelButton: 'my-swal-cancel'
+                }
             }).then(() => {
                 const target = document.querySelector('body');
                 target.outerHTML = response;
@@ -55,7 +62,15 @@ export function initializeSweetAlert2() {
                 icon: 'error',
                 title: 'Error',
                 text: errorMessage,
-                confirmButtonText: 'OK'
+                confirmButtonText: 'OK',
+                background: '#222831',
+                color: '#fff',
+                iconColor: '#f7bd03',
+                customClass: {
+                    popup: 'my-swal-popup',
+                    confirmButton: 'my-swal-confirm',
+                    cancelButton: 'my-swal-cancel'
+                }
             }).then(() => {
                 const form = document.querySelector('.eligibility-form');
                 if (form) {
@@ -86,7 +101,15 @@ export function initializeSweetAlert2() {
                         icon: 'success',
                         title: 'File Uploaded!',
                         text: `Added ${added} new students, skipped ${skipped} duplicates or invalid records.`,
-                        confirmButtonColor: '#3085d6'
+                        confirmButtonColor: '#f7bd03',
+                        background: '#222831',
+                        color: '#fff',
+                        iconColor: '#f7bd03',
+                        customClass: {
+                            popup: 'my-swal-popup',
+                            confirmButton: 'my-swal-confirm',
+                            cancelButton: 'my-swal-cancel'
+                        }
                     }).then(() => {
                         const selectedYear = document.getElementById("yearDropdownButton")
                             ?.querySelector(".button-text")
@@ -116,7 +139,15 @@ export function initializeSweetAlert2() {
                 icon: 'error',
                 title: 'Upload Failed',
                 text: errorMessage,
-                confirmButtonColor: '#d33'
+                confirmButtonColor: '#d33',
+                background: '#222831',
+                color: '#fff',
+                iconColor: '#f7bd03',
+                customClass: {
+                    popup: 'my-swal-popup',
+                    confirmButton: 'my-swal-confirm',
+                    cancelButton: 'my-swal-cancel'
+                }
             });
         }
     });
@@ -130,7 +161,15 @@ export function initializeSweetAlert2() {
                 icon: 'success',
                 title: 'Votes Submitted!',
                 text: 'Your votes have been recorded successfully.',
-                confirmButtonColor: '#3085d6'
+                confirmButtonColor: '#f7bd03',
+                background: '#222831',
+                color: '#fff',
+                iconColor: '#f7bd03',
+                customClass: {
+                    popup: 'my-swal-popup',
+                    confirmButton: 'my-swal-confirm',
+                    cancelButton: 'my-swal-cancel'
+                }
             }).then(() => {
                 location.reload();
             });
@@ -139,7 +178,15 @@ export function initializeSweetAlert2() {
                 icon: 'error',
                 title: 'Submission Failed',
                 text: message || error || 'An error occurred while submitting your votes.',
-                confirmButtonColor: '#d33'
+                confirmButtonColor: '#d33',
+                background: '#222831',
+                color: '#fff',
+                iconColor: '#f7bd03',
+                customClass: {
+                    popup: 'my-swal-popup',
+                    confirmButton: 'my-swal-confirm',
+                    cancelButton: 'my-swal-cancel'
+                }
             });
         }
     });
@@ -149,7 +196,15 @@ export function initializeSweetAlert2() {
             icon: 'warning',
             title: 'No Votes Selected',
             text: 'Please select at least one candidate to vote for.',
-            confirmButtonColor: '#3085d6'
+            confirmButtonColor: '#f7bd03',
+            background: '#222831',
+            color: '#fff',
+            iconColor: '#f7bd03',
+            customClass: {
+                popup: 'my-swal-popup',
+                confirmButton: 'my-swal-confirm',
+                cancelButton: 'my-swal-cancel'
+            }
         });
     });
 }

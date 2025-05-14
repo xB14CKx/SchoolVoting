@@ -162,6 +162,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 <script>
+// Register ChartDataLabels plugin for Chart.js v3+
+if (window.Chart && window.ChartDataLabels) {
+    Chart.register(window.ChartDataLabels);
+}
 // Demographics and Position Dropdown
 const demoBtn = document.getElementById('customDemoBtn');
 const posiBtn = document.getElementById('customPosiBtn');

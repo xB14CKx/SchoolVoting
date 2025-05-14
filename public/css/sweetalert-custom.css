@@ -1,0 +1,26 @@
+.my-swal-popup {
+  border-radius: 16px !important;
+  font-family: 'Inter', 'Poppins', 'Roboto', sans-serif !important;
+  box-shadow: 0 4px 32px 0 rgba(0,0,0,0.18);
+}
+.my-swal-confirm {
+  background: #f7bd03 !important;
+  color: #222831 !important;
+  font-weight: bold !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', 'Poppins', 'Roboto', sans-serif !important;
+  box-shadow: none !important;
+}
+.my-swal-cancel {
+  background: #fff !important;
+  color: #222831 !important;
+  font-weight: bold !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', 'Poppins', 'Roboto', sans-serif !important;
+  box-shadow: none !important;
+  border: 1px solid #f7bd03 !important;
+}
+.swal2-title, .swal2-html-container, .swal2-content {
+  color: #fff !important;
+  font-family: 'Inter', 'Poppins', 'Roboto', sans-serif !important;
+}

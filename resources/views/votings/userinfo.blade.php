@@ -4,13 +4,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@200;400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert-custom.css') }}">
+    @if (!defined('SWEETALERT2_INCLUDED'))
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @php define('SWEETALERT2_INCLUDED', true); @endphp
+    @endif
     @vite(['resources/css/userInfo.css'])
 
-
-    @endpush
+@endpush
 
 <x-app-layout>
-
 
     <div class="page-container">
         <!-- Background Image -->
@@ -35,17 +38,6 @@
                         </button>
                     </div>
                 </div>
-
-                @if ($errors->any())
-                    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-                    <script>
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            html: `{!! implode('<br>', $errors->all()) !!}`
-                        });
-                    </script>
-                @endif
 
                 <form class="form-container userinfo-redesign">
                     <div class="form-row">
@@ -205,24 +197,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-@if(session('sweetalert_error'))
-    <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: @json(session('sweetalert_error'))
-        });
-    </script>
-@endif
-@if(session('sweetalert_success'))
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: @json(session('sweetalert_success'))
-        });
-    </script>
-@endif
+
 <script>
 function previewProfileImage(event) {
     const input = event.target;
@@ -298,5 +273,50 @@ document.getElementById('editContactForm').addEventListener('submit', function (
         });
 });
 </script>
+
+@push('scripts')
+    @if ($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                customClass: {
+                    popup: 'my-swal-popup',
+                    confirmButton: 'my-swal-confirm',
+                    cancelButton: 'my-swal-cancel'
+                }
+            });
+        </script>
+    @endif
+    @if(session('sweetalert_error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: @json(session('sweetalert_error')),
+                customClass: {
+                    popup: 'my-swal-popup',
+                    confirmButton: 'my-swal-confirm',
+                    cancelButton: 'my-swal-cancel'
+                }
+            });
+        </script>
+    @endif
+    @if(session('sweetalert_success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: @json(session('sweetalert_success')),
+                customClass: {
+                    popup: 'my-swal-popup',
+                    confirmButton: 'my-swal-confirm',
+                    cancelButton: 'my-swal-cancel'
+                }
+            });
+        </script>
+    @endif
+@endpush
 
 </x-app-layout>

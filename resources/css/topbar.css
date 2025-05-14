@@ -10,6 +10,16 @@
   padding: 0 20px;
 }
 
+.logo-icon {
+    font-size: 20px; /* assuming original size was 32px */
+    color: white;
+    display: inline-block;
+}
+
+.logo-icon:hover {
+  color:#FFdF61
+}
+
 /* Logo Container */
 .logo-container {
   flex: 0 0 auto;
@@ -61,7 +71,12 @@
 }
 
 .nav-item a:hover i {
-  color: #ddd;
+    color:#FFdF61
+
+}
+
+.nav-item a:hover {
+  color: #FFdF61;
 }
 
 /* Hamburger Menu Icon (Hidden by Default) */

@@ -1,9 +1,15 @@
 <x-guest-layout>
         <x-slot name="title">CSG Login</x-slot>
+        @if (!defined('SWEETALERT2_INCLUDED'))
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            @php define('SWEETALERT2_INCLUDED', true); @endphp
+        @endif
 
         <!-- Include login.css, SweetAlert2, and app.js -->
         @vite(['resources/css/login.css', 'resources/js/app.js'])
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @push('styles')
+        <link rel="stylesheet" href="{{ asset('resources/css/sweetalert-custom.css') }}">
+        @endpush
 
         <!-- Background Container -->
         <div class="page-container">
@@ -71,6 +77,14 @@
                         title: 'Success',
                         text: @json(session('success')),
                         confirmButtonColor: '#f7c603',
+                        background: '#222831',
+                        color: '#fff',
+                        iconColor: '#f7bd03',
+                        customClass: {
+                            popup: 'my-swal-popup',
+                            confirmButton: 'my-swal-confirm',
+                            cancelButton: 'my-swal-cancel'
+                        }
                     });
                 @endif
 
@@ -81,6 +95,14 @@
                         title: 'Login Failed',
                         text: @json($errors->first()),
                         confirmButtonColor: '#f7c603',
+                        background: '#222831',
+                        color: '#fff',
+                        iconColor: '#f7bd03',
+                        customClass: {
+                            popup: 'my-swal-popup',
+                            confirmButton: 'my-swal-confirm',
+                            cancelButton: 'my-swal-cancel'
+                        }
                     });
                 @endif
 
@@ -95,12 +117,19 @@
                             let response;
                             try { response = JSON.parse(event.detail.xhr.response); } catch (e) { return; }
                             if (response.error) {
-                                // Always show the error, regardless of message
                                 Swal.fire({
                                     icon: 'error',
                                     title: 'Login Failed',
                                     text: response.error,
                                     confirmButtonColor: '#f7c603',
+                                    background: '#222831',
+                                    color: '#fff',
+                                    iconColor: '#f7bd03',
+                                    customClass: {
+                                        popup: 'my-swal-popup',
+                                        confirmButton: 'my-swal-confirm',
+                                        cancelButton: 'my-swal-cancel'
+                                    }
                                 });
                             }
                         }
@@ -114,6 +143,14 @@
                                     title: 'Success',
                                     text: response.success,
                                     confirmButtonColor: '#f7c603',
+                                    background: '#222831',
+                                    color: '#fff',
+                                    iconColor: '#f7bd03',
+                                    customClass: {
+                                        popup: 'my-swal-popup',
+                                        confirmButton: 'my-swal-confirm',
+                                        cancelButton: 'my-swal-cancel'
+                                    }
                                 }).then(() => {
                                     if (response.redirect) {
                                         window.location.href = response.redirect;
