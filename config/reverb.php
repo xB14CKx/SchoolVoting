@@ -22,7 +22,7 @@ return [
             'host' => env('REVERB_SERVER_HOST', '0.0.0.0'),
             'port' => env('REVERB_SERVER_PORT', 8080),
             'path' => env('REVERB_SERVER_PATH', ''),
-            'hostname' => env('REVERB_HOST', '192.168.1.4'),
+            'hostname' => env('REVERB_HOST', '192.168.144.45'),
             'options' => [
                 'tls' => [],
             ],
@@ -61,7 +61,7 @@ return [
                 'secret' => env('REVERB_APP_SECRET'),
                 'app_id' => env('REVERB_APP_ID'),
                 'options' => [
-                    'host' => env('REVERB_HOST', '192.168.1.4'),
+                    'host' => env('REVERB_HOST', '192.168.144.45'),
                     'port' => env('REVERB_PORT', 8080),
                     'scheme' => env('REVERB_SCHEME', 'http'),
                     'useTLS' => false,
@@ -72,6 +72,7 @@ return [
                     'http://localhost',
                     'http://localhost:8000',
                     'http://192.168.1.4:*', // Allow all ports on 192.168.1.4
+                    'http://192.168.144.45:*',
                     'http://localhost:*', // Allow all ports on localhost
                     '*', // Temporary wildcard for debugging (remove in production)
                 ],

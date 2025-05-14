@@ -2,11 +2,11 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
 export default defineConfig({
-    server: {
-        host: '192.168.1.4',
+    /* server: {
+        host: '192.168.144.45',
         port: 5173,
         strictPort: true
-    },
+    }, */
     plugins: [
         laravel({
             input: [
@@ -22,6 +22,8 @@ export default defineConfig({
                 'resources/js/topbar.js',
                 'resources/css/file-upload.css',
                 'resources/css/result.css',
+                'resources/css/forget-password.css',
+                'resources/css/reset-password.css',
             ],
             refresh: true,
         }),
