@@ -20,7 +20,7 @@
         <div class="content-wrapper">
             <section class="admin-container">
                 <div class="admin-header">
-                    <h1 class="admin-title">Admin</h1>
+                    <h1 class="admin-title">Candidates</h1>
                     <div class="admin-actions"></div>
 
                     <!-- School Year Dropdown -->
